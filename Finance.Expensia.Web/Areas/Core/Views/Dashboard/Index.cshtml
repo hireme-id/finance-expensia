@@ -1,0 +1,89 @@
+﻿<div class="card">
+    <div class="card-body">
+        <div class="card-title-list">
+            <div class="title-box">
+                <span class="title-card">List Table</span>
+            </div>
+            @if (User.IsInRole("CUSTOMER CONSENT.Edit"))
+            {
+                <div>
+                    <button style="height:30px;" class="btn btn-outline-dark btn-icon-text" id="btngoAdd">
+                        <i class="fa fa-plus"></i>
+                        Add
+                    </button>
+                </div>
+            }
+        </div>
+
+        <div class="table-responsive">
+            <table class="table" id="tblConsumer" aria-describedby="Tabel List Customer Consent">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                    </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts{
+<script>
+    var data = [
+        ["John Smiths", "USA", 32, "Male"],
+        ["Emily Johnson", "Canada", 28, "Female"],
+        ["Michael Brown", "UK", 45, "Male"],
+        ["Maria Garcia", "Spain", 35, "Female"],
+        ["Ahmed Khan", "Pakistan", 30, "Male"],
+        ["Sophie Martin", "France", 40, "Female"],
+        ["Chen Wei", "China", 29, "Male"],
+        ["Elena Petrova", "Russia", 38, "Female"],
+        ["Diego Fernandez", "Argentina", 42, "Male"],
+        ["Anna Müller", "Germany", 36, "Female"]
+    ];
+    $(document).ready(function () {
+        var currentDraw = 0;
+        var retvalData;
+        $('#tblConsumer').DataTable({
+            "lengthChange": false,
+            "ordering": false,
+            data: data,
+            columns: [
+                { title: "Name" },
+                { title: "Country" },
+                { title: "Age" },
+                { title: "Gender" }
+            ]
+        });
+
+            $('#tblConsumer').Tabledit({
+                url: '@Url.Action("Edit", "Dashboard")',
+                buttons: {
+                    edit: {
+                        class: 'btn btn-primary',
+                        html: '<span class="fa fa-pencil"></span>',
+                        action: 'edit'
+                    },
+                    delete: {
+                        class: 'btn btn-success',
+                        html: '<span class="fa fa-trash"></span>',
+                        action: 'delete'
+                    }
+                },
+                columns: {
+                    identifier: [0, 'Name'],
+                    editable: [[1, 'Country'], [2, 'Age'], [3, 'Gender']]
+                },
+                onSuccess: function (data, textStatus, jqXHR) {
+                    if (data.action == 'delete') {
+                        $('#' + data.id).remove();
+                        $('#tblConsumer').DataTable().ajax.reload();
+                    }
+                }
+            });
+    });
+</script>
+}
