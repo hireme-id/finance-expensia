@@ -1,0 +1,93 @@
+﻿@inject IConfiguration Configuration
+@{
+    var clientId = @Configuration["AuthSSO:ClientId"];
+    var clientSecret = @Configuration["AuthSSO:ClientSecret"];
+    var redirectUrl = @Configuration["AuthSSO:RedirectUrl"];
+    var tokenUrl = @Configuration["AuthSSO:TokenUrl"];
+}
+<script type="text/javascript">
+    const clientId = '@clientId';
+    const clientSecret = '@clientSecret';
+    const redirectUri = '@redirectUrl';
+    const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
+    const tokenUrl = '@tokenUrl';
+    $(function () {
+        LoginGoogle = new LoginGoogle();
+        LoginGoogle.InitManagement();
+        
+    });
+
+    function LoginGoogle() {
+
+        return {
+
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+            },
+            InitControls: function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                const authCode = urlParams.get('code');
+                console.log('authcode ' + authCode);
+                if (authCode) {
+                    // Jika kode otorisasi ada dalam URL, tukar dengan token akses.
+                    $.ajax({
+                        type: 'POST',
+                        url: tokenUrl,
+                        data: {
+                            code: authCode,
+                            client_id: clientId,
+                            client_secret: clientSecret,
+                            redirect_uri: redirectUri,
+                            grant_type: 'authorization_code'
+                        },
+                        success: function (response) {
+                            const accessToken = response.access_token;
+                            localStorage.setItem('accessToken', accessToken);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                }
+
+                const accessToken = localStorage.getItem('accessToken');
+                if (accessToken) {
+                    console.log('acc ' + accessToken);
+                    getGoogleUserProfile(accessToken);
+                }
+            },
+            InitHandlers: function () {
+                $('#btnlogingoogle').on('click', function () {
+                    window.location.href = authUrl;
+                });
+
+                
+            },
+            InitValidation: function () {
+            },
+        }
+    };
+
+    function getGoogleUserProfile(accessToken) {
+        $.ajax({
+            url: 'https://people.googleapis.com/v1/people/me',
+            type: 'GET',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            },
+            data: {
+                'personFields': 'names,emailAddresses,photos' // Tentukan bidang yang ingin Anda ambil dari profil pengguna di sini
+            },
+            success: function (response) {
+                // Tanggapan dari Google akan berisi data profil pengguna sesuai dengan bidang yang Anda minta.
+                console.log(response);
+                // Lakukan penanganan data sesuai kebutuhan aplikasi Anda.
+            },
+            error: function (xhr, status, error) {
+                console.log('Error:', status);
+            }
+        });
+    }
+</script>
