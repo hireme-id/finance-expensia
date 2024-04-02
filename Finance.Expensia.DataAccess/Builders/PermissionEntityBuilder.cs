@@ -1,6 +1,7 @@
 ﻿using Finance.Expensia.DataAccess.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Finance.Expensia.DataAccess.Bases;
+using Microsoft.EntityFrameworkCore;
 
 namespace Finance.Expensia.DataAccess.Builders
 {
@@ -17,6 +18,12 @@ namespace Finance.Expensia.DataAccess.Builders
             builder
                 .Property(e => e.PermissionDescription)
                 .HasMaxLength(100);
+
+            builder
+                .HasMany(e => e.RolePermissions)
+                .WithOne(e => e.Permission)
+                .HasForeignKey(e => e.PermissionId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
