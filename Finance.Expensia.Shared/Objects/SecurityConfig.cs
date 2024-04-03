@@ -12,7 +12,7 @@
         public int TokenExpired { get; set; }
 
         /// <summary>
-        /// Value In Days
+        /// Value In Hours
         /// </summary>
         public int SessionExpired { get; set; }
     }
