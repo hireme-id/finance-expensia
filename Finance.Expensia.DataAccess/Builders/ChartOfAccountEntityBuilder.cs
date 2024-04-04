@@ -22,12 +22,6 @@ namespace Finance.Expensia.DataAccess.Builders
             builder
                 .Property(e => e.AccountType)
                 .HasMaxLength(150);
-
-            builder
-                .HasMany(e => e.CostCenters)
-                .WithOne(e => e.ChartOfAccount)
-                .HasForeignKey(e => e.ChartOfAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
         }    
     }
 }

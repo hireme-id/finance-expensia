@@ -35,6 +35,18 @@ namespace Finance.Expensia.DataAccess.Builders
                 .WithOne(e => e.Role)
                 .HasForeignKey(e => e.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            SeedingData(builder);
+        }
+
+        private static void SeedingData(EntityTypeBuilder<Role> builder)
+        {
+            // InitialDb
+            builder
+                .HasData(
+                    new Role { Id = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), RoleCode = "Requestor", RoleDescription = "User Requestor", Created = new DateTime(2024, 2, 25, 15, 15, 29, 22, DateTimeKind.Utc).AddTicks(7600) },
+                    new Role { Id = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), RoleCode = "Approval", RoleDescription = "User Approval", Created = new DateTime(2024, 2, 25, 15, 15, 29, 22, DateTimeKind.Utc).AddTicks(7600) }
+                );
         }
     }
 }

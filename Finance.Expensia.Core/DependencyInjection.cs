@@ -1,4 +1,5 @@
-﻿using Finance.Expensia.Shared.Objects;
+﻿using Finance.Expensia.Core.Services.Account;
+using Finance.Expensia.Shared.Objects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -13,6 +14,8 @@ namespace Finance.Expensia.Core
 
             services.Configure<SecurityConfig>(options => configuration.Bind(nameof(SecurityConfig), options));
 
+            services.AddScoped<UserService>();
+            services.AddScoped<TokenService>();
 
             return services;
         }
