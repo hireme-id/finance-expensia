@@ -6,8 +6,8 @@ namespace Finance.Expensia.DataAccess.Models
     {
         public string CostCenterCode { get; set; } = string.Empty;
         public string CostCenterName { get; set; } = string.Empty;
-        public Guid ChartOfAccountId { get; set; }
+        public Guid CompanyId { get; set; }
 
-        public virtual ChartOfAccount ChartOfAccount { get; set; } = null!;
+        public virtual Company Company { get; set; } = null!;
     }
 }

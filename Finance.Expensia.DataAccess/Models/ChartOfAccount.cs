@@ -10,6 +10,5 @@ namespace Finance.Expensia.DataAccess.Models
         public Guid CompanyId { get; set; }
 
         public virtual Company Company { get; set; } = null!;
-        public virtual List<CostCenter> CostCenters { get; set; } = [];
     }
 }

@@ -16,5 +16,6 @@ namespace Finance.Expensia.DataAccess.Models
         public virtual List<BankAlias> BankAliases { get; set; } = [];
         public virtual List<Partner> Partners { get; set; } = [];
         public virtual List<ChartOfAccount> ChartOfAccounts { get; set; } = [];
+        public virtual List<CostCenter> CostCenters { get; set; } = [];
     }
 }
