@@ -15,7 +15,7 @@ builder.AddHealthCheck();
 builder.AddCors();
 builder.Services.RegisterDataAccess(builder.Configuration);
 builder.Services.RegisterCore(builder.Configuration);
-//builder.AddUserManagement();
+builder.AddUserManagement();
 
 var app = builder.Build();
 
@@ -33,10 +33,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Account}/{controller=Login}/{action=Index}/{id?}");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();
