@@ -20,3 +20,17 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.table-condensed {
+    width: 230px;
+    height: 230px;
+    font-size: small;
+}
+
+.modal {
+    background-color: transparent !important;
+}
+
+.modal-content {
+    width: 65%;
+}
