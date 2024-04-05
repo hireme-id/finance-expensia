@@ -18,9 +18,7 @@
     });
 
     function LoginGoogle() {
-
         return {
-
             InitManagement: function () {
                 this.InitControls();
                 this.InitHandlers();
@@ -45,25 +43,23 @@
                         success: function (response) {
                             const accessToken = response.access_token;
                             localStorage.setItem('accessToken', accessToken);
+
+                            const getaccessToken = localStorage.getItem('accessToken');
+                            if (getaccessToken) {
+                                console.log('acc ' + getaccessToken);
+                                getGoogleUserProfile(getaccessToken);
+                            }
                         },
                         error: function (xhr, status, error) {
                             console.error('Error:', error);
                         }
                     });
                 }
-
-                const accessToken = localStorage.getItem('accessToken');
-                if (accessToken) {
-                    console.log('acc ' + accessToken);
-                    getGoogleUserProfile(accessToken);
-                }
             },
             InitHandlers: function () {
                 $('#btnlogingoogle').on('click', function () {
                     window.location.href = authUrl;
                 });
-
-                
             },
             InitValidation: function () {
             },
@@ -81,13 +77,24 @@
                 'personFields': 'names,emailAddresses,photos' // Tentukan bidang yang ingin Anda ambil dari profil pengguna di sini
             },
             success: function (response) {
-                // Tanggapan dari Google akan berisi data profil pengguna sesuai dengan bidang yang Anda minta.
-                console.log(response);
-                // Lakukan penanganan data sesuai kebutuhan aplikasi Anda.
+                let email;
+                let fullname;
+                let photo;
+
+                email = response.emailAddresses[0].value;
+                fullname = response.names[0].displayName;
+                photo = response.photos[0].url;
+                loginApi(email, fullname, photo);
             },
             error: function (xhr, status, error) {
                 console.log('Error:', status);
             }
         });
+    }
+
+    function loginApi(email, fullname, photo){
+        console.log(email);
+        console.log(fullname);
+        console.log(photo);
     }
 </script>
