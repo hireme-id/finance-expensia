@@ -96,5 +96,27 @@
         console.log(email);
         console.log(fullname);
         console.log(photo);
+        var reqBody = {
+            'username': email,
+            'fullName': fullname,
+            'photoUrl': photo
+        };
+        $.ajax({
+            url: 'http://localhost:5216/user/login',
+            type: "POST",
+            data: JSON.stringify(reqBody),
+            dataType: "json",
+            contentType: "application/json",
+            success: function (response) {
+                console.log('berhasil login');
+                console.log(response);
+            },
+            failure: function (response) {
+                alert(response.d);
+            },
+            error: function (response) {
+                alert(response.d);
+            }
+        });
     }
 </script>
