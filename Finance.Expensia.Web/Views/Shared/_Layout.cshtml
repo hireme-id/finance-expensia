@@ -1,30 +1,21 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var loginPage = Url.Action("Index", "Login", new { area = "Account" } );
+    var refreshTokenUrl = Url.Action("RefreshToken", "Login");
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Finance.Expensia.Web</title>
+    <title>@ViewData["Title"] - Expensia</title>
     <partial name="_Styles" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Finance.Expensia.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+                <a class="navbar-brand" asp-area="Core" asp-controller="Finance" asp-action="Index">Expensia</a>
             </div>
         </nav>
     </header>
@@ -36,10 +27,59 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - Finance.Expensia.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - Expensia
         </div>
     </footer>
     <partial name="_Scripts" />
     @await RenderSectionAsync("Scripts", required: false)
+    <script type="text/javascript">
+        if (localStorage.getItem("accessToken") == null ||
+            localStorage.getItem("expiredAt") == null ||
+            localStorage.getItem("refreshToken") == null ||
+            localStorage.getItem("sessionExpiredAt") == null) {
+            RedirectToLogin();
+        }
+
+        const expiredAt = new Date(localStorage.getItem("expiredAt"));
+        const sessionExpiredAt = new Date(localStorage.getItem("sessionExpiredAt"));
+
+        if (new Date() >= sessionExpiredAt) {
+            RedirectToLogin();
+        }
+
+        if (new Date() >= expiredAt) {
+            var refreshToken = {
+                "url": "@refreshTokenUrl",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + localStorage.getItem("refreshToken"),
+                    "Content-Type": "application/json"
+                },
+            };
+            $.ajax(refreshToken).done(function (response) {
+                if (response.succeeded) {
+                    localStorage.setItem("accessToken", response.obj.accessToken);
+                    localStorage.setItem("expiredAt", response.obj.expiredAt);
+                    localStorage.setItem("refreshToken", response.obj.refreshToken);
+                    localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
+
+                    window.location.reload();
+                }
+                else {
+                    RedirectToLogin();
+                }
+            });
+        }
+
+        function RedirectToLogin() {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("expiredAt");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("sessionExpiredAt");
+
+            window.location.href = '@loginPage';
+        }
+    </script>
 </body>
 </html>
