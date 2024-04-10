@@ -71,9 +71,7 @@ namespace Finance.Expensia.Web.Extensions.StartupExtensions
                 options.AddDefaultPolicy(builder =>
                 {
                     builder
-                        .WithOrigins(
-                            [.. allowedHosts.Split(",", StringSplitOptions.RemoveEmptyEntries)]
-                        )
+                        .AllowAnyOrigin()
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });

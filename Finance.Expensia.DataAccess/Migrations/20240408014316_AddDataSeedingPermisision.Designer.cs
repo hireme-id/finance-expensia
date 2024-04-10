@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240408014316_AddDataSeedingPermisision")]
+    partial class AddDataSeedingPermisision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -213,218 +216,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("CostCenters");
-                });
-
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPayment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ApprovalStatus")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CompanyName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ExpectedTransfer")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("FromAccountNo")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("FromBankAliasId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FromBankAliasName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Remark")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Requestor")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("RowStatus")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ScheduledDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ToAccountNo")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("ToBankAliasId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ToBankAliasName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("money");
-
-                    b.Property<string>("TransactionNo")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OutgoingPayments");
-                });
-
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("money");
-
-                    b.Property<string>("ChartOfAccountNo")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<Guid>("ChartOfAccountid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CostCenterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CostCenterName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("InvoiceDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("OutgoingPaymentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PartnerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PartnerName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("RowStatus")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OutgoingPaymentId");
-
-                    b.ToTable("OutgoingPaymentDetails");
-                });
-
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentDetailAttachment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<int>("FileSize")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("OutgoingPaymentDetailId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("RowStatus")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OutgoingPaymentDetailId");
-
-                    b.ToTable("OutgointPaymentDetailAttachments");
                 });
 
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.Partner", b =>
@@ -926,28 +717,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentDetail", b =>
-                {
-                    b.HasOne("Finance.Expensia.DataAccess.Models.OutgoingPayment", "OutgoingPayment")
-                        .WithMany("OutgoingPaymentDetails")
-                        .HasForeignKey("OutgoingPaymentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("OutgoingPayment");
-                });
-
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentDetailAttachment", b =>
-                {
-                    b.HasOne("Finance.Expensia.DataAccess.Models.OutgoingPaymentDetail", "OutgoingPaymentDetail")
-                        .WithMany("OutgointPaymentDetailAttachments")
-                        .HasForeignKey("OutgoingPaymentDetailId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("OutgoingPaymentDetail");
-                });
-
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.Partner", b =>
                 {
                     b.HasOne("Finance.Expensia.DataAccess.Models.Company", "Company")
@@ -1006,16 +775,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.Navigation("CostCenters");
 
                     b.Navigation("Partners");
-                });
-
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPayment", b =>
-                {
-                    b.Navigation("OutgoingPaymentDetails");
-                });
-
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentDetail", b =>
-                {
-                    b.Navigation("OutgointPaymentDetailAttachments");
                 });
 
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.Permission", b =>

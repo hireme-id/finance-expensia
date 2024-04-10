@@ -24,7 +24,13 @@ namespace Finance.Expensia.DataAccess
         public virtual DbSet<CostCenter> CostCenters { get; set; }
         #endregion
 
+        #region Transaction
+        public virtual DbSet<OutgoingPayment> OutgoingPayments { get; set; }
+        public virtual DbSet<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; }
+        public virtual DbSet<OutgoingPaymentDetailAttachment> OutgointPaymentDetailAttachments { get; set; }
+        #endregion
 
+         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region UserManagement
@@ -43,6 +49,11 @@ namespace Finance.Expensia.DataAccess
             new CostCenterEntityBuilder().Configure(modelBuilder.Entity<CostCenter>());
             #endregion
 
+            #region Transaction
+            new OutgoingPaymentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPayment>());
+            new OutgoingPaymentDetailEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetail>());
+            new OutgoingPaymentDetailAttachmentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetailAttachment>());
+            #endregion
         }
     }
 }
