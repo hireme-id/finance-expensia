@@ -10,7 +10,9 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>Login Rapid</title>
-    <partial name="_Styles" />
+    <link href="~/lib/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="~/css/adminlte.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Finance.Expensia.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
     <div id="loader-wrapper">
@@ -33,7 +35,8 @@
         </div>
     </div>
     
-    <partial name="_Scripts" />
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/sweetalert/sweetalert2.all.min.js"></script>
     @await Html.PartialAsync("~/Areas/Account/Views/Login/Scripts/_LoginGoogle.cshtml")
 </body>
 </html>
