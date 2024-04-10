@@ -31,6 +31,15 @@
                             if (response.succeeded) {
                                 window.location.href = response.obj;
                             }
+                            else {
+                                Swal.fire({
+                                    position: "top-end",
+                                    icon: "error",
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            }
                         },
                         error: function (xhr, status, error) {
                             console.error('Error:', error);
@@ -61,7 +70,13 @@
                                 window.location.href = "@homePageUrl";
                             }
                             else {
-                                alert(response.message);
+                                Swal.fire({
+                                    position: "top-end",
+                                    icon: "error",
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
                             }
                         },
                         error: function (xhr, status, error) {
