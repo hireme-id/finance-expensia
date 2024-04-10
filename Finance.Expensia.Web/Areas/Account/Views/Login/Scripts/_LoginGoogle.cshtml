@@ -11,6 +11,7 @@
     const redirectUri = '@redirectUrl';
     const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
     const tokenUrl = '@tokenUrl';
+    const bodyElement = document.body;
     $(function () {
         LoginGoogle = new LoginGoogle();
         LoginGoogle.InitManagement();
@@ -55,6 +56,9 @@
                         }
                     });
                 }
+                else{
+                    bodyElement.classList.add('loaded');
+                }
             },
             InitHandlers: function () {
                 $('#btnlogingoogle').on('click', function () {
@@ -88,21 +92,20 @@
             },
             error: function (xhr, status, error) {
                 console.log('Error:', status);
+                bodyElement.classList.add('loaded');
             }
         });
     }
 
     function loginApi(email, fullname, photo){
-        console.log(email);
-        console.log(fullname);
-        console.log(photo);
+        var url = "/Core/Finance/Create";
         var reqBody = {
             'username': email,
             'fullName': fullname,
             'photoUrl': photo
         };
         $.ajax({
-            url: 'http://localhost:5216/user/login',
+            url: 'https://localhost:7188/user/login',
             type: "POST",
             data: JSON.stringify(reqBody),
             dataType: "json",
@@ -110,12 +113,15 @@
             success: function (response) {
                 console.log('berhasil login');
                 console.log(response);
+                window.location.href = url;
             },
             failure: function (response) {
                 alert(response.d);
+                bodyElement.classList.add('loaded');
             },
             error: function (response) {
                 alert(response.d);
+                bodyElement.classList.add('loaded');
             }
         });
     }
