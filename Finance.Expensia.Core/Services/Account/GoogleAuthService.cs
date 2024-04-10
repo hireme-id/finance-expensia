@@ -24,7 +24,7 @@ namespace Finance.Expensia.Core.Services.Account
         {
             var authUrl = $"https://accounts.google.com/o/oauth2/auth?client_id={_googleConfig.OAuthGoogle.ClientId}&redirect_uri={host}&response_type=code&scope=email%20profile";
 
-            return new ResponseObject<string> { Obj = authUrl } ;
+            return new ResponseObject<string>(responseCode: ResponseCode.Ok) { Obj = authUrl } ;
         }
 
         public async Task<ResponseObject<LoginInput>> GetUserProfile(string host, string authCode)

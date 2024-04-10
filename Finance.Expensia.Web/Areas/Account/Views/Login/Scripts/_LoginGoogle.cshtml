@@ -1,6 +1,8 @@
-﻿@inject IConfiguration Configuration
-@{
-    var apiUrl = Configuration["APIUrl"];
+﻿@{
+    var homePageUrl = Url.Action("Index", "Finance", new { area = "Core" });
+    var getGoogleAuthUrl = Url.Action("GetGoogleAuthUrl", "Login");
+    var loginUrl = Url.Action("Login", "Login");
+    var refreshTokenUrl = Url.Action("RefreshToken", "Login");
 }
 <script type="text/javascript">
     const bodyElement = document.body;
@@ -24,9 +26,9 @@
                 $('#btnlogingoogle').on('click', function () {
                     $.ajax({
                         type: 'POST',
-                        url: '@apiUrl/login/getauthurl',
+                        url: '@getGoogleAuthUrl',
                         success: function (response) {
-                            if (response.obj) {
+                            if (response.succeeded) {
                                 window.location.href = response.obj;
                             }
                         },
@@ -41,15 +43,26 @@
             InitLoad: function () {
                 const urlParams = new URLSearchParams(window.location.search);
                 const authCode = urlParams.get('code');
-                console.log('authcode ' + authCode);
-                if (authCode) {
-                    var url = '@Url.Action("Create", "Finance", new { area = "Core"})';
 
+                if (UserSessionAvailable())
+                    window.location.href = "@homePageUrl";
+                
+                if (authCode) {
                     $.ajax({
                         type: 'POST',
-                        url: '@apiUrl/user/login?authCode=' + authCode,
+                        url: "@loginUrl?authCode=" + authCode,
                         success: function (response) {
-                            window.location.href = url;
+                            if (response.succeeded) {
+                                localStorage.setItem("accessToken", response.obj.accessToken);
+                                localStorage.setItem("expiredAt", response.obj.expiredAt);
+                                localStorage.setItem("refreshToken", response.obj.refreshToken);
+                                localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
+
+                                window.location.href = "@homePageUrl";
+                            }
+                            else {
+                                alert(response.message);
+                            }
                         },
                         error: function (xhr, status, error) {
                             console.error('Error:', error);
@@ -62,4 +75,47 @@
             }
         }
     };
+
+    function UserSessionAvailable() {
+        if (localStorage.getItem("accessToken") == null ||
+            localStorage.getItem("expiredAt") == null ||
+            localStorage.getItem("refreshToken") == null ||
+            localStorage.getItem("sessionExpiredAt") == null) {
+            return false;
+        }
+        
+        const expiredAt = new Date(localStorage.getItem("expiredAt"));
+        const sessionExpiredAt = new Date(localStorage.getItem("sessionExpiredAt"));
+
+        if (new Date() >= sessionExpiredAt) {
+            return false;
+        }
+
+        if (new Date() < expiredAt) {
+            return true;
+        }
+        
+        var refreshToken = {
+            "url": "@refreshTokenUrl",
+            "method": "POST",
+            "timeout": 0,
+            "headers": {
+                "Authorization": "Bearer " + localStorage.getItem("refreshToken"),
+                "Content-Type": "application/json"
+            },
+        };
+        $.ajax(refreshToken).done(function (response) {
+            if (response.succeeded) {
+                localStorage.setItem("accessToken", response.obj.accessToken);
+                localStorage.setItem("expiredAt", response.obj.expiredAt);
+                localStorage.setItem("refreshToken", response.obj.refreshToken);
+                localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
+
+                window.location.reload();
+            }
+            else {
+                return false;
+            }
+        });
+    }
 </script>

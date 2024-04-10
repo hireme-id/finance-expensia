@@ -1,14 +1,11 @@
 ﻿using Finance.Expensia.Core.Services.Account;
 using Finance.Expensia.Core.Services.Account.Dtos;
-using Finance.Expensia.Core.Services.Account.Inputs;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Web.Controllers;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,8 +24,8 @@ namespace rapid.Areas.Account.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("login/getauthurl")]
-        public ResponseObject<string> GoogleLogin()
+        [HttpPost("user/getauthurl")]
+        public ResponseObject<string> GetGoogleAuthUrl()
         {
             var host = GetHost(HttpContext);
             return _googleAuthService.GetAuthUrl(host);

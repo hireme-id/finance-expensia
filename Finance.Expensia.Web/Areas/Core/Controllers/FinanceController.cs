@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Finance.Expensia.Web.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Finance.Expensia.Web.Areas.Core.Controllers
 {
-    public class FinanceController : Controller
+    public class FinanceController : BaseController
     {
         [AllowAnonymous]
         public IActionResult Index()
