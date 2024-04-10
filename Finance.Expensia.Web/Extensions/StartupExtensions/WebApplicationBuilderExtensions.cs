@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Google;
+using Finance.Expensia.Shared.Constants;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Finance.Expensia.Web.Extensions.StartupExtensions
 {
@@ -84,24 +89,26 @@ namespace Finance.Expensia.Web.Extensions.StartupExtensions
         {
             var securityConfig = builder.Configuration.GetSection("SecurityConfig");
 
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+            builder.Services
+                .AddAuthentication(options =>
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = securityConfig.GetValue<string>("Issuer"),
-                    ValidAudience = securityConfig.GetValue<string>("Audience"),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityConfig.GetValue<string>("SecretKey") ?? string.Empty)),
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = securityConfig.GetValue<string>("Issuer"),
+                        ValidAudience = securityConfig.GetValue<string>("Audience"),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityConfig.GetValue<string>("SecretKey") ?? string.Empty)),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             builder.Services.AddAuthorization();
 
