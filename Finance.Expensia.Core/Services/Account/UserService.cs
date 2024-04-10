@@ -7,11 +7,6 @@ using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Finance.Expensia.Core.Services.Account
 {

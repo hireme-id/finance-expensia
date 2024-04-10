@@ -1,21 +1,12 @@
 ﻿@inject IConfiguration Configuration
 @{
-    var clientId = @Configuration["AuthSSO:ClientId"];
-    var clientSecret = @Configuration["AuthSSO:ClientSecret"];
-    var redirectUrl = @Configuration["AuthSSO:RedirectUrl"];
-    var tokenUrl = @Configuration["AuthSSO:TokenUrl"];
+    var apiUrl = Configuration["APIUrl"];
 }
 <script type="text/javascript">
-    const clientId = '@clientId';
-    const clientSecret = '@clientSecret';
-    const redirectUri = '@redirectUrl';
-    const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
-    const tokenUrl = '@tokenUrl';
     const bodyElement = document.body;
     $(function () {
         LoginGoogle = new LoginGoogle();
         LoginGoogle.InitManagement();
-        
     });
 
     function LoginGoogle() {
@@ -24,105 +15,51 @@
                 this.InitControls();
                 this.InitHandlers();
                 this.InitValidation();
+                this.InitLoad();
             },
             InitControls: function () {
+                
+            },
+            InitHandlers: function () {
+                $('#btnlogingoogle').on('click', function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@apiUrl/login/getauthurl',
+                        success: function (response) {
+                            if (response.obj) {
+                                window.location.href = response.obj;
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', error);
+                        }
+                    })
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
                 const urlParams = new URLSearchParams(window.location.search);
                 const authCode = urlParams.get('code');
                 console.log('authcode ' + authCode);
                 if (authCode) {
-                    // Jika kode otorisasi ada dalam URL, tukar dengan token akses.
+                    var url = '@Url.Action("Create", "Finance", new { area = "Core"})';
+
                     $.ajax({
                         type: 'POST',
-                        url: tokenUrl,
-                        data: {
-                            code: authCode,
-                            client_id: clientId,
-                            client_secret: clientSecret,
-                            redirect_uri: redirectUri,
-                            grant_type: 'authorization_code'
-                        },
+                        url: '@apiUrl/user/login?authCode=' + authCode,
                         success: function (response) {
-                            const accessToken = response.access_token;
-                            localStorage.setItem('accessToken', accessToken);
-
-                            const getaccessToken = localStorage.getItem('accessToken');
-                            if (getaccessToken) {
-                                console.log('acc ' + getaccessToken);
-                                getGoogleUserProfile(getaccessToken);
-                            }
+                            window.location.href = url;
                         },
                         error: function (xhr, status, error) {
                             console.error('Error:', error);
                         }
                     });
                 }
-                else{
+                else {
                     bodyElement.classList.add('loaded');
                 }
-            },
-            InitHandlers: function () {
-                $('#btnlogingoogle').on('click', function () {
-                    window.location.href = authUrl;
-                });
-            },
-            InitValidation: function () {
-            },
+            }
         }
     };
-
-    function getGoogleUserProfile(accessToken) {
-        $.ajax({
-            url: 'https://people.googleapis.com/v1/people/me',
-            type: 'GET',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            },
-            data: {
-                'personFields': 'names,emailAddresses,photos' // Tentukan bidang yang ingin Anda ambil dari profil pengguna di sini
-            },
-            success: function (response) {
-                let email;
-                let fullname;
-                let photo;
-
-                email = response.emailAddresses[0].value;
-                fullname = response.names[0].displayName;
-                photo = response.photos[0].url;
-                loginApi(email, fullname, photo);
-            },
-            error: function (xhr, status, error) {
-                console.log('Error:', status);
-                bodyElement.classList.add('loaded');
-            }
-        });
-    }
-
-    function loginApi(email, fullname, photo){
-        var url = "/Core/Finance/Create";
-        var reqBody = {
-            'username': email,
-            'fullName': fullname,
-            'photoUrl': photo
-        };
-        $.ajax({
-            url: 'https://localhost:7188/user/login',
-            type: "POST",
-            data: JSON.stringify(reqBody),
-            dataType: "json",
-            contentType: "application/json",
-            success: function (response) {
-                console.log('berhasil login');
-                console.log(response);
-                window.location.href = url;
-            },
-            failure: function (response) {
-                alert(response.d);
-                bodyElement.classList.add('loaded');
-            },
-            error: function (response) {
-                alert(response.d);
-                bodyElement.classList.add('loaded');
-            }
-        });
-    }
 </script>

@@ -3,18 +3,22 @@ using Finance.Expensia.Core.Services.Account.Dtos;
 using Finance.Expensia.Core.Services.Account.Inputs;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
+using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Web.Controllers;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace rapid.Areas.Account.Controllers
 {
-    public class LoginController(UserService userService, CurrentUserAccessor currentUserAccessor) : BaseController
+    public class LoginController(UserService userService, GoogleAuthService googleAuthService, CurrentUserAccessor currentUserAccessor) : BaseController
     {
         private readonly UserService _userService = userService;
         private readonly CurrentUserAccessor _currentUserAccessor = currentUserAccessor;
+        private readonly GoogleAuthService _googleAuthService = googleAuthService;
 
         [AllowAnonymous]
         public IActionResult Index()
@@ -23,11 +27,25 @@ namespace rapid.Areas.Account.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost("login/getauthurl")]
+        public ResponseObject<string> GoogleLogin()
+        {
+            var host = GetHost(HttpContext);
+            return _googleAuthService.GetAuthUrl(host);
+        }
+
+        [AllowAnonymous]
         [HttpPost("user/login")]
         [Mutation]
-        public async Task<ResponseObject<TokenDto>> Login([FromBody]LoginInput input)
+        public async Task<ResponseObject<TokenDto>> Login(string authCode)
         {
-            return await _userService.Login(input);
+            var host = GetHost(HttpContext);
+            var input = await _googleAuthService.GetUserProfile(host, authCode);
+
+            if (input.Obj == null)
+                return new ResponseObject<TokenDto>("Gagal melakukan login", ResponseCode.UnAuthorized);
+
+            return await _userService.Login(input.Obj);
         }
 
         [HttpPost("user/refreshtoken")]

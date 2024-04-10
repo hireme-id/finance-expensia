@@ -14,10 +14,14 @@ namespace Finance.Expensia.Core
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             services.Configure<SecurityConfig>(options => configuration.Bind(nameof(SecurityConfig), options));
+            services.Configure<GoogleConfig>(options => configuration.Bind(nameof(GoogleConfig), options));
 
             services.AddScoped<UserService>();
             services.AddScoped<TokenService>();
             services.AddScoped<OutgoingPaymentService>();
+            services.AddScoped<GoogleAuthService>();
+
+            services.AddHttpClient();
 
             return services;
         }
