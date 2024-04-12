@@ -1,0 +1,145 @@
+﻿@{
+    ViewData["Title"] = "Create Outgoing Payment";
+    ViewData["Subtitle"] = "Create Outgoing Payment";
+}
+
+@await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Styles/_CreateCSS.cshtml")
+
+<!-- Main Form -->
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Transaction No</label>
+                <input type="text" class="form-control" id="txtTransactionNo" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label>Company</label>
+                <select class="form-control" id="ddlCompany">
+                    <option></option>
+                    <option>Status</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Requestor</label>
+                <input type="text" class="form-control" id="txtRequestor" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label>Document Status</label>
+                <input type="text" class="form-control" id="txtDocumentStatus" disabled />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Request Date</label>
+                <div class="input-group date mb-2">
+                    <input placeholder="Input Date" type="text" class="form-control datepicker" id="dtRequestDate" autocomplete="off" disabled>
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <label>Expected Transfer</label>
+                <select class="form-control" id="ddlExpectedTransfer">
+                    <option></option>
+                    <option>Status</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Remark</label>
+                <input type="text" class="form-control" id="txtRemark" />
+            </div>
+            <div class="col-lg-6">
+                <label>Scheduled Date</label>
+                <div class="input-group date mb-2">
+                    <input placeholder="Input Date" type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4 border-bottom border-dark"></div>
+
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>From Alias Bank</label>
+                <select class="form-control" id="ddlFromAliasBank">
+                    <option></option>
+                    <option>Status</option>
+                </select>
+            </div>
+            <div class="col-lg-6">
+                <label>To Alias Bank</label>
+                <select class="form-control" id="ddlToAliasBank">
+                    <option></option>
+                    <option>Status</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>From Alias Bank Information</label>
+                <textarea class="form-control" id="txtFromBankName" rows="5" disabled>
+Bank Name : BCA
+Account Name : PT. Rapid Teknologi Indonesia
+Account No : 582948599384
+                </textarea>
+            </div>
+            <div class="col-lg-6">
+                <label>To Alias Bank Information</label>
+                <textarea class="form-control" id="txtToBankName" rows="5" disabled>
+Bank Name : BCA
+Account Name : PT. Rapid Teknologi Indonesia
+Account No : 582948599384
+                </textarea>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mb-4 border-bottom border-dark"></div>
+        
+        <div class="table-responsive" style="margin-bottom:15px;">
+            <table class="table" id="gridOutgoingPaymentDetail" aria-describedby="Tabel List Customer Consent">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>ListFile</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-lg-6"></div>
+            <div class="col-lg-6">
+                <label>Total Amount</label>
+                <input type="text" class="form-control" id="txtTotalAmount" disabled />
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#filterModal">Create</button>
+<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#filterModal">Creats</button>
+
+<div id="badgeList"></div>
+
+@section Scripts{
+    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Create.cshtml")
+    @* @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_AddMultipleFile.cshtml") *@
+}

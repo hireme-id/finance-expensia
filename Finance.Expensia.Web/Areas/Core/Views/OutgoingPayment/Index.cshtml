@@ -1,0 +1,10 @@
+﻿@{
+	ViewData["Title"] = "Outgoing Payment";
+	ViewData["Subtitle"] = "Outgoing Payment";
+}
+
+<table id="gridOutgoingPayment" class="table table-bordered table-hover"></table>
+
+@section scripts {
+	@await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_OutgoingPayment.cshtml")
+}

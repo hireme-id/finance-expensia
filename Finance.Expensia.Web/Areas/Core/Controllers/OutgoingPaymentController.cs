@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Finance.Expensia.Web.Areas.Core.Controllers
 {
-    public class FinanceController : BaseController
+    public class OutgoingPaymentController : BaseController
     {
         [AllowAnonymous]
         public IActionResult Index()
