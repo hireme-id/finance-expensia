@@ -1,50 +1,20 @@
-﻿<script type="text/javascript">
-    var newdata = [
-        ["John Smiths", "USA", 32, "Male", "'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
-        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
-        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
-        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
-        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
-        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
-        ["John Smiths", "USA", 32, "Male", "'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
-        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
-        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
-        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
-        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
-        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
-        ["John Smiths", "USA", 32, "Male", "'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
-        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
-        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
-        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
-        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
-        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
-        ["John Smiths", "USA", 32, "Male", "'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
-        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
-        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
-        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
-        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
-        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
-        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
+﻿@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
+}
+
+<script type="text/javascript">
+    const sampleData = [
+        ["2024-04-12", "Company A", "Payment for services rendered", "12345", "CC-001", 1000, "", "0"],
+        ["2024-04-11", "Company B", "Purchase of equipment", "54321", "CC-002", 1500, "", "1"],
+        ["2024-04-10", "Company C", "Travel expenses", "98765", "CC-003", 800, "", "2"]
     ];
-    var listdata = ['pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'];
-    
-    var gridOutgoingPaymentDetail;
-    var dtRequestDate, dtScheduledDate;
+
+    const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+    const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
+    const ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
+    const txtRequestor = $("#txtRequestor");
+    let btnAddDetail;
 
     $(function () {
         CreateManager = new CreateManager();
@@ -60,49 +30,21 @@
                 this.InitLoad();
             },
             InitControls: function () {
-                gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail').DataTable({
-                    data: newdata,
+                gridOutgoingPaymentDetail.DataTable({
                     ordering: false,
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    autoWidth: false,
+                    data: sampleData,
                     columns: [
-                        { title: "Name" },
-                        { title: "Country" },
-                        { title: "Age" },
-                        { title: "Gender" },
-                        {
-                            title: "ListFile", width: "35%",
-                            render: function (data, type, row) {
-                                let listhtml = '';
-                                var datacell = data.replace(/'/g, '').split(', ');
-
-                                datacell.forEach(function (item, index) {
-                                    var badgeElement = document.createElement('span');
-                                    badgeElement.textContent = item + ', ';
-                                    badgeElement.classList.add('badge', 'm-2');
-
-                                    // Mengatur warna badge sesuai dengan indeks item yang berulang setiap 4 item
-                                    switch (index % 4) {
-                                        case 0:
-                                            badgeElement.classList.add('badge-primary');
-                                            break;
-                                        case 1:
-                                            badgeElement.classList.add('badge-success');
-                                            break;
-                                        case 2:
-                                            badgeElement.classList.add('badge-danger');
-                                            break;
-                                        case 3:
-                                            badgeElement.classList.add('badge-warning');
-                                            break;
-                                    }
-                                    /*const spanclose = document.createElement("span");
-                                    spanclose.innerHTML = 'x';
-                                    spanclose.classList.add('pl-2');
-                                    badgeElement.append(spanclose);*/
-                                    listhtml += badgeElement.outerHTML;
-                                });
-                                return listhtml;
-                            }
-                        },
+                        { title: "Date" },
+                        { title: "Partner" },
+                        { title: "Description" },
+                        { title: "CoA" },
+                        { title: "CostCenter" },
+                        { title: "Amount" },
+                        { title: "File" },
                         { title: "Action" }
                     ],
                     columnDefs: [{
@@ -110,57 +52,123 @@
                         orderable: false,
                         className: 'dt-body-center',
                         render: function (data, type, full, meta) {
-                            return '<button class="edit-btn btn btn-primary mr-2"><span class="fa fa-pencil"></span></button>' +
-                                '<button class="delete-btn btn btn-danger mr-2"><span class="fa fa-trash"></span></button>';
+                            return '<button class="edit-btn btn btn-primary mr-2"><i class="fas fa-edit"></i></button>' +
+                                '<button class="delete-btn btn btn-danger mr-2"><i class="fas fa-trash"></i></button>';
                         }
                     }],
                     layout: {
-                        bottomStart: function () {
+                        top1End: function () {
                             let toolbar = document.createElement('div');
-                            toolbar.classList.add("row");
-                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2 ml-2">Download Summary</button>' +
-                                '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>' +
-                                '<button type="button"  class="btn btn-sm btn-primary" data-toggle="modal" data-target="#filterModal">Create</button>'
+                            let buttons = `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
                             toolbar.innerHTML = buttons;
-
-                            return toolbar;
-                        },
-                        bottomEnd: 'paging',
-                        bottom2Start: 'info',
-                        bottom2End: function () {
-                            let toolbar = document.createElement('div');
-                            toolbar.classList.add("row");
-                            toolbar.classList.add("col-md-10");
-                            toolbar.classList.add("pull-right");
-                            let elem = '<label>Jump to page:</label>' +
-                                '<input type="text" id="txtJump" class="form-control d-inline form-control-sm w-50 pull-right ml-2">';
-                            toolbar.innerHTML = elem;
 
                             return toolbar;
                         }
                     }
                 });
 
-                dtRequestDate = $("#dtRequestDate").datepicker({
-                    format: 'yyyy-mm-dd',
-                    autoclose: true,
-                    orientation: "bottom"
+                dtRequestDate.datepicker({
+                    dateFormat: "yy-mm-dd",
+                    disabled: true
                 });
+                dtRequestDate.datepicker("setDate", new Date())
 
-                dtScheduledDate = $("#dtScheduledDate").datepicker({
-                    format: 'yyyy-mm-dd',
-                    autoclose: true,
-                    orientation: "bottom"
+                dtScheduledDate.datepicker({
+                    dateFormat: "yy-mm-dd",
+                    minDate: new Date()
                 });
             },
             InitHandlers: function () {
+                ddlCompany.on("change", function (e) {
+                    ddlFromAliasBank.removeAttr("disabled");
+                    RefreshDdlBankAlias(ddlFromAliasBank);
+                });
 
+                ddlFromAliasBank.add(ddlToAliasBank).on("change", function (e) {
+                    const ddl = $(this);
+                    const descriptorControl = $(ddl.attr("descriptor-control"));
+                    const optionSelected = ddl.find(':selected');
+                    const bankName = optionSelected.attr("data-bank-name");
+                    const accountNo = optionSelected.attr("data-account-no");
+                    const accountName = optionSelected.attr("data-account-name");
+
+                    descriptorControl.val(
+`Bank Name : ` + bankName + `
+Account Name : ` + accountName + `
+Account No : ` + accountNo);
+                });
+
+                btnAddDetail = $("#btnAddDetail").on("click", function (e) {
+                    
+                });
             },
             InitValidation: function () {
             },
             InitLoad: function () {
+                RefreshDdlCompany();
 
+                txtRequestor.val(localStorage.getItem("displayName"));
+
+                RefreshDdlBankAlias(ddlToAliasBank);
             }
         }
     };
+
+    function RefreshDdlCompany() {
+		$.ajax(Object.assign({}, glbBaseRequest, {
+			"url": "@ddlCompanyUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCompany.empty().append(`<option value=""></option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+					ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+    }
+
+    function RefreshDdlBankAlias(ddlBankAlias) {
+        let url = "@ddlBankAliasUrl"
+
+        if (ddlBankAlias == ddlFromAliasBank) {
+            url = url + "?companyId=" + ddlCompany.val();
+        }
+
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            "url": url
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlBankAlias.empty().append(`<option value=""></option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlBankAlias.append(
+                        `<option 
+                            value="` + data.bankAliasId + `"
+                            data-bank-name="` + data.bankName + `"
+                            data-account-no="` + data.accountNo + `"
+                            data-account-name="` + data.accountName + `"
+                            >` + 
+                            data.aliasName + 
+                        `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
 </script>

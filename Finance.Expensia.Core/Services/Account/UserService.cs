@@ -16,7 +16,7 @@ namespace Finance.Expensia.Core.Services.Account
         private readonly TokenService _tokenService = tokenService;
 
         #region public method
-        public async Task<ResponseObject<TokenDto>> Login(LoginInput input)
+        public async Task<ResponseObject<LoginDto>> Login(LoginInput input)
         {
             var dataUser = await _dbContext.Users
                                        .FirstOrDefaultAsync(d => d.Username.Equals(input.Username));
@@ -26,9 +26,19 @@ namespace Finance.Expensia.Core.Services.Account
                 dataUser = await AddNewUser(input);
             }
 
-            return new ResponseObject<TokenDto>(responseCode: ResponseCode.Ok)
+            var token = await GenerateAccessToken(dataUser);
+
+            return new ResponseObject<LoginDto>(responseCode: ResponseCode.Ok)
             {
-                Obj = await GenerateAccessToken(dataUser)
+                Obj = new LoginDto
+                {
+                    DisplayName = input.FullName,
+                    PhotoUrl = input.PhotoUrl,
+                    AccessToken = token.AccessToken,
+                    ExpiredAt = token.ExpiredAt,
+                    RefreshToken = token.RefreshToken,
+                    SessionExpiredAt = token.SessionExpiredAt
+                }
             };
         }
 

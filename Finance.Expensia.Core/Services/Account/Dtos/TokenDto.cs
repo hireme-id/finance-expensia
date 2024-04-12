@@ -2,10 +2,9 @@
 {
     public class TokenDto
     {
-        public Guid UserId { get; set; }
-        public required string AccessToken { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
         public DateTime ExpiredAt { get; set; }
-        public required string RefreshToken { get; set; }
+        public string RefreshToken { get; set; } = string.Empty;
         public DateTime SessionExpiredAt { get; set; }
     }
 }

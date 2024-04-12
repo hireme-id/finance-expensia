@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Finance.Expensia.Shared.Enums
+@{
     ViewData["Title"] = "Create Outgoing Payment";
     ViewData["Subtitle"] = "Create Outgoing Payment";
 }
@@ -14,11 +15,8 @@
                 <input type="text" class="form-control" id="txtTransactionNo" disabled />
             </div>
             <div class="col-lg-6">
-                <label>Company</label>
-                <select class="form-control" id="ddlCompany">
-                    <option></option>
-                    <option>Status</option>
-                </select>
+                <label>Company <span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlCompany"></select>
             </div>
         </div>
         <div class="row mb-3">
@@ -35,7 +33,7 @@
             <div class="col-lg-6">
                 <label>Request Date</label>
                 <div class="input-group date mb-2">
-                    <input placeholder="Input Date" type="text" class="form-control datepicker" id="dtRequestDate" autocomplete="off" disabled>
+                    <input type="text" class="form-control" id="dtRequestDate" autocomplete="off">
                     <div class="input-group-append">
                         <span class="input-group-text">
                             <i class="fa fa-calendar"></i>
@@ -44,10 +42,13 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <label>Expected Transfer</label>
+                <label>Expected Transfer <span class="text-danger">*</span></label>
                 <select class="form-control" id="ddlExpectedTransfer">
-                    <option></option>
-                    <option>Status</option>
+                    <option value=""></option>
+                    @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
+                    {
+                        @Html.Raw($"<option value=\"{(int)item}\">{item}</option>");
+                    }
                 </select>
             </div>
         </div>
@@ -57,9 +58,9 @@
                 <input type="text" class="form-control" id="txtRemark" />
             </div>
             <div class="col-lg-6">
-                <label>Scheduled Date</label>
+                <label>Scheduled Date <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
-                    <input placeholder="Input Date" type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off">
+                    <input type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off">
                     <div class="input-group-append">
                         <span class="input-group-text">
                             <i class="fa fa-calendar"></i>
@@ -73,55 +74,29 @@
 
         <div class="row mb-3">
             <div class="col-lg-6">
-                <label>From Alias Bank</label>
-                <select class="form-control" id="ddlFromAliasBank">
-                    <option></option>
-                    <option>Status</option>
-                </select>
+                <label>From Alias Bank <span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlFromAliasBank" descriptor-control="#txtFromBankName" disabled></select>
             </div>
             <div class="col-lg-6">
-                <label>To Alias Bank</label>
-                <select class="form-control" id="ddlToAliasBank">
-                    <option></option>
-                    <option>Status</option>
-                </select>
+                <label>To Alias Bank <span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlToAliasBank" descriptor-control="#txtToBankName"></select>
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-lg-6">
                 <label>From Alias Bank Information</label>
-                <textarea class="form-control" id="txtFromBankName" rows="5" disabled>
-Bank Name : BCA
-Account Name : PT. Rapid Teknologi Indonesia
-Account No : 582948599384
-                </textarea>
+                <textarea class="form-control" id="txtFromBankName" rows="3" disabled style="resize:none"></textarea>
             </div>
             <div class="col-lg-6">
                 <label>To Alias Bank Information</label>
-                <textarea class="form-control" id="txtToBankName" rows="5" disabled>
-Bank Name : BCA
-Account Name : PT. Rapid Teknologi Indonesia
-Account No : 582948599384
-                </textarea>
+                <textarea class="form-control" id="txtToBankName" rows="3" disabled style="resize:none"></textarea>
             </div>
         </div>
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mb-4 border-bottom border-dark"></div>
         
         <div class="table-responsive" style="margin-bottom:15px;">
-            <table class="table" id="gridOutgoingPaymentDetail" aria-describedby="Tabel List Customer Consent">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Country</th>
-                        <th>Age</th>
-                        <th>Gender</th>
-                        <th>ListFile</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <table class="table" id="gridOutgoingPaymentDetail" aria-describedby="Tabel List Customer Consent"></table>
         </div>
 
         <div class="row mb-3">

@@ -66,6 +66,8 @@
                                 localStorage.setItem("expiredAt", response.obj.expiredAt);
                                 localStorage.setItem("refreshToken", response.obj.refreshToken);
                                 localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
+                                localStorage.setItem("displayName", response.obj.displayName);
+                                localStorage.setItem("photoUrl", response.obj.photoUrl);
 
                                 window.location.href = "@homePageUrl";
                             }
@@ -95,7 +97,9 @@
         if (localStorage.getItem("accessToken") == null ||
             localStorage.getItem("expiredAt") == null ||
             localStorage.getItem("refreshToken") == null ||
-            localStorage.getItem("sessionExpiredAt") == null) {
+            localStorage.getItem("sessionExpiredAt") == null ||
+            localStorage.getItem("displayName") == null ||
+            localStorage.getItem("photoUrl") == null) {
             return false;
         }
         
@@ -103,6 +107,13 @@
         const sessionExpiredAt = new Date(localStorage.getItem("sessionExpiredAt"));
 
         if (new Date() >= sessionExpiredAt) {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("expiredAt");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("sessionExpiredAt");
+            localStorage.removeItem("displayName");
+            localStorage.removeItem("photoUrl");
+
             return false;
         }
 

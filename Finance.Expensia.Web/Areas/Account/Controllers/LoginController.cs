@@ -34,13 +34,13 @@ namespace rapid.Areas.Account.Controllers
         [AllowAnonymous]
         [HttpPost("user/login")]
         [Mutation]
-        public async Task<ResponseObject<TokenDto>> Login(string authCode)
+        public async Task<ResponseObject<LoginDto>> Login(string authCode)
         {
             var host = GetHost(HttpContext);
             var input = await _googleAuthService.GetUserProfile(host, authCode);
 
             if (input.Obj == null)
-                return new ResponseObject<TokenDto>("Gagal melakukan login", ResponseCode.UnAuthorized);
+                return new ResponseObject<LoginDto>("Gagal melakukan login", ResponseCode.UnAuthorized);
 
             return await _userService.Login(input.Obj);
         }
