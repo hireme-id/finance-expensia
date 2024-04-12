@@ -21,38 +21,10 @@
             public const string ApprovalInboxDelete = "ApprovalInbox.Delete";
         }
 
-        #region example
-        //public static class General
-        //{
-        //    public const string ViewResourceFile = "General.ViewResourceFile";
-        //}
-
-        //public static class UserManagement
-        //{
-        //    public const string ViewUser = "UserManagement.ViewUser";
-        //    public const string UpsertUser = "UserManagement.UpsertUser";
-        //    public const string DeleteUser = "UserManagement.DeleteUser";
-
-        //    public const string SaveMember = "UserManagement.SaveMember";
-        //    public const string ViewListMember = "UserManagement.ViewListMember";
-        //    public const string ViewDetailMember = "UserManagement.ViewDetailMember";
-        //    public const string DeleteMember = "UserManagement.DeleteMember";
-
-        //    public const string UpdateProfilePicture = "UserManagement.UpdateProfilePicture";
-        //}
-
-        //public static class MasterData
-        //{
-        //    #region Venue
-        //    public const string MasterDataVenueView = "MasterData.Venue.View";
-        //    public const string MasterDataVenueUpsert = "MasterData.Venue.Upsert";
-        //    public const string MasterDataVenueDelete = "MasterData.Venue.Delete";
-
-        //    public const string MasterDataTournamentView = "MasterData.Tournament.View";
-        //    public const string MasterDataTournamentUpsert = "MasterData.Tournament.Upsert";
-        //    public const string MasterDataTournamentDelete = "MasterData.Tournament.Delete";
-        //    #endregion
-        //}
-        #endregion
+        public static class MasterData
+        {
+            public const string CompanyView = "MasterData.Company.View";
+            public const string BankAliasView = "MasterData.BankAlias.View";
+        }
     }
 }

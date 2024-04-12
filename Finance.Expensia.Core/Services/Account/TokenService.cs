@@ -75,7 +75,6 @@ namespace Finance.Expensia.Core.Services.Account
 
             return await Task.FromResult(new TokenDto
             {
-                UserId = userId,
                 AccessToken = tokenHandler.WriteToken(accessToken),
                 ExpiredAt = accessTokenExpireAt,
                 RefreshToken = tokenHandler.WriteToken(refreshToken),

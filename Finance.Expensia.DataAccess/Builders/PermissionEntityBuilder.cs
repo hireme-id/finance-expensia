@@ -53,6 +53,13 @@ namespace Finance.Expensia.DataAccess.Builders
                     new Permission { Id = new Guid("106ebebf-7ed9-489c-ad28-eeeb49cf71a2"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalInboxUpdate, PermissionDescription = "Akses untuk melakukan update data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
                     new Permission { Id = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalInboxDelete, PermissionDescription = "Akses untuk melakukan delete data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) }
                 );
+
+            //MasterData
+            builder
+                .HasData(
+                    new Permission { Id = new Guid("aaad754e-00d1-4ffe-a530-bce354eba9ed"), PermissionCode = PermissionConstants.MasterData.CompanyView, PermissionDescription = "Akses untuk view data company", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+                    new Permission { Id = new Guid("69a24b35-8eab-47a4-96e7-64e18bb2920a"), PermissionCode = PermissionConstants.MasterData.BankAliasView, PermissionDescription = "Akses untuk view bank alias", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
+                );
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Finance.Expensia.Core.Services.Account;
+using Finance.Expensia.Core.Services.MasterData;
 using Finance.Expensia.Core.Services.OutgoingPayment;
 using Finance.Expensia.Shared.Objects;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,8 @@ namespace Finance.Expensia.Core
             services.AddScoped<TokenService>();
             services.AddScoped<OutgoingPaymentService>();
             services.AddScoped<GoogleAuthService>();
+            services.AddScoped<CompanyService>();
+            services.AddScoped<BankAliasService>();
 
             services.AddHttpClient();
 
