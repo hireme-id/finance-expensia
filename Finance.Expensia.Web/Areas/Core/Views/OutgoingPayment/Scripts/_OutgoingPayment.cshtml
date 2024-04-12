@@ -21,11 +21,11 @@
     var gridOutgoingPayment;
 
     $(function () {
-        FinanceManager = new FinanceManager();
-        FinanceManager.InitManagement();
+        OutgoingPaymentManager = new OutgoingPaymentManager();
+        OutgoingPaymentManager.InitManagement();
     });
 
-    function FinanceManager() {
+    function OutgoingPaymentManager() {
         return {
             InitManagement: function () {
                 this.InitControls();

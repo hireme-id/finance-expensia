@@ -1,6 +1,6 @@
 ﻿@{
     var loginPage = Url.Action("Index", "Login", new { area = "Account" } );
-    var homePage = Url.Action("Index", "Finance", new { area = "Core" });
+    var homePage = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
 }
@@ -13,7 +13,7 @@
     <title>@ViewData["Title"] - Expensia</title>
     <partial name="_Styles" />
 </head>
-<body class="hold-transition sidebar-mini layout-fixed dark-mode">
+<body class="hold-transition sidebar-mini layout-fixed">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -76,7 +76,34 @@
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            @RenderBody()
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>@ViewData["Subtitle"]</h1>
+                        </div>
+                    </div>
+                </div><!-- /.container-fluid -->
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    @RenderBody()
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                            <!-- /.card -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
 
