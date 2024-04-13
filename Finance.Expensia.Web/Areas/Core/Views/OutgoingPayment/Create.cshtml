@@ -95,9 +95,7 @@
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mb-4 border-bottom border-dark"></div>
         
-        <div class="table-responsive" style="margin-bottom:15px;">
-            <table class="table" id="gridOutgoingPaymentDetail" aria-describedby="Tabel List Customer Consent"></table>
-        </div>
+        <table class="table" id="gridOutgoingPaymentDetail" aria-describedby="Tabel List Customer Consent"></table>
 
         <div class="row mb-3">
             <div class="col-lg-6"></div>
@@ -107,12 +105,12 @@
             </div>
         </div>
     </div>
+    <div class="card-footer">
+        <button type="button" id="btnDelete" class="btn btn-outline-danger" style="width:150px;display:none">Delete</button>
+        <button type="button" id="btnSubmit" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
+        <button type="button" id="btnDraft" class="btn btn-outline-secondary float-right" style="width:150px">Draft</button>
+    </div>
 </div>
-
-<button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#filterModal">Create</button>
-<button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#filterModal">Creats</button>
-
-<div id="badgeList"></div>
 
 @section Scripts{
     @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Create.cshtml")

@@ -1,120 +1,433 @@
 ﻿@{
-    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
-    var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
+	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+	var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
+	var ddlPartnerUrl = Url.Action("RetrievePartner", "Partner");
+	var ddlCoaUrl = Url.Action("RetrieveCoa", "Coa");
+	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
 }
 
 <script type="text/javascript">
-    const sampleData = [
-        ["2024-04-12", "Company A", "Payment for services rendered", "12345", "CC-001", 1000, "", "0"],
-        ["2024-04-11", "Company B", "Purchase of equipment", "54321", "CC-002", 1500, "", "1"],
-        ["2024-04-10", "Company C", "Travel expenses", "98765", "CC-003", 800, "", "2"]
-    ];
+	let sampleData = [
+		{
+			"id": null,
+			"invoiceDate": new Date("2025-04-14"),
+			"partner": {
+				"partnerId": "35CDABAD-A750-48DD-B482-852A6C9291CE",
+				"partnerName": "PT Astra Graphia Information Technology"
+			},
+			"description": "Payment for services rendered",
+			"coa": {
+				"coaId": "1C6E5D5C-786B-4EDD-93CF-5B1037FB440D",
+				"accountCode": "100-000-001"
+			},
+			"costCenter": {
+				"costCenterId": "3693694E-5DF6-40BC-A9F3-3C7202AEAAD2",
+				"costCenterCode": "CC-RPD-001"
+			},
+			"amount": 1000,
+			"attachments": [
+				{
+					"id": 1,
+					"fileName": "File 1"
+				},
+				{
+					"id": 2,
+					"fileName": "File 2"
+				}
+			]
+		},
+		{
+			"id": null,
+			"invoiceDate": new Date("2025-04-14"),
+			"partner": {
+				"partnerId": "35CDABAD-A750-48DD-B482-852A6C9291CF",
+				"partnerName": "Adira Dinamika Multi Finance Tbk"
+			},
+			"description": "Purchase of equipment",
+			"coa": {
+				"coaId": "1C6E5D5C-786B-4EDD-93CF-5B1037FB440E",
+				"accountCode": "100-000-002"
+			},
+			"costCenter": {
+				"costCenterId": "3693694E-5DF6-40BC-A9F3-3C7202AEAAD3",
+				"costCenterCode": "CC-RPD-002"
+			},
+			"amount": 1500,
+			"attachments": [
+				{
+					"id": 3,
+					"fileName": "File 3"
+				},
+				{
+					"id": 4,
+					"fileName": "File 4"
+				}
+			]
+		},
+		{
+			"id": null,
+			"invoiceDate": new Date("2025-04-14"),
+			"partner": {
+				"partnerId": "35CDABAD-A750-48DD-B482-852A6C9291CE",
+				"partnerName": "PT Astra Graphia Information Technology"
+			},
+			"description": "Travel expenses",
+			"coa": {
+				"coaId": "1C6E5D5C-786B-4EDD-93CF-5B1037FB440F",
+				"accountCode": "100-000-003"
+			},
+			"costCenter": {
+				"costCenterId": "3693694E-5DF6-40BC-A9F3-3C7202AEAAD4",
+				"costCenterCode": "CC-RPD-003"
+			},
+			"amount": 800,
+			"attachments": [
+				{
+					"id": 5,
+					"fileName": "File 5"
+				},
+				{
+					"id": 6,
+					"fileName": "File 6"
+				}
+			]
+		}
+	];
 
-    const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
-    const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
-    const ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
-    const txtRequestor = $("#txtRequestor");
-    let btnAddDetail;
+	//Variable for control
+	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
+	const ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
+	const txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
 
-    $(function () {
-        CreateManager = new CreateManager();
-        CreateManager.InitManagement();
-    });
+	const initialOutgoingPaymentDetail = {
+		"id": null,
+		"invoiceDate": new Date(),
+		"partner": {
+			"partnerId": "",
+			"partnerName": ""
+		},
+		"description": "",
+		"coa": {
+			"coaId": "",
+			"accountCode": ""
+		},
+		"costCenter": {
+			"costCenterId": "",
+			"costCenterCode": ""
+		},
+		"amount": 0,
+		"attachments": []
+	};
+	let indexRowEdit = -1;
+	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
+	let totalAmount = 0;
 
-    function CreateManager() {
-        return {
-            InitManagement: function () {
-                this.InitControls();
-                this.InitHandlers();
-                this.InitValidation();
-                this.InitLoad();
-            },
-            InitControls: function () {
-                gridOutgoingPaymentDetail.DataTable({
-                    ordering: false,
-                    paging: false,
-                    searching: false,
-                    info: false,
-                    autoWidth: false,
-                    data: sampleData,
-                    columns: [
-                        { title: "Date" },
-                        { title: "Partner" },
-                        { title: "Description" },
-                        { title: "CoA" },
-                        { title: "CostCenter" },
-                        { title: "Amount" },
-                        { title: "File" },
-                        { title: "Action" }
-                    ],
-                    columnDefs: [{
-                        targets: -1,
-                        orderable: false,
-                        className: 'dt-body-center',
-                        render: function (data, type, full, meta) {
-                            return '<button class="edit-btn btn btn-primary mr-2"><i class="fas fa-edit"></i></button>' +
-                                '<button class="delete-btn btn btn-danger mr-2"><i class="fas fa-trash"></i></button>';
-                        }
-                    }],
-                    layout: {
-                        top1End: function () {
-                            let toolbar = document.createElement('div');
-                            let buttons = `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
-                            toolbar.innerHTML = buttons;
+	$(function () {
+		CreateManager = new CreateManager();
+		CreateManager.InitManagement();
+	});
 
-                            return toolbar;
-                        }
-                    }
-                });
+	function CreateManager() {
+		return {
+			InitManagement: function () {
+				this.InitControls();
+				this.InitHandlers();
+				this.InitValidation();
+				this.InitLoad();
+			},
+			InitControls: function () {
+				gridOutgoingPaymentDetail.dataTable({
+					ordering: false,
+					paging: false,
+					searching: false,
+					info: false,
+					scrollX: true,
+					initComplete: function (settings, json) {
+						$('.dt-scroll-head').css({ visibility: 'collapse' });
+					},
+					language: {
+						emptyTable: 'Belum ada data'
+					},
+					//data: sampleData,
+					columns: [
+						{
+							data: "invoiceDate",
+							title: "Date",
+							width: "120px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div class="input-group">
+											<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + `>
+											<div class="input-group-append">
+												<span class="input-group-text">
+													<i class="fa fa-calendar"></i>
+												</span>
+											</div>
+										</div>`);
+								}
 
-                dtRequestDate.datepicker({
-                    dateFormat: "yy-mm-dd",
-                    disabled: true
-                });
-                dtRequestDate.datepicker("setDate", new Date())
+								return data.toISOString().split('T')[0];
+							}
+						},
+						{
+							data: "partner",
+							title: "Partner",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<select class="form-control" id="ddlPartner"></select>
+										</div>`);
+								}
 
-                dtScheduledDate.datepicker({
-                    dateFormat: "yy-mm-dd",
-                    minDate: new Date()
-                });
-            },
-            InitHandlers: function () {
-                ddlCompany.on("change", function (e) {
-                    ddlFromAliasBank.removeAttr("disabled");
-                    RefreshDdlBankAlias(ddlFromAliasBank);
-                });
+								return data.partnerName;
+							}
+						},
+						{
+							data: "description",
+							title: "Description",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<input type="text" class="form-control" id="txtDescription" value="` + data + `"/>
+										</div>`);
+								}
 
-                ddlFromAliasBank.add(ddlToAliasBank).on("change", function (e) {
-                    const ddl = $(this);
-                    const descriptorControl = $(ddl.attr("descriptor-control"));
-                    const optionSelected = ddl.find(':selected');
-                    const bankName = optionSelected.attr("data-bank-name");
-                    const accountNo = optionSelected.attr("data-account-no");
-                    const accountName = optionSelected.attr("data-account-name");
+								return data;
+							}
+						},
+						{
+							data: "coa",
+							title: "CoA",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<select class="form-control" id="ddlCoa"></select>
+										</div>`);
+								}
 
-                    descriptorControl.val(
+								return data.accountCode
+							}
+						},
+						{
+							data: "costCenter",
+							title: "Cost Center",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<select class="form-control" id="ddlCostCenter"></select>
+										</div>`);
+								}
+
+								return data.costCenterCode
+							}
+						},
+						{
+							data: "amount",
+							title: "Amount",
+							width: "150px",
+							render: function (data, type, row, meta) {
+								totalAmount = totalAmount + data;
+
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<input type="text" class="form-control" id="txtAmount" value="` + data + `"/>
+										</div>`);
+								}
+
+								return data;
+							}
+						},
+						{
+							data: "attachments",
+							title: "File",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (Array.isArray(data)) {
+									let badge = ``;
+
+									data.forEach(function (e, i, a) {
+										badge = badge +
+											`<span class="badge badge-success mr-1 mb-1 p-0">
+												<a class="btn btn-xs text-white" onclick="alert('view file')">
+													<span>` + e.fileName + `</span>
+												</a>
+												<a class="btn btn-xs text-white border-left pl-1" onclick="alert('delete file')">
+													<i class="fas fa-trash"></i>
+												</a>
+											</span>`;
+									});
+
+									return badge + `</div>`;
+								}
+
+								return ``;
+							}
+						},
+						{
+							data: "id",
+							title: "Action",
+							width: "40px",
+							render: function (data, type, full, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-save"></i></a>
+										<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-upload"></i></a>`);
+								}
+
+								return (
+										`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-edit"></i></a>
+										<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-trash"></i></a>`);
+							}
+						}
+					],
+					layout: {
+						top1End: function () {
+							let toolbar = document.createElement('div');
+							let buttons = `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
+							toolbar.innerHTML = buttons;
+
+							return toolbar;
+						}
+					}
+				});
+
+				dtRequestDate.datepicker({
+					dateFormat: "yy-mm-dd",
+					disabled: true
+				});
+				dtRequestDate.datepicker("setDate", new Date())
+
+				dtScheduledDate.datepicker({
+					dateFormat: "yy-mm-dd",
+					minDate: new Date()
+				});
+			},
+			InitHandlers: function () {
+				ddlCompany.on("change", function (e) {
+					ddlFromAliasBank.removeAttr("disabled");
+					RefreshDdlBankAlias(ddlFromAliasBank);
+					LoadDdlPartnerData();
+					LoadDdlCoaData();
+					LoadDdlCostCenterData();
+
+					$(this).attr("disabled", true);
+				});
+
+				ddlFromAliasBank.add(ddlToAliasBank).on("change", function (e) {
+					const ddl = $(this);
+					const descriptorControl = $(ddl.attr("descriptor-control"));
+					const optionSelected = ddl.find(':selected');
+					const bankName = optionSelected.attr("data-bank-name");
+					const accountNo = optionSelected.attr("data-account-no");
+					const accountName = optionSelected.attr("data-account-name");
+
+					descriptorControl.val(
 `Bank Name : ` + bankName + `
 Account Name : ` + accountName + `
 Account No : ` + accountNo);
-                });
+				});
 
-                btnAddDetail = $("#btnAddDetail").on("click", function (e) {
-                    
-                });
-            },
-            InitValidation: function () {
-            },
-            InitLoad: function () {
-                RefreshDdlCompany();
+				$("#btnAddDetail").on("click", function (e) {
+					if (ValidateAllowModifyDetail()) {
+						indexRowEdit = gridOutgoingPaymentDetail.api().data().length;
+						gridOutgoingPaymentDetail.api().row.add(initialOutgoingPaymentDetail).draw();
 
-                txtRequestor.val(localStorage.getItem("displayName"));
+						AfterEditDetail(initialOutgoingPaymentDetail);
+					}
+				});
 
-                RefreshDdlBankAlias(ddlToAliasBank);
-            }
-        }
-    };
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-edit", function (e) {
+					if (ValidateAllowModifyDetail()) {
+						indexRowEdit = parseInt($(this).attr('data-row-index'));
+						let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
+						gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 
-    function RefreshDdlCompany() {
+						AfterEditDetail(data);
+
+						totalAmount = totalAmount - 2 * data.amount;
+					}
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-trash", function (e) {
+					let indexRowDelete = parseInt($(this).attr('data-row-index'));
+
+					Swal.fire({
+						title: "Hapus Data",
+						html: "Apakah anda yakin ingin meghapus data ini?",
+						showCancelButton: true,
+						confirmButtonText: "Hapus",
+						confirmButtonColor: "#D92D20",
+						customClass: {
+							actions: 'my-actions',
+							cancelButton: 'order-1 right-gap',
+							confirmButton: 'order-2',
+						},
+						icon: "warning"
+					}).then((result) => {
+						if (result.isConfirmed) {
+							let data = gridOutgoingPaymentDetail.api().row(indexRowDelete).data();
+							gridOutgoingPaymentDetail.api().row(indexRowDelete).remove().draw();
+
+							totalAmount = totalAmount - data.amount;
+							txtTotalAmount.val(totalAmount);
+						}
+					});
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-save", function (e) {
+					let indexRowSave = indexRowEdit;
+					let updateData = {
+						"id": null,
+						"invoiceDate": $('#dtInvoiceDate').datepicker('getDate'),
+						"partner": {
+							"partnerId": $('#ddlPartner').val(),
+							"partnerName": $('#ddlPartner option:selected').text()
+						},
+						"description": $('#txtDescription').val(),
+						"coa": {
+							"coaId": $('#ddlCoa').val(),
+							"accountCode": $('#ddlCoa option:selected').text()
+						},
+						"costCenter": {
+							"costCenterId": $('#ddlCostCenter').val(),
+							"costCenterCode": $('#ddlCostCenter option:selected').text()
+						},
+						"amount": parseInt($('#txtAmount').val()),
+						"attachments": []
+					}
+
+					indexRowEdit = -1;
+					gridOutgoingPaymentDetail.api().row(indexRowSave).data(updateData);
+
+					txtTotalAmount.val(totalAmount);
+				});
+			},
+			InitValidation: function () {
+			},
+			InitLoad: function () {
+				RefreshDdlCompany();
+
+				txtRequestor.val(localStorage.getItem("displayName"));
+
+				RefreshDdlBankAlias(ddlToAliasBank);
+
+				txtTotalAmount.val(totalAmount);
+			}
+		}
+	};
+
+	function RefreshDdlCompany() {
 		$.ajax(Object.assign({}, glbBaseRequest, {
 			"url": "@ddlCompanyUrl"
 		})).done(function (response) {
@@ -122,7 +435,7 @@ Account No : ` + accountNo);
 				ddlCompany.empty().append(`<option value=""></option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
-                    const data = response.obj[i];
+					const data = response.obj[i];
 					ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
 				}
 			}
@@ -134,41 +447,158 @@ Account No : ` + accountNo);
 				});
 			}
 		});
-    }
+	}
 
-    function RefreshDdlBankAlias(ddlBankAlias) {
-        let url = "@ddlBankAliasUrl"
+	function RefreshDdlBankAlias(ddlBankAlias) {
+		let url = "@ddlBankAliasUrl"
 
-        if (ddlBankAlias == ddlFromAliasBank) {
-            url = url + "?companyId=" + ddlCompany.val();
-        }
+		if (ddlBankAlias == ddlFromAliasBank) {
+			url = url + "?companyId=" + ddlCompany.val();
+		}
 
-        $.ajax(Object.assign({}, glbBaseRequest, {
-            "url": url
-        })).done(function (response) {
-            if (response.succeeded) {
-                ddlBankAlias.empty().append(`<option value=""></option>`);
+		$.ajax(Object.assign({}, glbBaseRequest, {
+			"url": url
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlBankAlias.empty().append(`<option value=""></option>`);
 
-                for (let i = 0; i < response.obj.length; i++) {
-                    const data = response.obj[i];
-                    ddlBankAlias.append(
-                        `<option 
-                            value="` + data.bankAliasId + `"
-                            data-bank-name="` + data.bankName + `"
-                            data-account-no="` + data.accountNo + `"
-                            data-account-name="` + data.accountName + `"
-                            >` + 
-                            data.aliasName + 
-                        `</option>`);
-                }
-            }
-            else {
-                Swal.fire({
-                    title: "Error",
-                    text: response.message,
-                    icon: "error"
-                });
-            }
-        });
-    }
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlBankAlias.append(
+						`<option
+								value="` + data.bankAliasId + `"
+								data-bank-name="` + data.bankName + `"
+								data-account-no="` + data.accountNo + `"
+								data-account-name="` + data.accountName + `"
+								>` +
+						data.aliasName +
+						`</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	function LoadDdlPartnerData() {
+		$.ajax(Object.assign({}, glbBaseRequest, {
+			"url": "@ddlPartnerUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlPartnerDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	function RefreshDdlPartner(partnerId) {
+		let ddlPartner = $("#ddlPartner");
+		ddlPartner.empty().append(`<option value=""></option>`);
+
+		for (let i = 0; i < ddlPartnerDatas.length; i++) {
+			const data = ddlPartnerDatas[i];
+			const isSelected = partnerId.toLowerCase() == data.partnerId.toLowerCase() ? ` selected` : ``;
+			ddlPartner.append(`<option value="` + data.partnerId + `"` + isSelected + `>` + data.partnerName + `</option>`);
+		}
+	}
+
+	function LoadDdlCoaData() {
+		$.ajax(Object.assign({}, glbBaseRequest, {
+			"url": "@ddlCoaUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCoaDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	function RefreshDdlCoa(coaId) {
+		let ddlCoa = $("#ddlCoa");
+		ddlCoa.empty().append(`<option value=""></option>`);
+
+		for (let i = 0; i < ddlCoaDatas.length; i++) {
+			const data = ddlCoaDatas[i];
+			const isSelected = coaId.toLowerCase() == data.coaId.toLowerCase() ? ` selected` : ``;
+			ddlCoa.append(`<option value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + `</option>`);
+		}
+	}
+
+	function LoadDdlCostCenterData() {
+		$.ajax(Object.assign({}, glbBaseRequest, {
+			"url": "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCostCenterDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	function RefreshDdlCostCenter(costCenterId) {
+		let ddlCostCenter = $("#ddlCostCenter");
+		ddlCostCenter.empty().append(`<option value=""></option>`);
+
+		for (let i = 0; i < ddlCostCenterDatas.length; i++) {
+			const data = ddlCostCenterDatas[i];
+			const isSelected = costCenterId.toLowerCase() == data.costCenterId.toLowerCase() ? ` selected` : ``;
+			ddlCostCenter.append(`<option value="` + data.costCenterId + `"` + isSelected + `>` + data.costCenterCode + `</option>`);
+		}
+	}
+
+	function ValidateAllowModifyDetail() {
+		let message = '';
+
+		if (ddlCompany.val() == '')
+			message = 'Harap memilih company terlebih dahulu';
+
+		if (indexRowEdit != -1)
+			message = "Harap menyelesaikan edit yang belum selesai terlebih dahulu";
+
+		if (message != '') {
+			Swal.fire({
+				title: "Error",
+				text: message,
+				icon: "error"
+			});
+
+			return false;
+		}
+
+		return true;
+	}
+
+	function AfterEditDetail(data) {
+		$('#dtInvoiceDate').datepicker({
+			dateFormat: "yy-mm-dd",
+			minDate: new Date()
+		});
+
+		RefreshDdlPartner(data.partner.partnerId);
+		RefreshDdlCoa(data.coa.coaId);
+		RefreshDdlCostCenter(data.costCenter.costCenterId);
+	}
 </script>

@@ -23,8 +23,11 @@ namespace Finance.Expensia.Core
             services.AddScoped<GoogleAuthService>();
             services.AddScoped<CompanyService>();
             services.AddScoped<BankAliasService>();
+			services.AddScoped<PartnerService>();
+			services.AddScoped<CoaService>();
+			services.AddScoped<CostCenterService>();
 
-            services.AddHttpClient();
+			services.AddHttpClient();
 
             return services;
         }
