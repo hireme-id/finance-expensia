@@ -58,8 +58,11 @@ namespace Finance.Expensia.DataAccess.Builders
             builder
                 .HasData(
                     new Permission { Id = new Guid("aaad754e-00d1-4ffe-a530-bce354eba9ed"), PermissionCode = PermissionConstants.MasterData.CompanyView, PermissionDescription = "Akses untuk view data company", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
-                    new Permission { Id = new Guid("69a24b35-8eab-47a4-96e7-64e18bb2920a"), PermissionCode = PermissionConstants.MasterData.BankAliasView, PermissionDescription = "Akses untuk view bank alias", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
-                );
+                    new Permission { Id = new Guid("69a24b35-8eab-47a4-96e7-64e18bb2920a"), PermissionCode = PermissionConstants.MasterData.BankAliasView, PermissionDescription = "Akses untuk view bank alias", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+					new Permission { Id = new Guid("92aec8f2-6899-4ad7-9d59-ee7a305b7032"), PermissionCode = PermissionConstants.MasterData.PartnerView, PermissionDescription = "Akses untuk view partner", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+					new Permission { Id = new Guid("9ff1a3b0-e198-4cb0-9f43-c52c22f04da2"), PermissionCode = PermissionConstants.MasterData.CoaView, PermissionDescription = "Akses untuk view coa", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+					new Permission { Id = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), PermissionCode = PermissionConstants.MasterData.CostCenterView, PermissionDescription = "Akses untuk view cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
+				);
         }
     }
 }
