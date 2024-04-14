@@ -131,8 +131,7 @@
 
     <script type="text/javascript">
         var glbBaseRequest = {
-            "method": "POST",
-            "timeout": 10000,
+            "timeout": 0,
             "headers": {
                 "Authorization": "Bearer " + localStorage.getItem("accessToken"),
                 "Content-Type": "application/json"
@@ -155,7 +154,8 @@
             RedirectToLogin();
         }
 
-        if (new Date() >= expiredAt) {
+        let dt = new Date((new Date()).getTime() + 10 * 60000);
+        if (dt >= expiredAt) {
             var refreshToken = {
                 "url": "@refreshTokenUrl",
                 "method": "POST",

@@ -27,7 +27,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Inputs
 		public Guid CostCenterId { get; set; }
 		public decimal Amount { get; set; }
 
-		public List<CreateOutgoingPaymentDetailAttachmentInput> OutgointPaymentDetailAttachments { get; set; } = [];
+		public List<CreateOutgoingPaymentDetailAttachmentInput> OutgoingPaymentDetailAttachments { get; set; } = [];
 	}
 
 	public class CreateOutgoingPaymentDetailAttachmentInput

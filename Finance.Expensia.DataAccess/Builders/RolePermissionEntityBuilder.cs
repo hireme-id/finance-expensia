@@ -41,7 +41,9 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("93bb9a1f-4bff-4dd7-8707-13e9ed5d5dde"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("69a24b35-8eab-47a4-96e7-64e18bb2920a"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("185db5f6-9fa7-48c6-97df-c2bf1d0709bc"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("92aec8f2-6899-4ad7-9d59-ee7a305b7032"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
 					new RolePermission { Id = new Guid("6169bee2-f5cb-4a40-b4e5-b85c0b7861c1"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("9ff1a3b0-e198-4cb0-9f43-c52c22f04da2"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-					new RolePermission { Id = new Guid("d2ad9345-8d2a-4147-99e1-6cb714429d33"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) }
+					new RolePermission { Id = new Guid("d2ad9345-8d2a-4147-99e1-6cb714429d33"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("5df9b7c1-3bab-4390-afd8-603c53a06607"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("64518cb1-3dd4-49bb-8077-b0c2b64a6481"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) }
 				);
 
             //Untuk Role Approval 87312c58-9961-4578-bd05-8e0f96aaeb7f
@@ -54,7 +56,9 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("88980ec1-7561-4aff-b105-65f7c29c391a"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("69a24b35-8eab-47a4-96e7-64e18bb2920a"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
 					new RolePermission { Id = new Guid("bf8e70f8-1410-469d-a110-ac5e7ea7f870"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("92aec8f2-6899-4ad7-9d59-ee7a305b7032"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
 					new RolePermission { Id = new Guid("f7e00cdd-64a2-43d1-8692-c22c72088e9e"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("9ff1a3b0-e198-4cb0-9f43-c52c22f04da2"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-					new RolePermission { Id = new Guid("3b322886-a0a5-4d4d-987a-747ddeadbe93"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) }
+					new RolePermission { Id = new Guid("3b322886-a0a5-4d4d-987a-747ddeadbe93"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("d5152d60-c9d7-4502-a71e-e0ccc9351df1"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("ffbf7b43-7175-4d25-abb5-98fb5a7bce00"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) }
 				);
         }
     }

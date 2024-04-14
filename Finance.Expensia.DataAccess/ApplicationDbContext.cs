@@ -27,7 +27,7 @@ namespace Finance.Expensia.DataAccess
         #region Transaction
         public virtual DbSet<OutgoingPayment> OutgoingPayments { get; set; }
         public virtual DbSet<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; }
-        public virtual DbSet<OutgoingPaymentDetailAttachment> OutgointPaymentDetailAttachments { get; set; }
+        public virtual DbSet<OutgoingPaymentDetailAttachment> OutgoingPaymentDetailAttachments { get; set; }
         #endregion
 
          

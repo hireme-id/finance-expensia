@@ -29,5 +29,11 @@
 			public const string CoaView = "MasterData.CoA.View";
 			public const string CostCenterView = "MasterData.CostCenter.View";
 		}
+
+        public static class Storage
+        {
+            public const string StorageUpload = "Storage.Upload";
+			public const string StorageDownload = "Storage.Download";
+		}
     }
 }
