@@ -6,15 +6,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.Google;
-using Finance.Expensia.Shared.Constants;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Session;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Finance.Expensia.Web.Extensions.StartupExtensions
 {
-    public static class WebApplicationBuilderExtensions
+	public static class WebApplicationBuilderExtensions
     {
         public static WebApplicationBuilder AddController(this WebApplicationBuilder builder)
         {
@@ -23,7 +18,7 @@ namespace Finance.Expensia.Web.Extensions.StartupExtensions
                 options.SuppressXFrameOptionsHeader = true;
             });
 
-            builder.Services.AddControllers(
+            builder.Services.AddControllersWithViews(
                 options =>
                 {
                     options.Filters.Add<AuthorizationFilter>();

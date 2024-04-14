@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Finance.Expensia.Shared.Enums
 {
-    public enum ApprovalStatus
+	public enum ApprovalStatus
     {
+        Draft,
         [Description("Waiting Approval")]
         WaitingApproval,
         Approved,

@@ -16,11 +16,15 @@ namespace Finance.Expensia.DataAccess.Models
         public DateTime ScheduledDate { get; set; }
         public Guid FromBankAliasId { get; set; }
         public string FromBankAliasName { get; set; } = string.Empty;
+        public string FromBankName { get; set; } = string.Empty;
         public string FromAccountNo { get; set; } = string.Empty;
+        public string FromAccountName { get; set; } = string.Empty;
         public Guid ToBankAliasId { get; set; }
         public string ToBankAliasName { get; set; } = string.Empty;
-        public string ToAccountNo { get; set; } = string.Empty;
-        public decimal TotalAmount { get; set; }
+		public string ToBankName { get; set; } = string.Empty;
+		public string ToAccountNo { get; set; } = string.Empty;
+		public string ToAccountName { get; set; } = string.Empty;
+		public decimal TotalAmount { get; set; }
 
         public virtual List<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; } = [];
     }

@@ -49,7 +49,7 @@ namespace rapid.Areas.Account.Controllers
         [AppAuthorize([PermissionConstants.RefreshToken])]
         public async Task<ResponseObject<TokenDto>> RefreshToken()
         {
-            return await _userService.RefreshToken(_currentUserAccessor.UserName);
+            return await _userService.RefreshToken(_currentUserAccessor.Id);
         }
 
         [HttpPost("user/mypermission")]

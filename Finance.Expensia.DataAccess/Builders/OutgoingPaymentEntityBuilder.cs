@@ -42,24 +42,39 @@ namespace Finance.Expensia.DataAccess.Builders
                 .Property(e => e.Remark)
                 .HasMaxLength(200);
 
-
             builder
                 .Property(e => e.FromBankAliasName)
                 .HasMaxLength(200);
 
-            builder
+			builder
+				.Property(e => e.FromBankName)
+				.HasMaxLength(150);
+
+			builder
                 .Property(e => e.FromAccountNo)
                 .HasMaxLength(200);
 
-            builder
+			builder
+				.Property(e => e.FromAccountName)
+				.HasMaxLength(150);
+
+			builder
                 .Property(e => e.ToBankAliasName)
                 .HasMaxLength(200);
 
-            builder
+			builder
+				.Property(e => e.ToBankName)
+				.HasMaxLength(150);
+
+			builder
                 .Property(e => e.ToAccountNo)
                 .HasMaxLength(200);
 
-            builder
+			builder
+				.Property(e => e.ToAccountName)
+				.HasMaxLength(150);
+
+			builder
                 .Property(e => e.TotalAmount)
                 .HasColumnType("money");
         }

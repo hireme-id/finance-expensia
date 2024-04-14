@@ -42,10 +42,10 @@ namespace Finance.Expensia.Core.Services.Account
             };
         }
 
-        public async Task<ResponseObject<TokenDto>> RefreshToken(string userName)
+        public async Task<ResponseObject<TokenDto>> RefreshToken(Guid userId)
         {
             var dataUser = await _dbContext.Users
-                                       .FirstOrDefaultAsync(d => d.Username.Equals(userName));
+                                       .FirstOrDefaultAsync(d => d.Id.Equals(userId));
 
             if (dataUser != null)
             {
