@@ -1,4 +1,5 @@
 ﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
 @{
     ViewData["Title"] = "Create Outgoing Payment";
     ViewData["Subtitle"] = "Create Outgoing Payment";
@@ -16,7 +17,7 @@
             </div>
             <div class="col-lg-6">
                 <label>Company <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlCompany"></select>
+                <select class="form-control" id="ddlCompany" name="companyId"></select>
             </div>
         </div>
         <div class="row mb-3">
@@ -43,11 +44,11 @@
             </div>
             <div class="col-lg-6">
                 <label>Expected Transfer <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlExpectedTransfer">
+                <select class="form-control" id="ddlExpectedTransfer" name="expectedTransfer">
                     <option value=""></option>
                     @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
                     {
-                        @Html.Raw($"<option value=\"{(int)item}\">{item}</option>");
+                        @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>");
                     }
                 </select>
             </div>
@@ -55,12 +56,12 @@
         <div class="row mb-3">
             <div class="col-lg-6">
                 <label>Remark</label>
-                <input type="text" class="form-control" id="txtRemark" />
+                <input type="text" class="form-control" id="txtRemark" name="remark" />
             </div>
             <div class="col-lg-6">
                 <label>Scheduled Date <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
-                    <input type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off">
+                    <input type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off" name="scheduledDate">
                     <div class="input-group-append">
                         <span class="input-group-text">
                             <i class="fa fa-calendar"></i>
@@ -75,11 +76,11 @@
         <div class="row mb-3">
             <div class="col-lg-6">
                 <label>From Alias Bank <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlFromAliasBank" descriptor-control="#txtFromBankName" disabled></select>
+                <select class="form-control" id="ddlFromAliasBank" descriptor-control="#txtFromBankName" name="fromBankAliasId" disabled></select>
             </div>
             <div class="col-lg-6">
                 <label>To Alias Bank <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlToAliasBank" descriptor-control="#txtToBankName"></select>
+                <select class="form-control" id="ddlToAliasBank" descriptor-control="#txtToBankName" name="toBankAliasId"></select>
             </div>
         </div>
         <div class="row mb-3">
@@ -107,8 +108,8 @@
     </div>
     <div class="card-footer">
         <button type="button" id="btnDelete" class="btn btn-outline-danger" style="width:150px;display:none">Delete</button>
-        <button type="button" id="btnSubmit" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
-        <button type="button" id="btnDraft" class="btn btn-outline-secondary float-right" style="width:150px">Draft</button>
+        <button type="button" id="btnSubmit" data-is-submit="true" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
+        <button type="button" id="btnDraft" data-is-submit="false" class="btn btn-outline-secondary float-right" style="width:150px">Draft</button>
     </div>
 </div>
 

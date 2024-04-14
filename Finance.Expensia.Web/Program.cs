@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.RegisterShared(builder.Host, builder.Configuration);
-builder.Services.AddControllersWithViews();
+//builder.Services.AddControllersWithViews();
 builder.AddController();
 builder.AddFluentValidation();
 builder.AddHealthCheck();

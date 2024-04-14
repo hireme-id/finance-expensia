@@ -6,22 +6,18 @@ using Finance.Expensia.Shared.Objects;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Finance.Expensia.Core.Services.Account
 {
-    public class TokenService(ApplicationDbContext dbContext, IMapper mapper, ILogger<TokenService> logger, IOptions<SecurityConfig> securityOption)
+	public class TokenService(ApplicationDbContext dbContext, IMapper mapper, ILogger<TokenService> logger, IOptions<SecurityConfig> securityOption)
         : BaseService<TokenService>(dbContext, mapper, logger)
     {
         private readonly SecurityConfig _securityConfig = securityOption.Value;
 
-        public async Task<TokenDto> GenerateToken(string userName, Guid userId, string givenName, List<string> permissions)
+        public async Task<TokenDto> GenerateToken(string userName, Guid userId, string fullName, List<string> permissions)
         {
             var secretKey = Encoding.ASCII.GetBytes(_securityConfig.SecretKey);
             var accessTokenExpireAt = DateTime.Now.AddMinutes(_securityConfig.TokenExpired);
@@ -35,7 +31,7 @@ namespace Finance.Expensia.Core.Services.Account
                     new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, userName),
-                    new Claim(JwtRegisteredClaimNames.GivenName, givenName),
+                    new Claim(JwtRegisteredClaimNames.GivenName, fullName),
                     new Claim(JwtRegisteredClaimNames.Sid, userName)
                 }),
                 Expires = accessTokenExpireAt,
@@ -56,7 +52,7 @@ namespace Finance.Expensia.Core.Services.Account
                     new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, userName),
-                    new Claim(JwtRegisteredClaimNames.GivenName, givenName),
+                    new Claim(JwtRegisteredClaimNames.GivenName, fullName),
                     new Claim(JwtRegisteredClaimNames.Sid, userName)
                 }),
                 Expires = refreshTokenExpireAt,

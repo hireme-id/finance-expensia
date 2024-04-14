@@ -28,7 +28,11 @@ namespace Finance.Expensia.DataAccess.Builders
                 .Property(e => e.ChartOfAccountNo)
                 .HasMaxLength(150);
 
-            builder
+			builder
+				.Property(e => e.CostCenterCode)
+				.HasMaxLength(200);
+
+			builder
                 .Property(e => e.CostCenterName)
                 .HasMaxLength(200);
 

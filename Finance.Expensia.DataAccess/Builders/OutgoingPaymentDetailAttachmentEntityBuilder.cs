@@ -30,7 +30,7 @@ namespace Finance.Expensia.DataAccess.Builders
 
             builder
                 .HasOne(e => e.OutgoingPaymentDetail)
-                .WithMany(e => e.OutgointPaymentDetailAttachments)
+                .WithMany(e => e.OutgoingPaymentDetailAttachments)
                 .HasForeignKey(e => e.OutgoingPaymentDetailId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

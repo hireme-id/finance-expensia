@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Finance.Expensia.Web.Middlewares
 {
@@ -38,11 +39,11 @@ namespace Finance.Expensia.Web.Middlewares
                     if (IsAuthorize(context, permissions))
                     {
                         var sub = identity.Claims.FirstOrDefault(c => c.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))?.Value;
-                        var sid = identity.Claims.FirstOrDefault(c => c.Type.Equals("sid"))?.Value;
+                        var sid = identity.Claims.FirstOrDefault(c => c.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"))?.Value;
                         var email = identity.Claims.FirstOrDefault(c => c.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"))?.Value;
 
                         _currentUserAccessor.Id = new Guid(sub ?? "00000000-0000-0000-0000-000000000000");
-                        _currentUserAccessor.UserName = sid ?? _currentUserAccessor.UserName;
+                        _currentUserAccessor.FullName = sid ?? _currentUserAccessor.FullName;
                         _currentUserAccessor.Email = email ?? _currentUserAccessor.Email;
                         _currentUserAccessor.Permissions = permissions.Select(p => p.Value);
 
