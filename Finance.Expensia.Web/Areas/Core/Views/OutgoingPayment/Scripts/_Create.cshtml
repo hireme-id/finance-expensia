@@ -5,6 +5,8 @@
 	var ddlCoaUrl = Url.Action("RetrieveCoa", "Coa");
 	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
 	var createOutgoingPaymentUrl = Url.Action("CreateOutgoingPayment", "OutgoingPayment");
+	var uploadFileUrl = Url.Action("UploadFile", "Storage");
+	var downloadFileUrl = Url.Action("DownloadFile", "Storage");
 }
 
 <script type="text/javascript">
@@ -102,25 +104,6 @@
 	const txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
 	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
 
-	const initialOutgoingPaymentDetail = {
-		"id": null,
-		"invoiceDate": new Date(),
-		"partner": {
-			"partnerId": "",
-			"partnerName": ""
-		},
-		"description": "",
-		"coa": {
-			"coaId": "",
-			"accountCode": ""
-		},
-		"costCenter": {
-			"costCenterId": "",
-			"costCenterCode": ""
-		},
-		"amount": 0,
-		"attachments": []
-	};
 	let indexRowEdit = -1;
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
 	let totalAmount = 0;
@@ -151,11 +134,11 @@
 					language: {
 						emptyTable: 'Belum ada data'
 					},
-					//data: sampleData,
 					columns: [
 						{
 							data: "invoiceDate",
 							title: "Date",
+							type: "date",
 							width: "120px",
 							render: function (data, type, row, meta) {
 								if (meta.row == indexRowEdit) {
@@ -170,7 +153,7 @@
 										</div>`);
 								}
 
-								return data.toISOString().split('T')[0];
+								return new Date(data).toISOString().split('T')[0];
 							}
 						},
 						{
@@ -261,13 +244,25 @@
 									data.forEach(function (e, i, a) {
 										badge = badge +
 											`<span class="badge badge-success mr-1 mb-1 p-0">
-												<a class="btn btn-xs text-white" onclick="alert('view file')">
-													<span>` + e.fileName + `</span>
-												</a>
-												<a class="btn btn-xs text-white border-left pl-1" onclick="alert('delete file')">
-													<i class="fas fa-trash"></i>
-												</a>
-											</span>`;
+												<a class="btn btn-xs text-white">
+													<span 
+														class="download-file" 
+														data-file-url="` + e.fileUrl + `"
+														data-content-type="` + e.contentType + `"
+														data-file-name="` + e.fileName + `">` + 
+															e.fileName + 
+													`</span>
+												</a>`;
+										
+										if (meta.row == indexRowEdit) {
+											badge = badge +
+												`<a class="btn btn-xs text-white border-left pl-1">
+													<i class="fas fa-times" data-index="` + i + `"></i>
+												</a>`;
+										}
+
+										badge = badge + 
+											`</span>`;
 									});
 
 									return badge + `</div>`;
@@ -284,7 +279,8 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-save"></i></a>
-										<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-upload"></i></a>`);
+										<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-upload"></i></a>
+										<input type="file" id="fiUpload" accept=".pdf,.xlsx,.docx,.pptx" style="display: none;">`);
 								}
 
 								return (
@@ -342,6 +338,26 @@ Account No : ` + accountNo);
 
 				$("#btnAddDetail").on("click", function (e) {
 					if (ValidateAllowModifyDetail()) {
+						const initialOutgoingPaymentDetail = {
+							"id": null,
+							"invoiceDate": new Date(),
+							"partner": {
+								"partnerId": "",
+								"partnerName": ""
+							},
+							"description": "",
+							"coa": {
+								"coaId": "",
+								"accountCode": ""
+							},
+							"costCenter": {
+								"costCenterId": "",
+								"costCenterCode": ""
+							},
+							"amount": 0,
+							"attachments": []
+						};
+
 						indexRowEdit = gridOutgoingPaymentDetail.api().data().length;
 						gridOutgoingPaymentDetail.api().row.add(initialOutgoingPaymentDetail).draw();
 
@@ -389,6 +405,7 @@ Account No : ` + accountNo);
 
 				gridOutgoingPaymentDetail.on("click", "td .fas.fa-save", function (e) {
 					let indexRowSave = indexRowEdit;
+					let attachments = gridOutgoingPaymentDetail.api().row(indexRowSave).data().attachments;
 					let updateData = {
 						"id": null,
 						"invoiceDate": $('#dtInvoiceDate').datepicker('getDate'),
@@ -406,13 +423,100 @@ Account No : ` + accountNo);
 							"costCenterCode": $('#ddlCostCenter option:selected').text()
 						},
 						"amount": parseInt($('#txtAmount').val()),
-						"attachments": []
+						"attachments": attachments
 					}
 
 					indexRowEdit = -1;
 					gridOutgoingPaymentDetail.api().row(indexRowSave).data(updateData);
 
 					txtTotalAmount.val(totalAmount);
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-upload", function (e) {
+					$("#fiUpload").click();
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .download-file", function (e) {
+					let $el = $(this);
+
+					let request = JSON.parse(JSON.stringify(glbBaseRequest));
+					request.method = "POST";
+					request.url = "@downloadFileUrl";
+					request.processData = false;
+					request.contentType = false;
+					request.xhrFields = {
+						responseType: 'blob'
+					};
+					request.data = JSON.stringify({
+						fileName: $el.attr('data-file-name'),
+						fileUrl: $el.attr('data-file-url'),
+						contentType: $el.attr('data-content-type')
+					});
+
+					// delete request.headers["Content-Type"];
+
+					$.ajax(request).done(function (data, textStatus, jqXHR) {
+						var filename = $el.attr('data-file-name');
+						var blob = new Blob([data], { type: $el.attr('data-content-type') });
+						var a = document.createElement('a');
+						a.href = window.URL.createObjectURL(blob);
+						a.download = filename;
+						document.body.appendChild(a);
+						a.click();
+						document.body.removeChild(a);
+						window.URL.revokeObjectURL(a.href);
+					});
+				});
+
+				gridOutgoingPaymentDetail.on("change", "#fiUpload", function (e) {
+					let $el = $(this)
+					let file = $el[0].files[0];
+
+					let formData = new FormData();
+					formData.append('file', file, file.name);
+
+					let request = JSON.parse(JSON.stringify(glbBaseRequest));
+					request.method = "POST";
+					request.url = "@uploadFileUrl";
+					request.processData = false;
+					request.contentType = false;
+					request.data = formData;
+
+					delete request.headers["Content-Type"];
+
+					$.ajax(request).done(function (response) {
+						if (response.succeeded) {
+							let temporaryData = GetTemporaryData();
+
+							let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
+							data.attachments.push(response.obj);
+							gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
+
+							AfterEditDetail(temporaryData);
+
+							$el.val('');
+						}
+						else {
+							Swal.fire({
+								title: "Error",
+								text: response.message,
+								icon: "error"
+							});
+						}
+					});
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-times", function (e) {
+					let temporaryData = GetTemporaryData();
+
+					let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
+					let index = parseInt($(this).attr("data-index"));
+
+					data.attachments.splice(index, 1);
+
+					gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
+
+					AfterEditDetail(temporaryData);
 				});
 
 				btnSubmit.add(btnDraft).on("click", function (e) {
@@ -428,9 +532,26 @@ Account No : ` + accountNo);
 					formDataArray.forEach(function (field) {
 						formDataObject[field.name] = field.value;
 					});
-					formDataObject['isSubmit'] = isSubmit == 'true' ? true : false;
+					formDataObject.isSubmit = isSubmit == 'true' ? true : false;
+					formDataObject.outgoingPaymentDetails = [];
+
+					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
+					if (dataOutgoingPaymentDetails.length > 0) {
+						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
+							formDataObject.outgoingPaymentDetails.push({
+								invoiceDate: v.invoiceDate,
+								partnerId: v.partner.partnerId,
+								description: v.description,
+								chartOfAccountId: v.coa.coaId,
+								costCenterId: v.costCenter.costCenterId,
+								amount: v.amount,
+								outgoingPaymentDetailAttachments: v.attachments
+							});
+						});
+					}
 
 					$.ajax(Object.assign({}, glbBaseRequest, {
+						method: "POST",
 						url: "@createOutgoingPaymentUrl",
 						data: JSON.stringify(formDataObject),
 						contentType: "application/json"
@@ -468,7 +589,8 @@ Account No : ` + accountNo);
 
 	function RefreshDdlCompany() {
 		$.ajax(Object.assign({}, glbBaseRequest, {
-			"url": "@ddlCompanyUrl"
+			method: "POST",
+			url: "@ddlCompanyUrl"
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlCompany.empty().append(`<option value=""></option>`);
@@ -496,7 +618,8 @@ Account No : ` + accountNo);
 		}
 
 		$.ajax(Object.assign({}, glbBaseRequest, {
-			"url": url
+			method: "POST",
+			url: url
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlBankAlias.empty().append(`<option value=""></option>`);
@@ -526,7 +649,8 @@ Account No : ` + accountNo);
 
 	function LoadDdlPartnerData() {
 		$.ajax(Object.assign({}, glbBaseRequest, {
-			"url": "@ddlPartnerUrl" + "?companyId=" + ddlCompany.val()
+			method: "POST",
+			url: "@ddlPartnerUrl" + "?companyId=" + ddlCompany.val()
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlPartnerDatas = response.obj;
@@ -554,7 +678,8 @@ Account No : ` + accountNo);
 
 	function LoadDdlCoaData() {
 		$.ajax(Object.assign({}, glbBaseRequest, {
-			"url": "@ddlCoaUrl" + "?companyId=" + ddlCompany.val()
+			method: "POST",
+			url: "@ddlCoaUrl" + "?companyId=" + ddlCompany.val()
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlCoaDatas = response.obj;
@@ -582,7 +707,8 @@ Account No : ` + accountNo);
 
 	function LoadDdlCostCenterData() {
 		$.ajax(Object.assign({}, glbBaseRequest, {
-			"url": "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
+			method: "POST",
+			url: "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlCostCenterDatas = response.obj;
@@ -632,12 +758,37 @@ Account No : ` + accountNo);
 
 	function AfterEditDetail(data) {
 		$('#dtInvoiceDate').datepicker({
-			dateFormat: "yy-mm-dd",
-			minDate: new Date()
+			dateFormat: "yy-mm-dd"
 		});
+		$('#dtInvoiceDate').datepicker("setDate", data.invoiceDate);
 
 		RefreshDdlPartner(data.partner.partnerId);
+		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);
 		RefreshDdlCostCenter(data.costCenter.costCenterId);
+		$('#txtAmount').val(data.amount);
+	}
+
+	function GetTemporaryData() {
+		let temporaryData = {
+			"id": null,
+			"invoiceDate": $('#dtInvoiceDate').datepicker('getDate'),
+			"partner": {
+				"partnerId": $('#ddlPartner').val(),
+				"partnerName": $('#ddlPartner option:selected').text()
+			},
+			"description": $('#txtDescription').val(),
+			"coa": {
+				"coaId": $('#ddlCoa').val(),
+				"accountCode": $('#ddlCoa option:selected').text()
+			},
+			"costCenter": {
+				"costCenterId": $('#ddlCostCenter').val(),
+				"costCenterCode": $('#ddlCostCenter option:selected').text()
+			},
+			"amount": parseInt($('#txtAmount').val()),
+		}
+
+		return temporaryData;
 	}
 </script>

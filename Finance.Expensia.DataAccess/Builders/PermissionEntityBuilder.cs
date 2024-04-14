@@ -63,6 +63,13 @@ namespace Finance.Expensia.DataAccess.Builders
 					new Permission { Id = new Guid("9ff1a3b0-e198-4cb0-9f43-c52c22f04da2"), PermissionCode = PermissionConstants.MasterData.CoaView, PermissionDescription = "Akses untuk view coa", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
 					new Permission { Id = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), PermissionCode = PermissionConstants.MasterData.CostCenterView, PermissionDescription = "Akses untuk view cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
 				);
+
+            //Storage
+            builder
+                .HasData(
+					new Permission { Id = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), PermissionCode = PermissionConstants.Storage.StorageUpload, PermissionDescription = "Akses untuk upload file", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+					new Permission { Id = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), PermissionCode = PermissionConstants.Storage.StorageDownload, PermissionDescription = "Akses untuk download file", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
+				);
         }
     }
 }

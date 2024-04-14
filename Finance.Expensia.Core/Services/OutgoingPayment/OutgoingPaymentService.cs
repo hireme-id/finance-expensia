@@ -37,6 +37,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
         public async Task<ResponseBase> CreateOutgoingPayment(CreateOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
         {
+			if (input == null)
+				return new ResponseBase("Tolong lengkapi informasi yang mandatory", ResponseCode.NotFound);
+
 			if (input.OutgoingPaymentDetails.Count == 0 && input.IsSubmit)
 				return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);
 
@@ -62,7 +65,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			#region set data entity => OutgoingPayment
 			var dataOutgoingPayment = _mapper.Map<DataAccess.Models.OutgoingPayment>(input);
 
-			dataOutgoingPayment.TransactionNo = $"{prefixTransactionNo}-{dateNow.Year}/{dateNow.Month}/{dateNow.Day}-{unixTimeStamp}";
+			dataOutgoingPayment.TransactionNo = $"{prefixTransactionNo}-{dateNow:yyyy/MM/dd}-{unixTimeStamp}";
 			dataOutgoingPayment.Requestor = currentUserAccessor.FullName;
 			dataOutgoingPayment.RequestDate = dateNow.Date;
 			dataOutgoingPayment.CompanyName = dataCompany.CompanyName;
@@ -103,7 +106,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
 				dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
 				dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
-				dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
+				dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
 
 				dataOutgoingPayment.OutgoingPaymentDetails.Add(dataOutgoingPaymentDetail);
 			}
