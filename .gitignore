@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/Finance.Expensia.Web/upload/2a007f09-4424-4927-8a5e-92ca52cb49a0
