@@ -1,4 +1,5 @@
 ﻿using Finance.Expensia.Core.Services.OutgoingPayment;
+using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
@@ -34,5 +35,27 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		{
 			return await _outgoingPaymentService.CreateOutgoingPayment(input, _currentUserAccessor);
 		}
-	}
+
+		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentView)]
+		[HttpPost("outgoingpayment/getlist")]
+		public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOutgoingPayment([FromBody] ListOutgoingPaymentFilterInput input)
+		{
+			return await _outgoingPaymentService.GetListOfOutgoingPayment(input, _currentUserAccessor.Id.ToString());
+		}
+
+        [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentView)]
+        [HttpGet("outgoingpayment/{id:guid}")]
+		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid id)
+		{
+            return await _outgoingPaymentService.GetDetailOutgoingPayment(id);
+        }
+
+        [Mutation]
+        [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
+        [HttpPost("outgoingpayment/edit")]
+        public async Task<ResponseBase> EditOutgoingPayment([FromBody] EditOutgoingPaymentInput input)
+        {
+            return await _outgoingPaymentService.EditOutgoingPayment(input, _currentUserAccessor);
+        }
+    }
 }
