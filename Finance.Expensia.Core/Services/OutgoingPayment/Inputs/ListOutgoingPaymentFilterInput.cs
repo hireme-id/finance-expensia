@@ -1,4 +1,5 @@
 ﻿using Finance.Expensia.Shared.Objects.Inputs;
+using Newtonsoft.Json;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment.Inputs
 {
