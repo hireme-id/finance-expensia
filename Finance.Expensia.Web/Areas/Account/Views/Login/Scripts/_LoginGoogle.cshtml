@@ -57,6 +57,8 @@
                     window.location.href = "@homePageUrl";
                 
                 if (authCode) {
+                    $("#btnlogingoogle").prop('disabled', true);
+                    $("#btnloader").removeClass("d-none");
                     $.ajax({
                         type: 'POST',
                         url: "@loginUrl?authCode=" + authCode,
@@ -83,6 +85,8 @@
                         },
                         error: function (xhr, status, error) {
                             console.error('Error:', error);
+                            $("#btnlogingoogle").prop('disabled', false);
+                            $("#btnloader").addClass("d-none");
                         }
                     });
                 }

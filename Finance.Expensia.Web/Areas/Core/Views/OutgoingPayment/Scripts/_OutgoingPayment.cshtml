@@ -1,4 +1,8 @@
-﻿<script type="text/javascript">
+﻿@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+}
+
+<script type="text/javascript">
     var data = [
         ["RAP-FOP-24-000001", "2024-03-10T00:00:00.000", "Stanley Hayes", 10000000, "Reimbursement", "013", "Rapid Mandiri", "Adira Mandiri", "Waiting Approval", 0],
         ["RAP-FOP-24-000002", "2024-03-11T00:00:00.000", "Alice Smith", 15000000, "Expense Report", "015", "Pronto Bank", "BCA", "Pending", 1],
@@ -19,6 +23,12 @@
         ["RAP-FOP-24-000017", "2024-03-26T00:00:00.000", "Noah Martin", 7800000, "Utility Bills", "058", "Instant Funds", "Mandiri Syariah", "Approved", 16]
     ];
     var gridOutgoingPayment;
+
+    //Variable for control
+    const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+    const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
+    const ddlCompany = $("#ddlCompany");
+    const txtSearch = $("#txtSearch");
 
     $(function () {
         OutgoingPaymentManager = new OutgoingPaymentManager();
@@ -53,16 +63,93 @@
                         { title: "Status" },
                         { title: "Action" }
                     ],
-                })
+                    layout: {
+                        bottomStart: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2 ml-2">Download Summary</button>' +
+                                '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>' +
+                                '<button type="button"  class="btn btn-sm btn-primary" data-toggle="modal" data-target="#filterModal">Create</button>'
+                            toolbar.innerHTML = buttons;
+
+                            return toolbar;
+                        },
+                        bottomEnd: 'paging',
+                        bottom2Start: 'info',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            toolbar.classList.add("pull-right");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control d-inline form-control-sm pull-right ml-2 mr-2" style="width: 130px !important">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+
+                dtStartDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtEndDate.datepicker("option", "minDate", selectedDate);
+                    }
+                });
+
+                dtEndDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtStartDate.datepicker("option", "maxDate", selectedDate);
+                    }
+                });
             },
             InitHandlers: function () {
-                
+                var debouncedAjaxRequest;
+                $('#txtJump').on('keyup change', function () {
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridOutgoingPayment.page.info().pages) {
+                                gridOutgoingPayment.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
             },
             InitValidation: function () {
             },
             InitLoad: function () {
-                
+                RefreshDdlCompany()
             }
         }
     };
+
+    function RefreshDdlCompany() {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlCompanyUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlCompany.empty().append(`<option value=""></option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
 </script>

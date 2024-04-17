@@ -27,7 +27,13 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 			return View();
 		}
 
-		[Mutation]
+        [AllowAnonymous]
+        public IActionResult Approval()
+        {
+            return View();
+        }
+
+        [Mutation]
 		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
 		[HttpPost("outgoingpayment/create")]
 		public async Task<ResponseBase> CreateOutgoingPayment([FromBody] CreateOutgoingPaymentInput input)

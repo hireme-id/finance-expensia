@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Outgoing Payment";
+    ViewData["Subtitle"] = "Outgoing Payment";
+}
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <input type="text" class="form-control w-50" id="txtSearch" />
+            </div>
+            <div class="col-lg-6">
+                <button type="submit" class="btn btn-mdl btn-primary float-right" id="btnFilter">Create</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="gridOutgoingPayment" class="table table-bordered table-hover"></table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Approval.cshtml")
+}
