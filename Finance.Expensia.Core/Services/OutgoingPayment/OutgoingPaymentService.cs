@@ -206,7 +206,56 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				var existOutgoingDetail = existOutgoing.OutgoingPaymentDetails.FirstOrDefault(x => x.Id == outgoingPaymentDetailInput.Id);
 				if (existOutgoingDetail != null)
 				{
+                    //Edit data yang sudah ada
 
+                    existOutgoingDetail.PartnerName = dataPartner.PartnerName;
+                    existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
+                    existOutgoingDetail.CostCenterCode = dataCostCenter.CostCenterCode;
+                    existOutgoingDetail.CostCenterName = dataCostCenter.CostCenterName;
+					existOutgoingDetail.InvoiceDate = outgoingPaymentDetailInput.InvoiceDate;
+                    existOutgoingDetail.PartnerId = outgoingPaymentDetailInput.PartnerId;
+                    existOutgoingDetail.Description = outgoingPaymentDetailInput.Description;
+                    existOutgoingDetail.ChartOfAccountId = outgoingPaymentDetailInput.ChartOfAccountId;
+                    existOutgoingDetail.CostCenterId = outgoingPaymentDetailInput.CostCenterId;
+					existOutgoingDetail.Amount = outgoingPaymentDetailInput.Amount;
+
+
+                    foreach (var outgoingPaymentDetailAttachmentInput in outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments)
+					{
+						var existOutgoingDetailAttachment = existOutgoingDetail.OutgoingPaymentDetailAttachments
+							.FirstOrDefault(x => x.Id == outgoingPaymentDetailAttachmentInput.Id);
+
+						if (existOutgoingDetailAttachment != null)
+						{
+                            existOutgoingDetailAttachment.FileName = outgoingPaymentDetailAttachmentInput.FileName;
+							existOutgoingDetailAttachment.FileSize = outgoingPaymentDetailAttachmentInput.FileSize;
+							existOutgoingDetailAttachment.FileUrl = outgoingPaymentDetailAttachmentInput.FileUrl;
+							existOutgoingDetailAttachment.ContentType = outgoingPaymentDetailAttachmentInput.ContentType;
+
+							_dbContext.OutgoingPaymentDetailAttachments.Update(existOutgoingDetailAttachment);
+						}
+						else
+						{
+							existOutgoingDetail.OutgoingPaymentDetailAttachments.Add(_mapper.Map<OutgoingPaymentDetailAttachment>(outgoingPaymentDetailAttachmentInput));
+                        }
+                    }
+
+					//delete attachment
+					var editedIdAttachment = outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments
+						.Where(x => x.Id.HasValue || x.Id != Guid.Empty).Select(x => x.Id).ToList();
+					var deletedAttachments = existOutgoingDetail.OutgoingPaymentDetailAttachments
+						.Where(x => !editedIdAttachment.Contains(x.Id));
+
+					if (deletedAttachments.Any())
+					{
+						foreach (var deletedAttachment in deletedAttachments)
+						{
+							deletedAttachment.RowStatus = 1;
+						}
+
+						_dbContext.OutgoingPaymentDetailAttachments.UpdateRange(deletedAttachments);
+					}
+					_dbContext.OutgoingPaymentDetails.Update(existOutgoingDetail);
 				}
 				else
 				{
@@ -225,12 +274,21 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			//delete outgoing detail
 			var editedIdOutgoingDetail = input.OutgoingPaymentDetails.Select(x => x.Id).ToList();
-			var deleteOutgoingDetail = _dbContext.OutgoingPaymentDetails.Include(x => x.OutgoingPaymentDetailAttachments)
-				.Where(x => !editedIdOutgoingDetail.Contains(x.Id));
+			var deleteOutgoingDetails = await _dbContext.OutgoingPaymentDetails.Include(x => x.OutgoingPaymentDetailAttachments)
+				.Where(x => x.OutgoingPaymentId == input.Id && !editedIdOutgoingDetail.Contains(x.Id)).ToListAsync();
 
-			if (deleteOutgoingDetail.Any())
+			if (deleteOutgoingDetails.Any())
 			{
-				deleteOutgoingDetail.ExecuteUpdate(x => x.SetProperty(v => v.RowStatus, v => 1));
+				foreach (var deleteOutgoingDetail in deleteOutgoingDetails)
+				{
+					deleteOutgoingDetail.RowStatus = 1;
+					foreach (var attachment in deleteOutgoingDetail.OutgoingPaymentDetailAttachments)
+					{
+						attachment.RowStatus = 1;
+					}
+				}
+
+				_dbContext.OutgoingPaymentDetails.UpdateRange(deleteOutgoingDetails);
 			}
 
 			#endregion
