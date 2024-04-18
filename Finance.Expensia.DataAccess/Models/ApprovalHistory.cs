@@ -9,7 +9,7 @@ namespace Finance.Expensia.DataAccess.Models
         public string TransactionNo { get; set; } = string.Empty;
         public ApprovalStatus ApprovalStatus { get; set; }
         public string ApprovalRoleCode { get; set; } = string.Empty;
-        public string ApprovalRoleName { get; set; } = string.Empty;
+        public string ApprovalRoleDesc { get; set; } = string.Empty;
         public Guid ApprovalUserId { get; set; }
         public string ApprovalName { get; set; } = string.Empty;
         public int ApprovalLevel { get; set; }

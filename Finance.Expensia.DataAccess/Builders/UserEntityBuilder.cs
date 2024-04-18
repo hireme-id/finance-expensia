@@ -25,7 +25,7 @@ namespace Finance.Expensia.DataAccess.Builders
 
             builder
                 .Property(e => e.FullName)
-                .HasMaxLength(50);
+                .HasMaxLength(150);
 
             builder
                 .HasMany(e => e.UserRoles)
