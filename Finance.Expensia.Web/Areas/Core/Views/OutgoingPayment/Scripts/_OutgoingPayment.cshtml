@@ -1,5 +1,6 @@
 ﻿@{
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
 }
 
 <script type="text/javascript">
@@ -23,7 +24,7 @@
         ["RAP-FOP-24-000017", "2024-03-26T00:00:00.000", "Noah Martin", 7800000, "Utility Bills", "058", "Instant Funds", "Mandiri Syariah", "Approved", 16]
     ];
     var gridOutgoingPayment;
-
+    var currentDraw = 0;
     //Variable for control
     const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
@@ -44,48 +45,72 @@
                 this.InitLoad();
             },
             InitControls: function () {
+                var formData = new FormData();
+
+                formData.append('CompanyId', '9e88882d-f1bb-483e-b698-331983240032');
+                formData.append('StartDate', '2024-01-01');
+                formData.append('EndDate', '2024-12-01');
+                formData.append('Page', 1);
+                formData.append('PageSize', 10);
+                formData.append('SearchKey', '');
+
                 gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
-                    data: data,
                     paging: true,
                     pagingType: "first_last_numbers",
                     searching: false,
                     ordering: false,
                     autoWidth: false,
+                    serverSide: true,
+                    ajax: {
+                        type: "POST",
+                        url: "@gridListOutgoingPayment",
+                        headers: {
+                            "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+                        },
+                        data: function (d) {
+                            return formData;
+                        },
+                        processData: false,
+                        contentType: false,
+                        dataSrc: function (json) {
+                            console.log('fdfd');
+                            console.log(json);
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    },
                     columns: [
-                        { title: "Transaction No" },
-                        { title: "Request Date" },
-                        { title: "Requestor" },
-                        { title: "Total Transaction" },
-                        { title: "Remark" },
-                        { title: "Bank Payment Type" },
-                        { title: "From Bank Alias" },
-                        { title: "To Bank Alias" },
-                        { title: "Status" },
-                        { title: "Action" }
+                        { title: "Transaction No", data: "transactionNo"},
+                        { title: "Request Date", data: "requestDate"},
+                        { title: "Requestor", data: "requestor"},
+                        { title: "Total Transaction", data: "totalAmount"},
+                        { title: "Remark", data: "remark"},
+                        { title: "From Bank Alias", data: "fromBankAlias"},
+                        { title: "To Bank Alias", data: "toBankAlias"},
+                        { title: "Status", data: "approvalStatus"},
+                        {
+                          title: "",
+                            render: function (data, type, row) {
+                                return '<a href="../Core/OutgoingPayment/Create"><i class="fa fa-angle-right"></i></a>';
+                            }
+                        }
                     ],
                     layout: {
-                        bottomStart: function () {
+                        bottom2End: function () {
                             let toolbar = document.createElement('div');
                             toolbar.classList.add("row");
-                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2 ml-2">Download Summary</button>' +
-                                '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>' +
-                                '<button type="button"  class="btn btn-sm btn-primary" data-toggle="modal" data-target="#filterModal">Create</button>'
+                            let buttons = '<input type="text" class="form-control w-50 mr-2" />' +
+                                '<button class="btn btn-sm btn-outline-danger mr-2">Reject All</button>' +
+                                '<button type="button"  class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#filterModal">Approve All</button>'
                             toolbar.innerHTML = buttons;
 
                             return toolbar;
                         },
                         bottomEnd: 'paging',
-                        bottom2Start: 'info',
-                        bottom2End: function () {
-                            let toolbar = document.createElement('div');
-                            toolbar.classList.add("row");
-                            toolbar.classList.add("pull-right");
-                            let elem = '<label>Jump to page:</label>' +
-                                '<input type="text" id="txtJump" class="form-control d-inline form-control-sm pull-right ml-2 mr-2" style="width: 130px !important">';
-                            toolbar.innerHTML = elem;
-
-                            return toolbar;
-                        }
+                        bottomStart: 'info',
                     }
                 });
 

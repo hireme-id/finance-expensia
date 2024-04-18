@@ -1,5 +1,7 @@
 ﻿@{
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
+    var gridDetailOutgoingPayment = Url.Action("GetDetailOutgoingPayment", "OutgoingPayment");
 }
 
 <script type="text/javascript">
@@ -23,7 +25,7 @@
         [16, "RAP-FOP-24-000017", "2024-03-26T00:00:00.000", "Noah Martin", 7800000, "Utility Bills", "058", "Instant Funds", "Mandiri Syariah", "Approved", 16]
     ];
     var gridOutgoingPayment;
-
+    var currentDraw = 0;
     //Variable for control
     const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
@@ -44,35 +46,59 @@
                 this.InitLoad();
             },
             InitControls: function () {
+                var formData = new FormData();
+
+                formData.append('CompanyId', '9e88882d-f1bb-483e-b698-331983240032');
+                formData.append('StartDate', '2024-01-01');
+                formData.append('EndDate', '2024-12-01');
+                formData.append('Page', 1);
+                formData.append('PageSize', 10);
+                formData.append('SearchKey', '');
+
                 gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
-                    data: data,
                     paging: true,
                     pagingType: "first_last_numbers",
                     searching: false,
                     ordering: false,
                     autoWidth: false,
+                    serverSide: true,
+                    ajax: {
+                        type: "POST",
+                        url: "@gridListOutgoingPayment",
+                        headers: {
+                            "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+                        },
+                        data: function (d) {
+                            return formData;
+                        },
+                        processData: false,
+                        contentType: false,
+                        dataSrc: function (json) {
+                            console.log('fdfd');
+                            console.log(json);
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    },
                     columns: [
-                        { title: '<input id="selectAll" type="checkbox" />' },
-                        { title: "Transaction No" },
-                        { title: "Request Date" },
-                        { title: "Requestor" },
-                        { title: "Total Transaction" },
-                        { title: "Remark" },
-                        { title: "Bank Payment Type" },
-                        { title: "From Bank Alias" },
-                        { title: "To Bank Alias" },
-                        { title: "Status" },
-                        { title: "Action" }
-                    ],
-                    columnDefs: [
-                        { defaultContent: '-', targets: '_all' },
                         {
-                            render: function (data, type, row, meta) {
+                            title: '<input id="selectAll" type="checkbox" />', render: function (data, type, row, meta) {
                                 return `<input type="checkbox" class="checkbox-all"/>`;
                             },
 
                             targets: 0, orderable: false
                         },
+                        { title: "Transaction No", data: "transactionNo", targets: 1 },
+                        { title: "Request Date", data: "requestDate", targets: 2 },
+                        { title: "Requestor", data: "requestor", targets: 3 },
+                        { title: "Total Transaction", data: "totalAmount", targets: 4 },
+                        { title: "Remark", data: "remark", targets: 5 },
+                        { title: "From Bank Alias", data: "fromBankAlias", targets: 6 },
+                        { title: "To Bank Alias", data: "toBankAlias", targets: 7 },
+                        { title: "Status", data: "approvalStatus", targets: 8 }
                     ],
                     layout: {
                         bottom2End: function () {
@@ -125,7 +151,67 @@
             InitValidation: function () {
             },
             InitLoad: function () {
+                //LoadListOutgoingPayment();
+                LoadDetailOutgoingPayment();
             }
         }
     };
+
+    
+
+    function LoadListOutgoingPayment() {
+        var formData = new FormData();
+
+        formData.append('CompanyId', '9e88882d-f1bb-483e-b698-331983240032');
+        formData.append('StartDate', '2024-01-01');
+        formData.append('EndDate', '2024-12-01');
+        formData.append('Page', 1);
+        formData.append('PageSize', 10);
+        formData.append('SearchKey', '');
+        $.ajax({
+            method: "POST",
+            url: "@gridListOutgoingPayment",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+            },
+            data: formData,
+            processData: false,  // Pastikan ini disetel ke false untuk FormData
+            contentType: false
+        }).done(function (response) {
+            if (response.succeeded) {
+                console.log(response);
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    function LoadDetailOutgoingPayment() {
+        console.log('detail');
+        let url = "@gridDetailOutgoingPayment";
+
+        url = url + "?id=4a723c46-aea7-4e8b-aab7-6e23635b358e";
+
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "GET",
+            url: url
+        })).done(function (response) {
+            if (response.succeeded) {
+                console.log('detail');
+                console.log(response);
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
 </script>
