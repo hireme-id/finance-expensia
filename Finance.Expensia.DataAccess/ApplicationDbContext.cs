@@ -30,7 +30,13 @@ namespace Finance.Expensia.DataAccess
         public virtual DbSet<OutgoingPaymentDetailAttachment> OutgoingPaymentDetailAttachments { get; set; }
         #endregion
 
-         
+        #region Workflow Approval
+        public virtual DbSet<ApprovalRule> ApprovalRules { get; set; }
+        public virtual DbSet<ApprovalInbox> ApprovalInboxes { get; set; }
+        public virtual DbSet<ApprovalHistory> ApprovalHistories { get; set; }
+        #endregion
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             #region UserManagement
@@ -53,6 +59,12 @@ namespace Finance.Expensia.DataAccess
             new OutgoingPaymentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPayment>());
             new OutgoingPaymentDetailEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetail>());
             new OutgoingPaymentDetailAttachmentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetailAttachment>());
+            #endregion
+
+            #region Workflow Approval
+            new ApprovalRuleEntityBuilder().Configure(modelBuilder.Entity<ApprovalRule>());
+            new ApprovalInboxEntityBuilder().Configure(modelBuilder.Entity<ApprovalInbox>());
+            new ApprovalHistoryEntityBuilder().Configure(modelBuilder.Entity<ApprovalHistory>());
             #endregion
         }
     }
