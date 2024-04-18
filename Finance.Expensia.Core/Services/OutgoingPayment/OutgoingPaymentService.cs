@@ -20,12 +20,12 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
 
             var dataOutgoingPayments = _dbContext.OutgoingPayments
-                .Where(d =>
-                    EF.Functions.Like(d.ApprovalStatus.ToString(), $"%{input.SearchKey}%")
-                )
+                //.Where(d =>
+                //    EF.Functions.Like(d.ApprovalStatus.ToString(), $"%{input.SearchKey}%")
+                //)
                 .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
                 .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
-                .Where(d => d.CreatedBy == userId)
+                //.Where(d => d.CreatedBy == userId)
                 .OrderByDescending(d => d.RequestDate)
                 .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
 
