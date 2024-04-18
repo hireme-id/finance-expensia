@@ -13,11 +13,22 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public string TransactionNo { get; set; } = string.Empty;
         public DateTime RequestDate { get; set; }
         public string Requestor { get; set; } = string.Empty;
+        public Guid CompanyId { get; set; }
+        public string CompanyName { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public string Remark { get; set; } = string.Empty;
-        public string FromBankAlias { get; set; } = string.Empty;
-        public string ToBankAlias { get; set; } = string.Empty;
+        public Guid FromBankAliasId { get; set; }
+        public string FromBankAliasName { get; set; } = string.Empty;
+        public string FromBankName { get; set; } = string.Empty;
+        public string FromAccountNo { get; set; } = string.Empty;
+        public string FromAccountName { get; set; } = string.Empty;
+        public Guid ToBankAliasId { get; set; }
+        public string ToBankAliasName { get; set; } = string.Empty;
+        public string ToBankName { get; set; } = string.Empty;
+        public string ToAccountNo { get; set; } = string.Empty;
+        public string ToAccountName { get; set; } = string.Empty;
         public ApprovalStatus ApprovalStatus { get; set; }
+        public ExpectedTransfer ExpectedTransfer { get; set; }
 
         public List<OutgoingPaymentDetailDto> OutgoingPaymentDetails { get; set; } = [];
     }
