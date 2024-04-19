@@ -138,6 +138,24 @@
             },
         };
 
+        function fmtMoney(angka) {
+            return new Number(angka).toLocaleString('id-ID', {
+                style: 'decimal',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        function fmtMoney(originalDate) {
+            const day = originalDate.getDate();
+            const month = originalDate.getMonth();
+            const year = originalDate.getFullYear();
+
+            const newdate = `${day}/${month}/${year}`;
+
+            return newdate;
+        }
+
         if (localStorage.getItem("accessToken") == null ||
             localStorage.getItem("expiredAt") == null ||
             localStorage.getItem("refreshToken") == null ||

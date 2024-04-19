@@ -29,7 +29,19 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		}
 
         [AllowAnonymous]
+        public IActionResult Edit()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
         public IActionResult Approval()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        public IActionResult Detail()
         {
             return View();
         }

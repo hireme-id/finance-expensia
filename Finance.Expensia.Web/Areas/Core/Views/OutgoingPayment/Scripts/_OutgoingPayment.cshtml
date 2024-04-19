@@ -45,14 +45,14 @@
                 this.InitLoad();
             },
             InitControls: function () {
-                var formData = new FormData();
-
-                formData.append('CompanyId', '9e88882d-f1bb-483e-b698-331983240032');
-                formData.append('StartDate', '2024-01-01');
-                formData.append('EndDate', '2024-12-01');
-                formData.append('Page', 1);
-                formData.append('PageSize', 10);
-                formData.append('SearchKey', '');
+                var dataObject = {
+                    "CompanyId": "5A30F1C7-021F-44E7-8648-9D87CC0A4758",
+                    "startDate": "2024-01-01",
+                    "endDate": "2024-12-30",
+                    "page": 1,
+                    "pageSize": 5,
+                    "searchKey": null
+                }
 
                 gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
                     paging: true,
@@ -61,17 +61,12 @@
                     ordering: false,
                     autoWidth: false,
                     serverSide: true,
-                    ajax: {
+                    ajax: (Object.assign({}, glbBaseRequest, {
                         type: "POST",
                         url: "@gridListOutgoingPayment",
-                        headers: {
-                            "Authorization": "Bearer " + localStorage.getItem("accessToken"),
-                        },
                         data: function (d) {
-                            return formData;
+                            return JSON.stringify(dataObject);
                         },
-                        processData: false,
-                        contentType: false,
                         dataSrc: function (json) {
                             console.log('fdfd');
                             console.log(json);
@@ -81,7 +76,7 @@
                             json.recordsFiltered = json.recordsTotal;
                             return json.data;
                         },
-                    },
+                    })),
                     columns: [
                         { title: "Transaction No", data: "transactionNo"},
                         { title: "Request Date", data: "requestDate"},
@@ -94,7 +89,10 @@
                         {
                           title: "",
                             render: function (data, type, row) {
-                                return '<a href="../Core/OutgoingPayment/Create"><i class="fa fa-angle-right"></i></a>';
+                                let html = `<a href="../Core/OutgoingPayment/Edit/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-pencil-alt mr-3"></i></a>` +
+                                    `<a href="../Core/OutgoingPayment/Detail/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-file-alt"></i></a>`;
+
+                                return html;
                             }
                         }
                     ],
