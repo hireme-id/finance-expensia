@@ -11,7 +11,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
         {
             #region query
             CreateMap<DataAccess.Models.OutgoingPayment, ListOutgoingPaymentDto>()
-                .ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id));
+                .ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.FromBankAlias, opt => opt.MapFrom(src => src.FromBankAliasName))
+                .ForMember(dest => dest.ToBankAlias, opt => opt.MapFrom(src => src.ToBankAliasName));
             CreateMap<DataAccess.Models.OutgoingPayment, OutgoingPaymentDto>()
                 .ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id));
             CreateMap<OutgoingPaymentDetail, OutgoingPaymentDetailDto>();

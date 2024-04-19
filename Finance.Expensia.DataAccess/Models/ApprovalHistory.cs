@@ -5,13 +5,14 @@ namespace Finance.Expensia.DataAccess.Models
 {
     public class ApprovalHistory : EntityBase
     {
-        public Guid ApprovalRuleId { get; set; }
         public string TransactionNo { get; set; } = string.Empty;
         public ApprovalStatus ApprovalStatus { get; set; }
-        public string ApprovalRoleCode { get; set; } = string.Empty;
-        public string ApprovalRoleDesc { get; set; } = string.Empty;
+        public string ExecutorRoleCode { get; set; } = string.Empty;
+        public string ExecutorRoleDesc { get; set; } = string.Empty;
         public Guid ApprovalUserId { get; set; }
-        public string ApprovalName { get; set; } = string.Empty;
+        public string ExecutorName { get; set; } = string.Empty;
         public int ApprovalLevel { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
     }
 }
