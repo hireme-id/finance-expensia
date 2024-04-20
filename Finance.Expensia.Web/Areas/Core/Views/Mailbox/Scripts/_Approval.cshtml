@@ -4,7 +4,7 @@
 	var ddlPartnerUrl = Url.Action("RetrievePartner", "Partner");
 	var ddlCoaUrl = Url.Action("RetrieveCoa", "Coa");
 	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
-	var editOutgoingPaymentUrl = Url.Action("EditOutgoingPayment", "OutgoingPayment");
+	var createOutgoingPaymentUrl = Url.Action("CreateOutgoingPayment", "OutgoingPayment");
 	var uploadFileUrl = Url.Action("UploadFile", "Storage");
 	var downloadFileUrl = Url.Action("DownloadFile", "Storage");
 	var gridDetailOutgoingPayment = "/outgoingpayment/";
@@ -106,7 +106,7 @@
 	const txtTransactionNo = $("#txtTransactionNo");
 	const txtDocumentStatus = $("#txtDocumentStatus"), txtTotalAmount = $("#txtTotalAmount"); txtFromBankName = $("#txtFromBankName");
 	const txtToBankName = $("#txtToBankName");
-	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
+	const btnApprove = $("#btnApprove"), btnReject = $("#btnReject");
 
 	let indexRowEdit = -1;
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
@@ -154,7 +154,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div class="input-group">
-													<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + `>
+													<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + ` disabled>
 													<div class="input-group-append">
 														<span class="input-group-text">
 															<i class="fa fa-calendar"></i>
@@ -174,7 +174,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-													<select class="form-control" id="ddlPartner"></select>
+														<select class="form-control" id="ddlPartner" disabled></select>
 												</div>`);
 								}
 
@@ -189,7 +189,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-													<input type="text" class="form-control" id="txtDescription" value="` + data + `"/>
+														<input type="text" class="form-control" id="txtDescription" value="` + data + `" disabled/>
 												</div>`);
 								}
 
@@ -204,7 +204,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-													<select class="form-control" id="ddlCoa"></select>
+														<select class="form-control" id="ddlCoa" disabled></select>
 												</div>`);
 								}
 
@@ -219,7 +219,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-													<select class="form-control" id="ddlCostCenter"></select>
+														<select class="form-control" id="ddlCostCenter" disabled></select>
 												</div>`);
 								}
 
@@ -236,8 +236,8 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-													<input type="text" class="form-control" id="txtAmount" value="` + data + `"/>
-												</div>`);
+												<input type="text" class="form-control" id="txtAmount" value="` + data + `" disabled/>
+											</div>`);
 								}
 
 								return data;
@@ -264,13 +264,6 @@
 											`</span>
 														</a>`;
 
-										if (meta.row == indexRowEdit) {
-											badge = badge +
-												`<a class="btn btn-xs text-white border-left pl-1">
-															<i class="fas fa-times" data-index="` + i + `"></i>
-														</a>`;
-										}
-
 										badge = badge +
 											`</span>`;
 									});
@@ -281,33 +274,8 @@
 								return ``;
 							}
 						},
-						{
-							data: "id",
-							title: "Action",
-							width: "40px",
-							render: function (data, type, full, meta) {
-								if (meta.row == indexRowEdit) {
-									return (
-										`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-save"></i></a>
-												<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-upload"></i></a>
-												<input type="file" id="fiUpload" accept=".pdf,.xlsx,.docx,.pptx" style="display: none;">`);
-								}
 
-								return (
-									`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-edit"></i></a>
-												<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-trash"></i></a>`);
-							}
-						}
 					],
-					layout: {
-						top1End: function () {
-							let toolbar = document.createElement('div');
-							let buttons = `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
-							toolbar.innerHTML = buttons;
-
-							return toolbar;
-						}
-					}
 				});
 
 				dtRequestDate.datepicker({
@@ -460,6 +428,7 @@
 						fileUrl: $el.attr('data-file-url'),
 						contentType: $el.attr('data-content-type')
 					});
+
 					// delete request.headers["Content-Type"];
 
 					$.ajax(request).done(function (data, textStatus, jqXHR) {
@@ -526,7 +495,7 @@
 					AfterEditDetail(temporaryData);
 				});
 
-				btnSubmit.add(btnDraft).on("click", function (e) {
+				btnApprove.add(btnReject).on("click", function (e) {
 					let $el = $(this);
 					let isSubmit = $el.attr('data-is-submit');
 					let disabledElement = $('input:disabled').add('select:disabled');
@@ -536,19 +505,16 @@
 					disabledElement.attr('disabled', true);
 
 					let formDataObject = {};
-					formDataObject.id = outgoingpaymentid;
 					formDataArray.forEach(function (field) {
 						formDataObject[field.name] = field.value;
 					});
 					formDataObject.isSubmit = isSubmit == 'true' ? true : false;
 					formDataObject.outgoingPaymentDetails = [];
-					
-					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
 
+					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
 					if (dataOutgoingPaymentDetails.length > 0) {
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
 							formDataObject.outgoingPaymentDetails.push({
-								id: v.id,
 								invoiceDate: v.invoiceDate,
 								partnerId: v.partner.partnerId,
 								description: v.description,
@@ -562,7 +528,7 @@
 
 					$.ajax(Object.assign({}, glbBaseRequest, {
 						method: "POST",
-						url: "@editOutgoingPaymentUrl",
+						url: "@createOutgoingPaymentUrl",
 						data: JSON.stringify(formDataObject),
 						contentType: "application/json"
 					})).done(function (response) {
@@ -821,9 +787,7 @@
 				arrayFile.forEach(function (subitem) {
 					fileItem.push({
 						id: subitem.id,
-						fileName: subitem.fileName,
-						fileUrl: subitem.fileUrl,
-						contentType: subitem.contentType
+						fileName: subitem.fileName
 					});
 				})
 
@@ -846,7 +810,6 @@
 					"amount": item.amount,
 					"attachments": fileItem
 				};
-
 				indexRowEdit = gridOutgoingPaymentDetail.api().data().length;
 				gridOutgoingPaymentDetail.api().row.add(initialOutgoingPaymentDetail).draw();
 				AfterEditDetail(initialOutgoingPaymentDetail);

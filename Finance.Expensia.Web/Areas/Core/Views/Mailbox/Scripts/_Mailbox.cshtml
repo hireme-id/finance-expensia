@@ -85,19 +85,26 @@
 
                             orderable: false
                         },
-                        { title: "Transaction No", data: "transactionNo"},
+                        { title: "Transaction No", data: "transactionNo" },
                         {
                             title: "Request Date",
                             render: function (data, type, row) {
                                 return fmtDate(row.requestDate);
                             }
                         },
-                        { title: "Requestor", data: "requestor"},
-                        { title: "Total Transaction", data: "totalAmount"},
-                        { title: "Remark", data: "remark"},
-                        { title: "From Bank Alias", data: "fromBankAlias"},
-                        { title: "To Bank Alias", data: "toBankAlias"},
-                        { title: "Status", data: "approvalStatus"}
+                        { title: "Requestor", data: "requestor" },
+                        { title: "Total Transaction", data: "totalAmount" },
+                        { title: "Remark", data: "remark" },
+                        { title: "From Bank Alias", data: "fromBankAlias" },
+                        { title: "To Bank Alias", data: "toBankAlias" },
+                        { title: "Status", data: "approvalStatus" },
+                        {
+                            title: "", render: function (data, type, row) {
+                                let html = `<a href="../Core/Mailbox/Approval/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-file-alt"></i></a>`;
+
+                                return html;
+                            }
+                        },
                     ],
                     layout: {
                         bottom2End: function () {

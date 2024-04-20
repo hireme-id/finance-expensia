@@ -68,8 +68,6 @@
                             return JSON.stringify(dataObject);
                         },
                         dataSrc: function (json) {
-                            console.log('fdfd');
-                            console.log(json);
                             currentDraw = currentDraw + 1;
                             json.draw = currentDraw;
                             json.recordsTotal = json.recordsTotal;
@@ -79,7 +77,11 @@
                     })),
                     columns: [
                         { title: "Transaction No", data: "transactionNo"},
-                        { title: "Request Date", data: "requestDate"},
+                        { title: "Request Date",
+                            render: function (data, type, row) {
+                                return fmtDate(row.requestDate);
+                            }
+                        },
                         { title: "Requestor", data: "requestor"},
                         { title: "Total Transaction", data: "totalAmount"},
                         { title: "Remark", data: "remark"},
@@ -97,18 +99,27 @@
                         }
                     ],
                     layout: {
-                        bottom2End: function () {
+                        bottomStart: 'info',
+                        bottom2Start: function () {
                             let toolbar = document.createElement('div');
                             toolbar.classList.add("row");
-                            let buttons = '<input type="text" class="form-control w-50 mr-2" />' +
-                                '<button class="btn btn-sm btn-outline-danger mr-2">Reject All</button>' +
-                                '<button type="button"  class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#filterModal">Approve All</button>'
+                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2 ml-2">Download Summary</button>' +
+                                '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>' +
+                                `<button type="button"  class="btn btn-sm btn-primary" onclick="window.location.href='/Core/OutgoingPayment/Create'">Create</button>`
                             toolbar.innerHTML = buttons;
 
                             return toolbar;
                         },
                         bottomEnd: 'paging',
-                        bottomStart: 'info',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
                     }
                 });
 

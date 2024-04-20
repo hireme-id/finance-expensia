@@ -112,6 +112,7 @@
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
 	let totalAmount = 0;
 	let outgoingpaymentid;
+	let companyId = "9e88882d-f1bb-483e-b698-331983240029";
 
 	$(function () {
 		CreateManager = new CreateManager();
@@ -153,7 +154,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div class="input-group">
-												<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + `>
+												<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + ` disabled>
 												<div class="input-group-append">
 													<span class="input-group-text">
 														<i class="fa fa-calendar"></i>
@@ -173,7 +174,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-												<select class="form-control" id="ddlPartner"></select>
+													<select class="form-control" id="ddlPartner" disabled></select>
 											</div>`);
 								}
 
@@ -188,7 +189,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-												<input type="text" class="form-control" id="txtDescription" value="` + data + `"/>
+													<input type="text" class="form-control" id="txtDescription" value="` + data + `" disabled/>
 											</div>`);
 								}
 
@@ -203,7 +204,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-												<select class="form-control" id="ddlCoa"></select>
+													<select class="form-control" id="ddlCoa" disabled></select>
 											</div>`);
 								}
 
@@ -218,7 +219,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-												<select class="form-control" id="ddlCostCenter"></select>
+													<select class="form-control" id="ddlCostCenter" disabled></select>
 											</div>`);
 								}
 
@@ -230,13 +231,13 @@
 							title: "Amount",
 							width: "150px",
 							render: function (data, type, row, meta) {
-								totalAmount = totalAmount + data;
+								//totalAmount = totalAmount + data;
 
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-												<input type="text" class="form-control" id="txtAmount" value="` + data + `"/>
-											</div>`);
+											<input type="text" class="form-control" id="txtAmount" value="` + data + `" disabled/>
+										</div>`);
 								}
 
 								return data;
@@ -263,13 +264,6 @@
 											`</span>
 													</a>`;
 
-										if (meta.row == indexRowEdit) {
-											badge = badge +
-												`<a class="btn btn-xs text-white border-left pl-1">
-														<i class="fas fa-times" data-index="` + i + `"></i>
-													</a>`;
-										}
-
 										badge = badge +
 											`</span>`;
 									});
@@ -280,40 +274,14 @@
 								return ``;
 							}
 						},
-						{
-							data: "id",
-							title: "Action",
-							width: "40px",
-							render: function (data, type, full, meta) {
-								if (meta.row == indexRowEdit) {
-									return (
-										`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-save"></i></a>
-											<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-upload"></i></a>
-											<input type="file" id="fiUpload" accept=".pdf,.xlsx,.docx,.pptx" style="display: none;">`);
-								}
-
-								return (
-									`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-edit"></i></a>
-											<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-trash"></i></a>`);
-							}
-						}
+						
 					],
-					layout: {
-						top1End: function () {
-							let toolbar = document.createElement('div');
-							let buttons = `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
-							toolbar.innerHTML = buttons;
-
-							return toolbar;
-						}
-					}
 				});
 
 				dtRequestDate.datepicker({
 					dateFormat: "yy-mm-dd",
 					disabled: true
 				});
-				dtRequestDate.datepicker("setDate", new Date())
 
 				dtScheduledDate.datepicker({
 					dateFormat: "yy-mm-dd",
@@ -369,7 +337,6 @@
 
 						indexRowEdit = gridOutgoingPaymentDetail.api().data().length;
 						gridOutgoingPaymentDetail.api().row.add(initialOutgoingPaymentDetail).draw();
-
 						AfterEditDetail(initialOutgoingPaymentDetail);
 					}
 				});
@@ -591,13 +558,15 @@
 	};
 
 	async function loadproses() {
+		await LoadDdlPartnerData();
+
 		await RefreshDdlCompany();
 
 		await txtRequestor.val(localStorage.getItem("displayName"));
 
 		await RefreshDdlBankAlias(ddlToAliasBank);
 
-		await txtTotalAmount.val(totalAmount);
+		await RefreshDdlBankAlias(ddlFromAliasBank);
 
 		await GetDetailOutgoingPayment();
 	}
@@ -610,20 +579,34 @@
 			url: url
 		})).done(function (response) {
 			if (response.succeeded) {
-				console.log('suksess');
-				console.log(response);
+				companyId = response.obj.companyId
 				txtTransactionNo.val(response.obj.transactionNo);
-				//ddlCompany.val(response.obj.transactionNo);
+				
+				ddlCompany.val(response.obj.companyId);
 				txtRequestor.val(response.obj.requestor);
 				txtDocumentStatus.val(response.obj.approvalStatus);
-				dtRequestDate.val(response.obj.requestDate);
-				//ddlExpectedTransfer.val(response.obj.transactionNo);
+				dtRequestDate.val(fmtymdDate(response.obj.requestDate));
+				ddlExpectedTransfer.val(response.obj.expectedTransfer);
 				txtRemark.val(response.obj.remark);
 				//dtScheduledDate.val(response.obj.transactionNo);
-				ddlFromAliasBank.val(response.obj.fromBankAlias);
-				ddlToAliasBank.val(response.obj.toBankAlias);
-				//txtFromBankName.val(response.obj.transactionNo);
-				//txtToBankName.val(response.obj.transactionNo);
+				ddlFromAliasBank.val(response.obj.fromBankAliasId);
+				ddlToAliasBank.val(response.obj.toBankAliasId);
+				
+
+				const todescriptorControl = $(ddlToAliasBank.attr("descriptor-control"));
+				todescriptorControl.val(
+					`Bank Name : ` + response.obj.toBankAliasName + `
+	Account Name : ` + response.obj.toAccountName + `
+	Account No : ` + response.obj.toAccountNo);
+
+				const fromdescriptorControl = $(ddlFromAliasBank.attr("descriptor-control"));
+				fromdescriptorControl.val(
+					`Bank Name : ` + response.obj.fromBankAliasName + `
+	Account Name : ` + response.obj.fromAccountName + `
+	Account No : ` + response.obj.fromAccountNo);
+	
+
+				LoadDetailOutgoingPayment(response.obj);
 			}
 			else {
 				Swal.fire({
@@ -695,28 +678,45 @@
 		});
 	}
 
+	async function LoadDetailOutgoingPayment(data) {
+		try {
+			await LoadDdlPartnerData();
+
+			await LoadDdlCoaData();
+
+			await LoadDdlCostCenterData();
+
+			await LoadTableDetailOutgoingPayment(data);
+
+		} catch (error) {
+			console.error('Terjadi kesalahan:', error);
+		}
+	}
+
 	function LoadDdlPartnerData() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
-			method: "POST",
-			url: "@ddlPartnerUrl" + "?companyId=" + ddlCompany.val()
-		})).done(function (response) {
-			if (response.succeeded) {
-				ddlPartnerDatas = response.obj;
-			}
-			else {
-				Swal.fire({
-					title: "Error",
-					text: response.message,
-					icon: "error"
-				});
-			}
+		return new Promise((resolve, reject) => {
+			$.ajax(Object.assign({}, glbBaseRequest, {
+				method: "POST",
+				url: "@ddlPartnerUrl" + "?companyId=" + companyId
+			})).done(function (response) {
+				if (response.succeeded) {
+					ddlPartnerDatas = response.obj;
+				}
+				else {
+					Swal.fire({
+						title: "Error",
+						text: response.message,
+						icon: "error"
+					});
+				}
+				resolve();
+			});
 		});
 	}
 
 	function RefreshDdlPartner(partnerId) {
 		let ddlPartner = $("#ddlPartner");
 		ddlPartner.empty().append(`<option value=""></option>`);
-
 		for (let i = 0; i < ddlPartnerDatas.length; i++) {
 			const data = ddlPartnerDatas[i];
 			const isSelected = partnerId.toLowerCase() == data.partnerId.toLowerCase() ? ` selected` : ``;
@@ -725,20 +725,23 @@
 	}
 
 	function LoadDdlCoaData() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
-			method: "POST",
-			url: "@ddlCoaUrl" + "?companyId=" + ddlCompany.val()
-		})).done(function (response) {
-			if (response.succeeded) {
-				ddlCoaDatas = response.obj;
-			}
-			else {
-				Swal.fire({
-					title: "Error",
-					text: response.message,
-					icon: "error"
-				});
-			}
+		return new Promise((resolve, reject) => {
+			$.ajax(Object.assign({}, glbBaseRequest, {
+				method: "POST",
+				url: "@ddlCoaUrl" + "?companyId=" + companyId
+			})).done(function (response) {
+				if (response.succeeded) {
+					ddlCoaDatas = response.obj;
+				}
+				else {
+					Swal.fire({
+						title: "Error",
+						text: response.message,
+						icon: "error"
+					});
+				}
+				resolve();
+			});
 		});
 	}
 
@@ -754,20 +757,67 @@
 	}
 
 	function LoadDdlCostCenterData() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
-			method: "POST",
-			url: "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
-		})).done(function (response) {
-			if (response.succeeded) {
-				ddlCostCenterDatas = response.obj;
-			}
-			else {
-				Swal.fire({
-					title: "Error",
-					text: response.message,
-					icon: "error"
-				});
-			}
+		return new Promise((resolve, reject) => {
+			$.ajax(Object.assign({}, glbBaseRequest, {
+				method: "POST",
+				url: "@ddlCostCenterUrl" + "?companyId=" + companyId
+			})).done(function (response) {
+				if (response.succeeded) {
+					ddlCostCenterDatas = response.obj;
+				}
+				else {
+					Swal.fire({
+						title: "Error",
+						text: response.message,
+						icon: "error"
+					});
+				}
+				resolve();
+			});
+		});
+	}
+
+	function LoadTableDetailOutgoingPayment(data) {
+		return new Promise((resolve, reject) => {
+			var arrayDetail = data.outgoingPaymentDetails;
+
+			arrayDetail.forEach(function (item) {
+				var arrayFile = item.outgoingPaymentDetailAttachments;
+				var fileItem = [];
+				arrayFile.forEach(function (subitem) {
+					fileItem.push({
+						id: subitem.id,
+						fileName: subitem.fileName
+					});
+				})
+
+				const initialOutgoingPaymentDetail = {
+					"id": item.id,
+					"invoiceDate": new Date(item.invoiceDate),
+					"partner": {
+						"partnerId": item.partnerId,
+						"partnerName": item.partnerName
+					},
+					"description": item.description,
+					"coa": {
+						"coaId": item.chartOfAccountId,
+						"accountCode": item.chartOfAccountNo
+					},
+					"costCenter": {
+						"costCenterId": item.costCenterId,
+						"costCenterCode": item.costCenterCode
+					},
+					"amount": item.amount,
+					"attachments": fileItem
+				};
+				indexRowEdit = gridOutgoingPaymentDetail.api().data().length;
+				gridOutgoingPaymentDetail.api().row.add(initialOutgoingPaymentDetail).draw();
+				AfterEditDetail(initialOutgoingPaymentDetail);
+
+				totalAmount = totalAmount + item.amount;
+
+				txtTotalAmount.val(fmtMoney(totalAmount));
+			});
 		});
 	}
 
@@ -809,7 +859,6 @@
 			dateFormat: "yy-mm-dd"
 		});
 		$('#dtInvoiceDate').datepicker("setDate", data.invoiceDate);
-
 		RefreshDdlPartner(data.partner.partnerId);
 		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);

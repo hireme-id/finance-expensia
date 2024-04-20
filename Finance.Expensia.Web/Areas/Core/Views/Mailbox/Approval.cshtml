@@ -1,8 +1,8 @@
 ﻿@using Finance.Expensia.Shared.Enums
 @using Finance.Expensia.Shared.Helpers
 @{
-    ViewData["Title"] = "Edit Outgoing Payment";
-    ViewData["Subtitle"] = "Edit Outgoing Payment";
+    ViewData["Title"] = "Detail Outgoing Payment";
+    ViewData["Subtitle"] = "Detail Outgoing Payment";
 }
 
 @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Styles/_CreateCSS.cshtml")
@@ -34,7 +34,7 @@
             <div class="col-lg-6">
                 <label>Request Date</label>
                 <div class="input-group date mb-2">
-                    <input type="text" class="form-control" id="dtRequestDate" autocomplete="off">
+                    <input type="text" class="form-control" id="dtRequestDate" autocomplete="off" disabled>
                     <div class="input-group-append">
                         <span class="input-group-text">
                             <i class="fa fa-calendar"></i>
@@ -44,7 +44,7 @@
             </div>
             <div class="col-lg-6">
                 <label>Expected Transfer <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlExpectedTransfer" name="expectedTransfer">
+                <select class="form-control" id="ddlExpectedTransfer" name="expectedTransfer" disabled>
                     <option value=""></option>
                     @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
                     {
@@ -57,12 +57,12 @@
         <div class="row mb-3">
             <div class="col-lg-6">
                 <label>Remark</label>
-                <input type="text" class="form-control" id="txtRemark" name="remark" />
+                <input type="text" class="form-control" id="txtRemark" name="remark" disabled />
             </div>
             <div class="col-lg-6">
                 <label>Scheduled Date <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
-                    <input type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off" name="scheduledDate">
+                    <input type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off" name="scheduledDate" disabled>
                     <div class="input-group-append">
                         <span class="input-group-text">
                             <i class="fa fa-calendar"></i>
@@ -81,17 +81,17 @@
             </div>
             <div class="col-lg-6">
                 <label>To Alias Bank <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlToAliasBank" descriptor-control="#txtToBankName" name="toBankAliasId"></select>
+                <select class="form-control" id="ddlToAliasBank" descriptor-control="#txtToBankName" name="toBankAliasId" disabled></select>
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-lg-6">
                 <label>From Alias Bank Information</label>
-                <textarea class="form-control" id="txtFromBankName" rows="3" disabled style="resize:none"></textarea>
+                <textarea class="form-control" id="txtFromBankName" rows="3" disabled style="resize:none" disabled></textarea>
             </div>
             <div class="col-lg-6">
                 <label>To Alias Bank Information</label>
-                <textarea class="form-control" id="txtToBankName" rows="3" disabled style="resize:none"></textarea>
+                <textarea class="form-control" id="txtToBankName" rows="3" disabled style="resize:none" disabled></textarea>
             </div>
         </div>
 
@@ -108,13 +108,12 @@
         </div>
     </div>
     <div class="card-footer">
-        <button type="button" id="btnDelete" class="btn btn-outline-danger" style="width:150px;display:none">Delete</button>
-        <button type="button" id="btnSubmit" data-is-submit="true" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
-        <button type="button" id="btnDraft" data-is-submit="false" class="btn btn-outline-secondary float-right" style="width:150px">Draft</button>
+        <button type="button" id="btnApprove" data-is-submit="true" class="btn btn-success float-right ml-2" style="width:130px">Approve</button>
+        <button type="button" id="btnReject" data-is-submit="false" class="btn btn-danger float-right" style="width:130px">Reject</button>
     </div>
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Edit.cshtml")
+    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Detail.cshtml")
     @* @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_AddMultipleFile.cshtml") *@
 }
