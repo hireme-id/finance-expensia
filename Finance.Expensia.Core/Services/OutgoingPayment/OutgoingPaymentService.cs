@@ -7,6 +7,7 @@ using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
@@ -134,7 +135,16 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			#endregion
 
 			await _dbContext.AddAsync(dataOutgoingPayment);
-			await _dbContext.SaveChangesAsync();
+
+            if (input.IsSubmit)
+            {
+                var isSuccessWorkflow = await CreateApprovalWorkflow(dataOutgoingPayment, currentUserAccessor);
+
+                if (!isSuccessWorkflow)
+                    return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
+            }
+
+            await _dbContext.SaveChangesAsync();
 
 			return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
 		}
@@ -294,13 +304,70 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			#endregion
 
 			_dbContext.OutgoingPayments.Update(existOutgoing);
-			await _dbContext.SaveChangesAsync();
+
+			if (input.IsSubmit)
+			{
+                var isSuccessWorkflow = await CreateApprovalWorkflow(existOutgoing, currentUserAccessor);
+
+                if (!isSuccessWorkflow)
+                    return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
+            }
+
+            await _dbContext.SaveChangesAsync();
 
             return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
         }
         #endregion
 
         #region private method
+		private async Task<bool> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
+		{
+			var workflowRule = await _dbContext.ApprovalRules.AsNoTracking()
+				.FirstOrDefaultAsync(x => x.MinAmount < input.TotalAmount && input.TotalAmount < x.MaxAmount && x.Level == 0);
+
+			if (workflowRule == null)
+				return false;
+
+			var firstRoleApprover = await _dbContext.ApprovalRules.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.MinAmount == workflowRule.MinAmount && x.MaxAmount == workflowRule.MaxAmount && x.Level == 1);
+
+            if (firstRoleApprover == null)
+                return false;
+
+			var dataRole = await _dbContext.Roles.FirstAsync(x => x.RoleCode == workflowRule.RoleCode);
+
+            if (dataRole == null)
+                return false;
+
+            var dataInbox = new ApprovalInbox
+			{
+				ApprovalLevel = 0,
+				ApprovalRoleCode = firstRoleApprover.RoleCode,
+				ApprovalStatus = ApprovalStatus.WaitingApproval,
+				TransactionNo = input.TransactionNo,
+				MinAmount = workflowRule.MinAmount,
+				MaxAmount = workflowRule.MaxAmount
+			};
+
+			await _dbContext.ApprovalInboxes.AddAsync(dataInbox);
+
+			var dataHistory = new ApprovalHistory
+			{
+				ApprovalLevel = 0,
+				ExecutorName = input.Requestor,
+				ExecutorRoleCode = workflowRule.RoleCode,
+				ExecutorRoleDesc = dataRole.RoleDescription,
+				ApprovalStatus = ApprovalStatus.WaitingApproval,
+				ApprovalUserId = currentUserAccessor.Id,
+				TransactionNo = input.TransactionNo,
+                MinAmount = workflowRule.MinAmount,
+                MaxAmount = workflowRule.MaxAmount
+            };
+
+            await _dbContext.ApprovalHistories.AddAsync(dataHistory);
+
+            return true;
+		}
         #endregion
     }
 }

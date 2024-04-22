@@ -27,8 +27,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public string ToBankName { get; set; } = string.Empty;
         public string ToAccountNo { get; set; } = string.Empty;
         public string ToAccountName { get; set; } = string.Empty;
-        public ApprovalStatus ApprovalStatus { get; set; }
-        public ExpectedTransfer ExpectedTransfer { get; set; }
+        public string ApprovalStatus { get; set; } = string.Empty;
+        public string ExpectedTransfer { get; set; } = string.Empty;
+        public DateTime ScheduledDate { get; set; }
 
         public List<OutgoingPaymentDetailDto> OutgoingPaymentDetails { get; set; } = [];
     }
