@@ -21,7 +21,7 @@ namespace Finance.Expensia.Core.Services.Account
         {
             var secretKey = Encoding.ASCII.GetBytes(_securityConfig.SecretKey);
             var accessTokenExpireAt = DateTime.Now.AddMinutes(_securityConfig.TokenExpired);
-            var refreshTokenExpireAt = DateTime.Now.AddDays(_securityConfig.SessionExpired);
+            var refreshTokenExpireAt = DateTime.Now.AddHours(_securityConfig.SessionExpired);
 
             var accessTokenDescriptor = new SecurityTokenDescriptor
             {
