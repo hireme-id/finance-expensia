@@ -1,4 +1,5 @@
 ﻿using Finance.Expensia.Core.Services.Account;
+using Finance.Expensia.Core.Services.Inbox;
 using Finance.Expensia.Core.Services.MasterData;
 using Finance.Expensia.Core.Services.OutgoingPayment;
 using Finance.Expensia.Core.Services.Storage;
@@ -29,6 +30,7 @@ namespace Finance.Expensia.Core
 			services.AddScoped<CoaService>();
 			services.AddScoped<CostCenterService>();
 			services.AddScoped<StorageService>();
+            services.AddScoped<InboxService>();
 
 			services.AddHttpClient();
 

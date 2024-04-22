@@ -27,16 +27,24 @@ namespace Finance.Expensia.DataAccess.Builders
                 .HasMaxLength(200);
 
             builder
-                .Property(e => e.ApprovalRoleCode)
+                .Property(e => e.ExecutorRoleCode)
                 .HasMaxLength(30);
 
             builder
-                .Property(e => e.ApprovalRoleDesc)
+                .Property(e => e.ExecutorRoleDesc)
                 .HasMaxLength(100);
 
             builder
-                .Property(e => e.ApprovalName)
+                .Property(e => e.ExecutorName)
                 .HasMaxLength(150);
+
+            builder
+                .Property(e => e.MinAmount)
+                .HasColumnType("money");
+
+            builder
+                .Property(e => e.MaxAmount)
+                .HasColumnType("money");
         }
     }
 }
