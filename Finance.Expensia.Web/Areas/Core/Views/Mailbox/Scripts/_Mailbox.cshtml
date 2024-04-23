@@ -1,6 +1,6 @@
 ﻿@{
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
-    var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
+    var gridListMailbox = Url.Action("GetListInbox", "Mailbox");
     var gridDetailOutgoingPayment = "/outgoingpayment/";
 }
 
@@ -48,9 +48,6 @@
             },
             InitControls: function () {
                 var dataObject = {
-                    "CompanyId": "5A30F1C7-021F-44E7-8648-9D87CC0A4758",
-                    "startDate": "2024-01-01",
-                    "endDate": "2024-12-30",
                     "page": 1,
                     "pageSize": 5,
                     "searchKey": null
@@ -65,7 +62,7 @@
                     serverSide: true,
                     ajax: (Object.assign({}, glbBaseRequest, {
                         type: "POST",
-                        url: "@gridListOutgoingPayment",
+                        url: "@gridListMailbox",
                         data: function (d) {
                             return JSON.stringify(dataObject);
                         },
@@ -74,6 +71,8 @@
                             json.draw = currentDraw;
                             json.recordsTotal = json.recordsTotal;
                             json.recordsFiltered = json.recordsTotal;
+
+                            console.log('res ' + JSON.stringify(json));
                             return json.data;
                         },
                     })),

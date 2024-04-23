@@ -30,6 +30,7 @@
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
     const ddlCompany = $("#ddlCompany");
     const txtSearch = $("#txtSearch");
+    const btnFilter = $("#btnFilter");
 
     $(function () {
         OutgoingPaymentManager = new OutgoingPaymentManager();
@@ -57,7 +58,6 @@
                 gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
                     paging: true,
                     pagingType: "first_last_numbers",
-                    searching: false,
                     ordering: false,
                     autoWidth: false,
                     serverSide: true,
@@ -65,6 +65,23 @@
                         type: "POST",
                         url: "@gridListOutgoingPayment",
                         data: function (d) {
+                            var input = d.start;
+                            if (input === 0) {
+                                output = 1;
+                            } else if (input % 10 === 0) {
+                                output = input / 10 + 1;
+                            } else {
+                                output = Math.floor(input / 10) + 1;
+                            }
+
+                            if (d.search.value == "")
+                                dataObject.searchKey = null;
+                            else
+                                dataObject.searchKey = d.search.value;
+
+                            dataObject.page = output;
+                            dataObject.pageSize = d.length;
+                            console.log('inputan ' + JSON.stringify(dataObject));
                             return JSON.stringify(dataObject);
                         },
                         dataSrc: function (json) {
@@ -99,6 +116,7 @@
                         }
                     ],
                     layout: {
+                        topEnd: null,
                         bottomStart: 'info',
                         bottom2Start: function () {
                             let toolbar = document.createElement('div');
@@ -155,6 +173,10 @@
                         }
                     }, 1000);
                 });
+
+                btnFilter.click(function () {
+                    gridOutgoingPayment.search(txtSearch.val()).draw();
+                })
             },
             InitValidation: function () {
             },
@@ -164,6 +186,13 @@
         }
     };
 
+    window.onload = function () {
+        var label = document.querySelector('label[for="dt-length-0"]');
+        if (label) {
+            label.style.display = "none";
+        }
+    };
+    
     function RefreshDdlCompany() {
         $.ajax(Object.assign({}, glbBaseRequest, {
             method: "POST",
