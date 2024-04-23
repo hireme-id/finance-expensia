@@ -1,6 +1,7 @@
 ﻿@{
     var loginPage = Url.Action("Index", "Login", new { area = "Account" } );
     var homePage = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
+    var mailbox = Url.Action("Index", "Mailbox", new { area = "Core" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
 }
@@ -64,7 +65,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="@mailbox" class="nav-link">
                                 <i class="nav-icon far fa-envelope"></i>
                                 <p>
                                     Mailbox
@@ -137,6 +138,36 @@
                 "Content-Type": "application/json"
             },
         };
+
+        function fmtMoney(angka) {
+            return new Number(angka).toLocaleString('id-ID', {
+                style: 'decimal',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        function fmtDate(originalDate) {
+            var date = new Date(originalDate);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth().toString().padStart(2, '0');
+            const year = date.getFullYear();
+
+            const newdate = `${day}/${month}/${year}`;
+
+            return newdate;
+        }
+
+        function fmtymdDate(originalDate) {
+            var date = new Date(originalDate);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth().toString().padStart(2, '0');
+            const year = date.getFullYear();
+
+            const newdate = `${year}-${month}-${day}`;
+
+            return newdate;
+        }
 
         if (localStorage.getItem("accessToken") == null ||
             localStorage.getItem("expiredAt") == null ||

@@ -1,0 +1,189 @@
+﻿@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
+    var gridDetailOutgoingPayment = "/outgoingpayment/";
+}
+
+<script type="text/javascript">
+    var data = [
+        [0, "RAP-FOP-24-000001", "2024-03-10T00:00:00.000", "Stanley Hayes", 10000000, "Reimbursement", "013", "Rapid Mandiri", "Adira Mandiri", "Waiting Approval", 0],
+        [1, "RAP-FOP-24-000002", "2024-03-11T00:00:00.000", "Alice Smith", 15000000, "Expense Report", "015", "Pronto Bank", "BCA", "Pending", 1],
+        [2, "RAP-FOP-24-000003", "2024-03-12T00:00:00.000", "John Doe", 8000000, "Travel Expenses", "018", "Swift Finance", "Mandiri", "Approved", 2],
+        [3, "RAP-FOP-24-000004", "2024-03-13T00:00:00.000", "Emily Johnson", 12000000, "Vendor Payment", "020", "Quick Credit", "BNI", "Processing", 3],
+        [4, "RAP-FOP-24-000005", "2024-03-14T00:00:00.000", "Michael Brown", 9000000, "Salary Payment", "022", "Instant Cash", "CIMB Niaga", "Completed", 4],
+        [5, "RAP-FOP-24-000006", "2024-03-15T00:00:00.000", "Jessica Wilson", 11000000, "Project Expenses", "025", "Express Bank", "BRI", "Rejected", 5],
+        [6, "RAP-FOP-24-000007", "2024-03-16T00:00:00.000", "David Martinez", 7000000, "Equipment Purchase", "028", "Speedy Funds", "OCBC NISP", "Pending", 6],
+        [7, "RAP-FOP-24-000008", "2024-03-17T00:00:00.000", "Jennifer Taylor", 13000000, "Training Costs", "031", "Instant Finance", "Panin Bank", "Approved", 7],
+        [8, "RAP-FOP-24-000009", "2024-03-18T00:00:00.000", "Robert Garcia", 9500000, "Miscellaneous Expenses", "034", "Quick Loans", "Danamon", "Processing", 8],
+        [9, "RAP-FOP-24-000010", "2024-03-19T00:00:00.000", "Maria Rodriguez", 8500000, "Consulting Fees", "037", "Fast Money", "Maybank", "Completed", 9],
+        [10, "RAP-FOP-24-000011", "2024-03-20T00:00:00.000", "James Brown", 10500000, "Software Licenses", "040", "Express Loans", "HSBC", "Rejected", 10],
+        [11, "RAP-FOP-24-000012", "2024-03-21T00:00:00.000", "Sophia Hernandez", 7500000, "Marketing Expenses", "043", "Quick Finance", "Citibank", "Pending", 11],
+        [12, "RAP-FOP-24-000013", "2024-03-22T00:00:00.000", "Daniel Nguyen", 14000000, "Advertising Costs", "046", "Swift Money", "Permata Bank", "Approved", 12],
+        [13, "RAP-FOP-24-000014", "2024-03-23T00:00:00.000", "Isabella King", 8800000, "Office Supplies", "049", "Instant Cash", "BII Maybank", "Processing", 13],
+        [14, "RAP-FOP-24-000015", "2024-03-24T00:00:00.000", "Alexander Lee", 9200000, "Legal Fees", "052", "Quick Loans", "Bank Jatim", "Completed", 14],
+        [15, "RAP-FOP-24-000016", "2024-03-25T00:00:00.000", "Sophie Wilson", 12500000, "Rent Expenses", "055", "Speedy Finance", "CIMB Niaga", "Pending", 15],
+        [16, "RAP-FOP-24-000017", "2024-03-26T00:00:00.000", "Noah Martin", 7800000, "Utility Bills", "058", "Instant Funds", "Mandiri Syariah", "Approved", 16]
+    ];
+    var gridOutgoingPayment;
+    var currentDraw = 0;
+    let amount = 0;
+    //Variable for control
+    const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+    const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
+    const ddlCompany = $("#ddlCompany");
+    const txtSearch = $("#txtSearch");
+
+    $(function () {
+        OutgoingPaymentManager = new OutgoingPaymentManager();
+        OutgoingPaymentManager.InitManagement();
+    });
+
+    function OutgoingPaymentManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                var dataObject = {
+                    "CompanyId": "5A30F1C7-021F-44E7-8648-9D87CC0A4758",
+                    "startDate": "2024-01-01",
+                    "endDate": "2024-12-30",
+                    "page": 1,
+                    "pageSize": 5,
+                    "searchKey": null
+                }
+
+                gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    searching: false,
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridListOutgoingPayment",
+                        data: function (d) {
+                            return JSON.stringify(dataObject);
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        {
+                            title: '<input id="selectAll" type="checkbox" />', render: function (data, type, row, meta) {
+                                return `<input type="checkbox" class="checkbox-all" data-id="${row.outgoingPaymentId}" data-amount="${row.totalAmount}"/>`;
+                            },
+
+                            orderable: false
+                        },
+                        { title: "Transaction No", data: "transactionNo"},
+                        {
+                            title: "Request Date",
+                            render: function (data, type, row) {
+                                return fmtDate(row.requestDate);
+                            }
+                        },
+                        { title: "Requestor", data: "requestor"},
+                        { title: "Total Transaction", data: "totalAmount"},
+                        { title: "Remark", data: "remark"},
+                        { title: "From Bank Alias", data: "fromBankAlias"},
+                        { title: "To Bank Alias", data: "toBankAlias"},
+                        { title: "Status", data: "approvalStatus"}
+                    ],
+                    layout: {
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let buttons = '<input type="text" class="form-control w-50 mr-2" id="txttotalamount" placeholder="Total Amount" disabled />' +
+                                '<button class="btn btn-sm btn-outline-danger mr-2">Reject All</button>' +
+                                '<button type="button"  class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#filterModal">Approve All</button>'
+                            toolbar.innerHTML = buttons;
+
+                            return toolbar;
+                        },
+                        bottomEnd: 'paging',
+                        bottomStart: 'info',
+                    }
+                });
+            },
+            InitHandlers: function () {
+                var debouncedAjaxRequest;
+                $('#txtJump').on('keyup change', function () {
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridOutgoingPayment.page.info().pages) {
+                                gridOutgoingPayment.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                $('#selectAll').change(function () {
+                    $('.checkbox-all').prop('checked', this.checked);
+                    if (this.checked) {
+                        lscheckbox = [];
+                        $('.checkbox-all:checked').map(function () {
+                            lscheckbox.push($(this).val());
+                        }).get();
+                    }
+                    else {
+                        lscheckbox = [];
+                    }
+                });
+
+                $(document).on('change', '.checkbox-all', function () {
+                    if ($(this).prop("checked") == true) {
+                        amount = amount + parseInt($(this).data('amount'));
+                    }
+                    else if ($(this).prop("checked") == false) {
+                        amount = amount - $(this).data('amount');
+                    }
+
+                    $("#txttotalamount").val(fmtMoney(amount));
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                LoadDetailOutgoingPayment();
+            }
+        }
+    };
+
+    function LoadDetailOutgoingPayment() {
+        let url = "@gridDetailOutgoingPayment";
+        url = url + "4a723c46-aea7-4e8b-aab7-6e23635b358e";
+
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "GET",
+            url: url
+        })).done(function (response) {
+            if (response.succeeded) {
+                console.log(response);
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+</script>

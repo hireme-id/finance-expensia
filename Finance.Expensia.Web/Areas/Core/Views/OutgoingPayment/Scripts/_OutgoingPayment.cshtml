@@ -1,4 +1,9 @@
-﻿<script type="text/javascript">
+﻿@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
+}
+
+<script type="text/javascript">
     var data = [
         ["RAP-FOP-24-000001", "2024-03-10T00:00:00.000", "Stanley Hayes", 10000000, "Reimbursement", "013", "Rapid Mandiri", "Adira Mandiri", "Waiting Approval", 0],
         ["RAP-FOP-24-000002", "2024-03-11T00:00:00.000", "Alice Smith", 15000000, "Expense Report", "015", "Pronto Bank", "BCA", "Pending", 1],
@@ -19,6 +24,13 @@
         ["RAP-FOP-24-000017", "2024-03-26T00:00:00.000", "Noah Martin", 7800000, "Utility Bills", "058", "Instant Funds", "Mandiri Syariah", "Approved", 16]
     ];
     var gridOutgoingPayment;
+    var currentDraw = 0;
+    //Variable for control
+    const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+    const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
+    const ddlCompany = $("#ddlCompany");
+    const txtSearch = $("#txtSearch");
+    const btnFilter = $("#btnFilter");
 
     $(function () {
         OutgoingPaymentManager = new OutgoingPaymentManager();
@@ -34,35 +46,173 @@
                 this.InitLoad();
             },
             InitControls: function () {
+                var dataObject = {
+                    "CompanyId": "5A30F1C7-021F-44E7-8648-9D87CC0A4758",
+                    "startDate": "2024-01-01",
+                    "endDate": "2024-12-30",
+                    "page": 1,
+                    "pageSize": 5,
+                    "searchKey": null
+                }
+
                 gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
-                    data: data,
                     paging: true,
                     pagingType: "first_last_numbers",
-                    searching: false,
                     ordering: false,
                     autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridListOutgoingPayment",
+                        data: function (d) {
+                            var input = d.start;
+                            if (input === 0) {
+                                output = 1;
+                            } else if (input % 10 === 0) {
+                                output = input / 10 + 1;
+                            } else {
+                                output = Math.floor(input / 10) + 1;
+                            }
+
+                            if (d.search.value == "")
+                                dataObject.searchKey = null;
+                            else
+                                dataObject.searchKey = d.search.value;
+
+                            dataObject.page = output;
+                            dataObject.pageSize = d.length;
+                            console.log('inputan ' + JSON.stringify(dataObject));
+                            return JSON.stringify(dataObject);
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
                     columns: [
-                        { title: "Transaction No" },
-                        { title: "Request Date" },
-                        { title: "Requestor" },
-                        { title: "Total Transaction" },
-                        { title: "Remark" },
-                        { title: "Bank Payment Type" },
-                        { title: "From Bank Alias" },
-                        { title: "To Bank Alias" },
-                        { title: "Status" },
-                        { title: "Action" }
+                        { title: "Transaction No", data: "transactionNo"},
+                        { title: "Request Date",
+                            render: function (data, type, row) {
+                                return fmtDate(row.requestDate);
+                            }
+                        },
+                        { title: "Requestor", data: "requestor"},
+                        { title: "Total Transaction", data: "totalAmount"},
+                        { title: "Remark", data: "remark"},
+                        { title: "From Bank Alias", data: "fromBankAlias"},
+                        { title: "To Bank Alias", data: "toBankAlias"},
+                        { title: "Status", data: "approvalStatus"},
+                        {
+                          title: "",
+                            render: function (data, type, row) {
+                                let html = `<a href="../Core/OutgoingPayment/Edit/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-pencil-alt mr-3"></i></a>` +
+                                    `<a href="../Core/OutgoingPayment/Detail/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-file-alt"></i></a>`;
+
+                                return html;
+                            }
+                        }
                     ],
-                })
+                    layout: {
+                        topEnd: null,
+                        bottomStart: 'info',
+                        bottom2Start: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2 ml-2">Download Summary</button>' +
+                                '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>' +
+                                `<button type="button"  class="btn btn-sm btn-primary" onclick="window.location.href='/Core/OutgoingPayment/Create'">Create</button>`
+                            toolbar.innerHTML = buttons;
+
+                            return toolbar;
+                        },
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+
+                dtStartDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtEndDate.datepicker("option", "minDate", selectedDate);
+                    }
+                });
+
+                dtEndDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtStartDate.datepicker("option", "maxDate", selectedDate);
+                    }
+                });
             },
             InitHandlers: function () {
-                
+                var debouncedAjaxRequest;
+                $('#txtJump').on('keyup change', function () {
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridOutgoingPayment.page.info().pages) {
+                                gridOutgoingPayment.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                btnFilter.click(function () {
+                    gridOutgoingPayment.search(txtSearch.val()).draw();
+                })
             },
             InitValidation: function () {
             },
             InitLoad: function () {
-                
+                RefreshDdlCompany()
             }
         }
     };
+
+    window.onload = function () {
+        var label = document.querySelector('label[for="dt-length-0"]');
+        if (label) {
+            label.style.display = "none";
+        }
+    };
+    
+    function RefreshDdlCompany() {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlCompanyUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlCompany.empty().append(`<option value=""></option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
 </script>

@@ -1,0 +1,119 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    ViewData["Title"] = "Detail Outgoing Payment";
+    ViewData["Subtitle"] = "Detail Outgoing Payment";
+}
+
+@await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Styles/_CreateCSS.cshtml")
+
+<!-- Main Form -->
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Transaction No</label>
+                <input type="text" class="form-control" id="txtTransactionNo" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label>Company <span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlCompany" name="companyId" disabled></select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Requestor</label>
+                <input type="text" class="form-control" id="txtRequestor" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label>Document Status</label>
+                <input type="text" class="form-control" id="txtDocumentStatus" disabled />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Request Date</label>
+                <div class="input-group date mb-2">
+                    <input type="text" class="form-control" id="dtRequestDate" autocomplete="off" disabled>
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <label>Expected Transfer <span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlExpectedTransfer" name="expectedTransfer" disabled>
+                    <option value=""></option>
+                    @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
+                    {
+                        @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Remark</label>
+                <input type="text" class="form-control" id="txtRemark" name="remark" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label>Scheduled Date <span class="text-danger">*</span></label>
+                <div class="input-group date mb-2">
+                    <input type="text" class="form-control datepicker" id="dtScheduledDate" autocomplete="off" name="scheduledDate" disabled>
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4 border-bottom border-dark"></div>
+
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>From Alias Bank <span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlFromAliasBank" descriptor-control="#txtFromBankName" name="fromBankAliasId" disabled></select>
+            </div>
+            <div class="col-lg-6">
+                <label>To Alias Bank <span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlToAliasBank" descriptor-control="#txtToBankName" name="toBankAliasId" disabled></select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>From Alias Bank Information</label>
+                <textarea class="form-control" id="txtFromBankName" rows="3" disabled style="resize:none" disabled></textarea>
+            </div>
+            <div class="col-lg-6">
+                <label>To Alias Bank Information</label>
+                <textarea class="form-control" id="txtToBankName" rows="3" disabled style="resize:none" disabled></textarea>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mb-4 border-bottom border-dark"></div>
+
+        <table class="table" id="gridOutgoingPaymentDetail" aria-describedby="Tabel List Customer Consent"></table>
+
+        <div class="row mb-3">
+            <div class="col-lg-6"></div>
+            <div class="col-lg-6">
+                <label>Total Amount</label>
+                <input type="text" class="form-control" id="txtTotalAmount" disabled />
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <button type="button" id="btnApprove" data-is-submit="true" class="btn btn-success float-right ml-2" style="width:130px">Approve</button>
+        <button type="button" id="btnReject" data-is-submit="false" class="btn btn-danger float-right" style="width:130px">Reject</button>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Detail.cshtml")
+    @* @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_AddMultipleFile.cshtml") *@
+}
