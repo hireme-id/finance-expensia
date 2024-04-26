@@ -15,6 +15,10 @@
     <partial name="_Styles" />
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse">
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+        <div class="loader-section"></div>
+    </div>
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -139,6 +143,16 @@
             },
         };
 
+        window.onload = function () {
+            var bodyElement = document.body;
+
+            bodyElement.classList.add('loaded');
+            var label = document.querySelector('label[for="dt-length-0"]');
+            if (label) {
+                label.style.display = "none";
+            }
+        };
+
         function fmtMoney(angka) {
             return new Number(angka).toLocaleString('id-ID', {
                 style: 'decimal',
@@ -150,7 +164,7 @@
         function fmtDate(originalDate) {
             var date = new Date(originalDate);
             const day = date.getDate().toString().padStart(2, '0');
-            const month = date.getMonth().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const year = date.getFullYear();
 
             const newdate = `${day}/${month}/${year}`;
@@ -158,10 +172,10 @@
             return newdate;
         }
 
-        function fmtymdDate(originalDate) {
+        function fmtDate2(originalDate) {
             var date = new Date(originalDate);
             const day = date.getDate().toString().padStart(2, '0');
-            const month = date.getMonth().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const year = date.getFullYear();
 
             const newdate = `${year}-${month}-${day}`;
