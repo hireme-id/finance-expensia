@@ -585,10 +585,10 @@
 				ddlCompany.val(response.obj.companyId);
 				txtRequestor.val(response.obj.requestor);
 				txtDocumentStatus.val(response.obj.approvalStatus);
-				dtRequestDate.val(fmtymdDate(response.obj.requestDate));
+				dtRequestDate.val(fmtDate2(response.obj.requestDate));
 				ddlExpectedTransfer.val(response.obj.expectedTransfer);
 				txtRemark.val(response.obj.remark);
-				dtScheduledDate.val(fmtymdDate(response.obj.scheduledDate));
+				dtScheduledDate.val(fmtDate2(response.obj.scheduledDate));
 				ddlFromAliasBank.val(response.obj.fromBankAliasId);
 				ddlToAliasBank.val(response.obj.toBankAliasId);
 				

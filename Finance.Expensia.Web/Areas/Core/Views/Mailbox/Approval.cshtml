@@ -1,8 +1,8 @@
 ﻿@using Finance.Expensia.Shared.Enums
 @using Finance.Expensia.Shared.Helpers
 @{
-    ViewData["Title"] = "Detail Outgoing Payment";
-    ViewData["Subtitle"] = "Detail Outgoing Payment";
+    ViewData["Title"] = "Approval";
+    ViewData["Subtitle"] = "Approval";
 }
 
 @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Styles/_CreateCSS.cshtml")
@@ -114,6 +114,5 @@
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Detail.cshtml")
-    @* @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_AddMultipleFile.cshtml") *@
+    @await Html.PartialAsync("~/Areas/Core/Views/Mailbox/Scripts/_Approval.cshtml")
 }

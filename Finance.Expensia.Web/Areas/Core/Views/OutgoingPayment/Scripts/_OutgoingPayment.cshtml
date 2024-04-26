@@ -1,6 +1,9 @@
-﻿@{
+﻿@using Finance.Expensia.Shared.Enums
+@{
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
     var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
+    var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
+    var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.ToString()).ToList();
 }
 
 <script type="text/javascript">
@@ -46,15 +49,6 @@
                 this.InitLoad();
             },
             InitControls: function () {
-                var dataObject = {
-                    "CompanyId": "5A30F1C7-021F-44E7-8648-9D87CC0A4758",
-                    "startDate": "2024-01-01",
-                    "endDate": "2024-12-30",
-                    "page": 1,
-                    "pageSize": 5,
-                    "searchKey": null
-                }
-
                 gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
                     paging: true,
                     pagingType: "first_last_numbers",
@@ -65,6 +59,7 @@
                         type: "POST",
                         url: "@gridListOutgoingPayment",
                         data: function (d) {
+                            var dataObject = inputDataRequest();
                             var input = d.start;
                             if (input === 0) {
                                 output = 1;
@@ -81,7 +76,6 @@
 
                             dataObject.page = output;
                             dataObject.pageSize = d.length;
-                            console.log('inputan ' + JSON.stringify(dataObject));
                             return JSON.stringify(dataObject);
                         },
                         dataSrc: function (json) {
@@ -104,11 +98,24 @@
                         { title: "Remark", data: "remark"},
                         { title: "From Bank Alias", data: "fromBankAlias"},
                         { title: "To Bank Alias", data: "toBankAlias"},
-                        { title: "Status", data: "approvalStatus"},
+                        {
+                            title: "Status", render: function (data, type, row) {
+                                var statusList = @Html.Raw(Json.Serialize(statusList));
+                                var status = statusList[row.approvalStatus];
+                                return status;
+                            }
+                        },
                         {
                           title: "",
                             render: function (data, type, row) {
-                                let html = `<a href="../Core/OutgoingPayment/Edit/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-pencil-alt mr-3"></i></a>` +
+                                let isdisabled = '';
+                                let linkedit = '';
+                                linkedit = `../Core/OutgoingPayment/Edit/${row.outgoingPaymentId}`;
+                                if (row.approvalStatus > 0){
+                                    isdisabled = 'adisabled';
+                                    linkedit = '#';
+                                }
+                                let html = `<a href="${linkedit}" class="${isdisabled}" style="color: dimgray; font-size: 18px;"><i class="fas fa-pencil-alt mr-3 ${isdisabled}"></i></a>` +
                                     `<a href="../Core/OutgoingPayment/Detail/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-file-alt"></i></a>`;
 
                                 return html;
@@ -186,12 +193,43 @@
         }
     };
 
-    window.onload = function () {
-        var label = document.querySelector('label[for="dt-length-0"]');
-        if (label) {
-            label.style.display = "none";
+    function inputDataRequest() {
+        let companyid = ddlCompany.val();
+        let startDate = dtStartDate.val();
+        let endDate = dtEndDate.val();
+
+        const currentDate = new Date();
+
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        const stdate = new Date(currentYear, currentMonth, 1);
+        const nextMonth = currentMonth === 11 ? 0 : (currentMonth + 1)
+        const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+        const eddate = new Date(nextYear, nextMonth, 0);
+
+        if (startDate == '') {
+            startDate = fmtDate2(stdate);
         }
-    };
+
+        if (endDate == '') {
+            endDate = fmtDate2(eddate);
+        }
+        var date = new Date();
+
+        if (companyid == null || companyid == '') {
+            companyid = "5A30F1C7-021F-44E7-8648-9D87CC0A4758";
+        }
+
+        var dataObject = {
+            "CompanyId": companyid,
+            "startDate": startDate,
+            "endDate": endDate,
+            "page": 1,
+            "pageSize": 5,
+            "searchKey": null
+        }
+        return dataObject;
+    }
     
     function RefreshDdlCompany() {
         $.ajax(Object.assign({}, glbBaseRequest, {
