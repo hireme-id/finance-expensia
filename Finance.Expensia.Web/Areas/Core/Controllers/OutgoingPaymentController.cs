@@ -58,14 +58,14 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		[HttpPost("outgoingpayment/getlist")]
 		public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOutgoingPayment([FromBody] ListOutgoingPaymentFilterInput input)
 		{
-			return await _outgoingPaymentService.GetListOfOutgoingPayment(input, _currentUserAccessor.Id.ToString());
+			return await _outgoingPaymentService.GetListOfOutgoingPayment(input);
 		}
 
         [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentView)]
-        [HttpGet("outgoingpayment/{id:guid}")]
-		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid id)
+        [HttpGet("outgoingpayment/detail")]
+		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment([FromQuery] Guid outgoingPaymentId)
 		{
-            return await _outgoingPaymentService.GetDetailOutgoingPayment(id);
+            return await _outgoingPaymentService.GetDetailOutgoingPayment(outgoingPaymentId);
         }
 
         [Mutation]
@@ -75,5 +75,13 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
         {
             return await _outgoingPaymentService.EditOutgoingPayment(input, _currentUserAccessor);
         }
-    }
+
+		[Mutation]
+		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
+		[HttpPost("outgoingpayment/delete")]
+		public async Task<ResponseBase> DeleteOutgoingPayment([FromQuery] Guid outgoingPaymentId)
+		{
+			return await _outgoingPaymentService.DeleteOutgoingPayment(outgoingPaymentId);
+		}
+	}
 }

@@ -25,9 +25,12 @@ namespace Finance.Expensia.Core.Services.Inbox
                 return new ResponsePaging<ListInboxDto>("Data user tidak memiliki role yang tepat", ResponseCode.NotFound);
 
             var dataInbox = from ibx in _dbContext.ApprovalInboxes
-                            join otp in _dbContext.OutgoingPayments
-                            on ibx.TransactionNo equals otp.TransactionNo
-                            where ibx.ApprovalRoleCode == role.Role.RoleCode
+                            join otp in _dbContext.OutgoingPayments on ibx.TransactionNo equals otp.TransactionNo
+                            where 
+                                ibx.ApprovalRoleCode == role.Role.RoleCode
+                                && (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
+                                && (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
+                                && (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
                             orderby otp.RequestDate descending
                             select new ListInboxDto
                             {

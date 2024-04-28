@@ -1,9 +1,4 @@
 ﻿using Finance.Expensia.Shared.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
 {
@@ -27,6 +22,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public string ToBankName { get; set; } = string.Empty;
         public string ToAccountNo { get; set; } = string.Empty;
         public string ToAccountName { get; set; } = string.Empty;
+        public string BankPaymentType { get; set; } = string.Empty;
         public string ApprovalStatus { get; set; } = string.Empty;
         public string ExpectedTransfer { get; set; } = string.Empty;
         public DateTime ScheduledDate { get; set; }

@@ -38,7 +38,12 @@ namespace Finance.Expensia.DataAccess.Builders
                 .HasConversion<string>()
                 .HasMaxLength(200);
 
-            builder
+			builder
+				.Property(e => e.BankPaymentType)
+				.HasConversion<string>()
+				.HasMaxLength(200);
+
+			builder
                 .Property(e => e.Remark)
                 .HasMaxLength(200);
 

@@ -5,12 +5,55 @@
 <div class="card">
     <div class="card-body">
         <div class="row mb-3">
-            <div class="col-lg-6">
-                <input type="text" class="form-control w-50" id="txtSearch" placeholder="Search..." />
+            <div class="col-lg-8">
+                <label>From Bank Alias</label>
+                <select class="form-control" id="ddlFromBankAlias"></select>
+            </div>
+            <div class="col-lg-4">
             </div>
         </div>
-        <div class="resposivetable">
-            <table id="gridOutgoingPayment" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+        <div class="row mb-3">
+            <div class="col-lg-4">
+                <label>StartDate</label>
+                <div style="d-flex flex-column">
+                    <div class="input-group date mb-2">
+                        <input type="text" class="form-control datepicker" id="dtStartDate" autocomplete="off">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <span class="text-danger d-none" id="sdmessage">Startdate harus diisi</span>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <label>EndDate</label>
+                <div style="d-flex flex-column">
+                    <div class="input-group date mb-2">
+                        <input type="text" class="form-control datepicker" id="dtEndDate" autocomplete="off">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <span class="text-danger d-none" id="sdmessage">Startdate harus diisi</span>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <label>Search</label>
+                <input type="text" class="form-control" id="txtSearch" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-right">
+                <button type="button" class="btn btn-mdl btn-success" id="btnFilter">Filter + Search</button>
+            </div>
+        </div>
+
+        <div class="resposivetable" style="margin-top:10px;">
+            <table id="gridMailbox" class="table table-bordered table-hover" style="font-size: 13px;"></table>
         </div>
     </div>
 </div>

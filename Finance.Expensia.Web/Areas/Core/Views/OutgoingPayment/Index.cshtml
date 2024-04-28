@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Finance.Expensia.Shared.Enums;
+@using Finance.Expensia.Shared.Helpers
+@{
 	ViewData["Title"] = "Outgoing Payment";
 	ViewData["Subtitle"] = "Outgoing Payment";
 }
@@ -10,10 +12,14 @@
                 <select class="form-control" id="ddlCompany" name="companyId"></select>
             </div>
             <div class="col-lg-4">
-                <label>Filter By</label>
-                <select class="form-control">
-                    <option></option>
-                    <option>Status</option>
+                <label>Status</label>
+                <select class="form-control" id="ddlApprovalStatus">
+                    <option value=""></option>
+                    @foreach (var item in Enum.GetValues(typeof(ApprovalStatus)))
+                    {
+                        @Html.Raw($"<option value=\"{item}\">{((ApprovalStatus)item).GetDescription()}</option>")
+                        ;
+                    }
                 </select>
             </div>
         </div>
@@ -53,11 +59,12 @@
         </div>
         <div class="row">
             <div class="col-lg-12 text-right">
-                <button type="submit" class="btn btn-mdl btn-success" id="btnFilter">Filter + Search</button>
+                <button type="button" class="btn btn-mdl btn-success" id="btnFilter">Filter + Search</button>
+                <button type="button" class="btn btn-md btn-primary" id="btnCreate">Create</button>
             </div>
         </div>
 
-        <div class="resposivetable">
+        <div class="resposivetable" style="margin-top:10px">
             <table id="gridOutgoingPayment" class="table table-bordered table-hover" style="font-size: 13px;"></table>
         </div>
     </div>

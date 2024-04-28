@@ -34,7 +34,7 @@ namespace Finance.Expensia.DataAccess.Bases
             {
                 if (entry.Entity is EntityBase entity)
                 {
-                    entity.Created = DateTime.UtcNow;
+                    entity.Created = DateTime.Now;
                     entity.CreatedBy = _currentUserAccessor.Id.ToString();
                 }
             }
@@ -44,7 +44,7 @@ namespace Finance.Expensia.DataAccess.Bases
             {
                 if (entry.Entity is EntityBase entity)
                 {
-                    entity.Modified = DateTime.UtcNow;
+                    entity.Modified = DateTime.Now;
                     entity.ModifiedBy = _currentUserAccessor.Id.ToString();
                 }
             }

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance.Expensia.Shared", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance.Expensia.DataAccess", "Finance.Expensia.DataAccess\Finance.Expensia.DataAccess.csproj", "{8EE31D72-F575-4BD4-AE1C-D0BCECBE3411}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finance.Expensia.Core", "Finance.Expensia.Core\Finance.Expensia.Core.csproj", "{C312ADCD-E63E-4CE4-9624-213145880352}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Finance.Expensia.Core", "Finance.Expensia.Core\Finance.Expensia.Core.csproj", "{C312ADCD-E63E-4CE4-9624-213145880352}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

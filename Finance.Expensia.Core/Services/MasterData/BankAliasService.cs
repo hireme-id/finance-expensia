@@ -24,5 +24,20 @@ namespace Finance.Expensia.Core.Services.MasterData
                 Obj = dataBankAliases
             };
         }
+
+        public async Task<ResponseObject<List<BankAliasDto>>> RetrieveFromBankAlias(Guid? companyId)
+        {
+            var dataBankAliases = await _dbContext.BankAliases
+                                                  .Where(d => companyId == null || d.CompanyId.Equals(companyId.Value))
+                                                  .Where(d => d.CompanyId.HasValue)
+                                                  .OrderBy(d => d.AliasName)
+                                                  .Select(d => _mapper.Map<BankAliasDto>(d))
+                                                  .ToListAsync();
+
+            return new ResponseObject<List<BankAliasDto>>(responseCode: ResponseCode.Ok)
+            {
+                Obj = dataBankAliases
+            };
+        }
     }
 }

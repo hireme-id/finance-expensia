@@ -9,6 +9,7 @@ using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
+using System.Net.Mail;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
 {
@@ -16,18 +17,20 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
         : BaseService<OutgoingPaymentService>(dbContext, mapper, logger)
     {
         #region Query
-        public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPayment(ListOutgoingPaymentFilterInput input, string userId)
+        public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPayment(ListOutgoingPaymentFilterInput input)
         {
             var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
 
             var dataOutgoingPayments = _dbContext.OutgoingPayments
-                //.Where(d =>
-                //    EF.Functions.Like(d.ApprovalStatus.ToString(), $"%{input.SearchKey}%")
-                //)
-                .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
+				.Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
+				.Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
+				.Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
                 .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
-                //.Where(d => d.CreatedBy == userId)
-                .OrderByDescending(d => d.RequestDate)
+				.Where(d => 
+					EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
+					|| EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
+					|| EF.Functions.Like(d.Remark, $"%{input.SearchKey}%"))
+                .OrderByDescending(d => d.Modified ?? d.Created)
                 .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
 
             retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
@@ -35,12 +38,13 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             return await Task.FromResult(retVal);
         }
 
-		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid dataId)
+		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid outgoingPaymentId)
 		{
 			var result = new ResponseObject<OutgoingPaymentDto>();
-			var dataOutgoingPay = await _dbContext.OutgoingPayments.Include(x => x.OutgoingPaymentDetails)
-				.ThenInclude(x => x.OutgoingPaymentDetailAttachments)
-				.FirstOrDefaultAsync(x => x.Id == dataId);
+			var dataOutgoingPay = await _dbContext.OutgoingPayments
+												  .Include(x => x.OutgoingPaymentDetails.OrderBy(d => d.Created))
+												  .ThenInclude(x => x.OutgoingPaymentDetailAttachments)
+												  .FirstOrDefaultAsync(x => x.Id == outgoingPaymentId);
 
 			if (dataOutgoingPay != null)
 			{
@@ -191,13 +195,39 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             existOutgoing.ToAccountNo = dataToBankAlias.AccountNo;
             existOutgoing.ToAccountName = dataToBankAlias.AccountName;
 			existOutgoing.ExpectedTransfer = input.ExpectedTransfer;
+			existOutgoing.BankPaymentType = input.BankPaymentType;
 			existOutgoing.Remark = input.Remark;
 			existOutgoing.ScheduledDate = input.ScheduledDate;
 
 			existOutgoing.TotalAmount = input.OutgoingPaymentDetails.Sum(d => d.Amount);
-            #endregion
+			#endregion
 
-            #region edit data outgoing payment detail
+			await _dbContext.SaveChangesAsync();
+
+			#region edit data outgoing payment detail
+
+			//delete outgoing detail
+			var deleteOutgoingDetails = await _dbContext.OutgoingPaymentDetails
+														.Include(x => x.OutgoingPaymentDetailAttachments)
+														.Where(x => 
+															x.OutgoingPaymentId == input.Id 
+															&& !input.OutgoingPaymentDetails.Select(d => d.Id).Contains(x.Id))
+														.ToListAsync();
+
+			if (deleteOutgoingDetails.Count != 0)
+			{
+				foreach (var deleteOutgoingDetail in deleteOutgoingDetails)
+				{
+					deleteOutgoingDetail.RowStatus = 1;
+					foreach (var attachment in deleteOutgoingDetail.OutgoingPaymentDetailAttachments)
+					{
+						attachment.RowStatus = 1;
+					}
+					_dbContext.Update(deleteOutgoingDetail);
+				}
+			}
+
+			// add / edit outgoing payment detail
 			foreach (var outgoingPaymentDetailInput in input.OutgoingPaymentDetails)
 			{
                 var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId) && d.CompanyId.Equals(input.CompanyId));
@@ -217,7 +247,6 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				if (existOutgoingDetail != null)
 				{
                     //Edit data yang sudah ada
-
                     existOutgoingDetail.PartnerName = dataPartner.PartnerName;
                     existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
                     existOutgoingDetail.CostCenterCode = dataCostCenter.CostCenterCode;
@@ -229,78 +258,46 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                     existOutgoingDetail.CostCenterId = outgoingPaymentDetailInput.CostCenterId;
 					existOutgoingDetail.Amount = outgoingPaymentDetailInput.Amount;
 
-
-                    foreach (var outgoingPaymentDetailAttachmentInput in outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments)
-					{
-						var existOutgoingDetailAttachment = existOutgoingDetail.OutgoingPaymentDetailAttachments
-							.FirstOrDefault(x => x.Id == outgoingPaymentDetailAttachmentInput.Id);
-
-						if (existOutgoingDetailAttachment != null)
-						{
-                            existOutgoingDetailAttachment.FileName = outgoingPaymentDetailAttachmentInput.FileName;
-							existOutgoingDetailAttachment.FileSize = outgoingPaymentDetailAttachmentInput.FileSize;
-							existOutgoingDetailAttachment.FileUrl = outgoingPaymentDetailAttachmentInput.FileUrl;
-							existOutgoingDetailAttachment.ContentType = outgoingPaymentDetailAttachmentInput.ContentType;
-
-							_dbContext.OutgoingPaymentDetailAttachments.Update(existOutgoingDetailAttachment);
-						}
-						else
-						{
-							existOutgoingDetail.OutgoingPaymentDetailAttachments.Add(_mapper.Map<OutgoingPaymentDetailAttachment>(outgoingPaymentDetailAttachmentInput));
-                        }
-                    }
-
 					//delete attachment
-					var editedIdAttachment = outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments
-						.Where(x => x.Id.HasValue || x.Id != Guid.Empty).Select(x => x.Id).ToList();
 					var deletedAttachments = existOutgoingDetail.OutgoingPaymentDetailAttachments
-						.Where(x => !editedIdAttachment.Contains(x.Id));
+																.Where(x => 
+																	!outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => d.Id).Contains(x.Id));
 
 					if (deletedAttachments.Any())
 					{
 						foreach (var deletedAttachment in deletedAttachments)
 						{
 							deletedAttachment.RowStatus = 1;
+							_dbContext.Update(deletedAttachment);
 						}
-
-						_dbContext.OutgoingPaymentDetailAttachments.UpdateRange(deletedAttachments);
 					}
-					_dbContext.OutgoingPaymentDetails.Update(existOutgoingDetail);
+
+					//add attachment
+					foreach (var outgoingPaymentDetailAttachmentInput in outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Where(d => !d.Id.HasValue))
+					{
+						var newOutgoingDetailAttachment = _mapper.Map<OutgoingPaymentDetailAttachment>(outgoingPaymentDetailAttachmentInput);
+						newOutgoingDetailAttachment.OutgoingPaymentDetailId = existOutgoingDetail.Id;
+
+						await _dbContext.AddAsync(newOutgoingDetailAttachment);
+					}
+
+					_dbContext.Update(existOutgoingDetail);
 				}
 				else
 				{
 					//Add data baru
                     var dataOutgoingPaymentDetail = _mapper.Map<OutgoingPaymentDetail>(outgoingPaymentDetailInput);
 
-                    dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
+					dataOutgoingPaymentDetail.OutgoingPaymentId = existOutgoing.Id;
+					dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
                     dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
                     dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
                     dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
                     dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
 
-                    existOutgoing.OutgoingPaymentDetails.Add(dataOutgoingPaymentDetail);
+					await _dbContext.AddAsync(dataOutgoingPaymentDetail);
                 }
-            }
-
-			//delete outgoing detail
-			var editedIdOutgoingDetail = input.OutgoingPaymentDetails.Select(x => x.Id).ToList();
-			var deleteOutgoingDetails = await _dbContext.OutgoingPaymentDetails.Include(x => x.OutgoingPaymentDetailAttachments)
-				.Where(x => x.OutgoingPaymentId == input.Id && !editedIdOutgoingDetail.Contains(x.Id)).ToListAsync();
-
-			if (deleteOutgoingDetails.Any())
-			{
-				foreach (var deleteOutgoingDetail in deleteOutgoingDetails)
-				{
-					deleteOutgoingDetail.RowStatus = 1;
-					foreach (var attachment in deleteOutgoingDetail.OutgoingPaymentDetailAttachments)
-					{
-						attachment.RowStatus = 1;
-					}
-				}
-
-				_dbContext.OutgoingPaymentDetails.UpdateRange(deleteOutgoingDetails);
 			}
-
 			#endregion
 
 			_dbContext.OutgoingPayments.Update(existOutgoing);
@@ -317,13 +314,34 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
         }
+
+		public async Task<ResponseBase> DeleteOutgoingPayment(Guid outgoingPaymentId)
+		{
+			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentId));
+			if (outgoingPayment == null)
+				return new ResponseBase("Gagal hapus data, karena data tidak ditemukan", ResponseCode.NotFound);
+
+			if (outgoingPayment.ApprovalStatus != ApprovalStatus.Draft)
+				return new ResponseBase("Gagal hapus data, dokumen yang dapat dihapus hanya dokumen berstatus draft", ResponseCode.Error);
+
+			outgoingPayment.RowStatus = 1;
+			_dbContext.Update(outgoingPayment);
+			await _dbContext.SaveChangesAsync();
+
+			return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
+		}
         #endregion
 
         #region private method
 		private async Task<bool> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
 		{
+			var dataRoleCodes = await _dbContext.UserRoles.Include(ur => ur.Role).Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.Role.RoleCode).ToListAsync();
 			var workflowRule = await _dbContext.ApprovalRules.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.MinAmount < input.TotalAmount && input.TotalAmount < x.MaxAmount && x.Level == 0);
+				.FirstOrDefaultAsync(x => 
+					x.MinAmount <= input.TotalAmount 
+					&& input.TotalAmount <= x.MaxAmount 
+					&& x.Level == 1 
+					&& dataRoleCodes.Contains(x.RoleCode));
 
 			if (workflowRule == null)
 				return false;
