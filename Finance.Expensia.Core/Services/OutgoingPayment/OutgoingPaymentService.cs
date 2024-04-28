@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Finance.Expensia.Core.Services.Inbox;
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess;
@@ -7,13 +8,11 @@ using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
-using System.Net.Mail;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
 {
-	public class OutgoingPaymentService(ApplicationDbContext dbContext, IMapper mapper, ILogger<OutgoingPaymentService> logger) 
+    public class OutgoingPaymentService(ApplicationDbContext dbContext, IMapper mapper, ILogger<OutgoingPaymentService> logger) 
         : BaseService<OutgoingPaymentService>(dbContext, mapper, logger)
     {
         #region Query
@@ -330,36 +329,35 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
 		}
-        #endregion
+		#endregion
 
-        #region private method
 		private async Task<bool> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
 		{
 			var dataRoleCodes = await _dbContext.UserRoles.Include(ur => ur.Role).Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.Role.RoleCode).ToListAsync();
 			var workflowRule = await _dbContext.ApprovalRules.AsNoTracking()
-				.FirstOrDefaultAsync(x => 
-					x.MinAmount <= input.TotalAmount 
-					&& input.TotalAmount <= x.MaxAmount 
-					&& x.Level == 1 
+				.FirstOrDefaultAsync(x =>
+					x.MinAmount <= input.TotalAmount
+					&& input.TotalAmount <= x.MaxAmount
+					&& x.Level == 1
 					&& dataRoleCodes.Contains(x.RoleCode));
 
 			if (workflowRule == null)
 				return false;
 
 			var firstRoleApprover = await _dbContext.ApprovalRules.AsNoTracking()
-                .FirstOrDefaultAsync(x => x.MinAmount == workflowRule.MinAmount && x.MaxAmount == workflowRule.MaxAmount && x.Level == 1);
+				.FirstOrDefaultAsync(x => x.MinAmount == workflowRule.MinAmount && x.MaxAmount == workflowRule.MaxAmount && x.Level == 2);
 
-            if (firstRoleApprover == null)
-                return false;
+			if (firstRoleApprover == null)
+				return false;
 
 			var dataRole = await _dbContext.Roles.FirstAsync(x => x.RoleCode == workflowRule.RoleCode);
 
-            if (dataRole == null)
-                return false;
+			if (dataRole == null)
+				return false;
 
-            var dataInbox = new ApprovalInbox
+			var dataInbox = new ApprovalInbox
 			{
-				ApprovalLevel = 0,
+				ApprovalLevel = 2,
 				ApprovalRoleCode = firstRoleApprover.RoleCode,
 				ApprovalStatus = ApprovalStatus.WaitingApproval,
 				TransactionNo = input.TransactionNo,
@@ -371,21 +369,32 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			var dataHistory = new ApprovalHistory
 			{
-				ApprovalLevel = 0,
+				ApprovalLevel = 1,
 				ExecutorName = input.Requestor,
 				ExecutorRoleCode = workflowRule.RoleCode,
 				ExecutorRoleDesc = dataRole.RoleDescription,
 				ApprovalStatus = ApprovalStatus.WaitingApproval,
 				ApprovalUserId = currentUserAccessor.Id,
 				TransactionNo = input.TransactionNo,
-                MinAmount = workflowRule.MinAmount,
-                MaxAmount = workflowRule.MaxAmount
-            };
+				MinAmount = workflowRule.MinAmount,
+				MaxAmount = workflowRule.MaxAmount
+			};
 
-            await _dbContext.ApprovalHistories.AddAsync(dataHistory);
+			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
 
-            return true;
+			return true;
 		}
-        #endregion
+
+		public async Task<bool> UpdateApprovalStatusOutgoingPayment(string transactionNo, ApprovalStatus approvalStatus)
+		{
+			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(transactionNo));
+			if (outgoingPayment == null) return false;
+
+			outgoingPayment.ApprovalStatus = approvalStatus;
+			_dbContext.Update(outgoingPayment);
+			await _dbContext.SaveChangesAsync();
+
+			return true;
+		}
     }
 }
