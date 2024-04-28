@@ -1,10 +1,5 @@
 ﻿@using Finance.Expensia.Shared.Enums
 @using Finance.Expensia.Shared.Helpers
-@{
-    ViewData["Title"] = "Approval";
-    ViewData["Subtitle"] = "Approval";
-}
-
 @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Styles/_CreateCSS.cshtml")
 
 <!-- Main Form -->
@@ -48,8 +43,7 @@
                     <option value=""></option>
                     @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
                     {
-                        @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>")
-                        ;
+                        @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>");
                     }
                 </select>
             </div>
@@ -62,8 +56,8 @@
             <div class="col-lg-6">
                 <label>Scheduled Date <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
-                    <input type="text"
-                           class="form-control datepicker"
+                    <input type="text" 
+                           class="form-control datepicker" 
                            id="dtScheduledDate" name="scheduledDate" bind-name="scheduledDate" bind-type="datetime"
                            autocomplete="off">
                     <div class="input-group-append">
@@ -80,14 +74,14 @@
         <div class="row mb-3">
             <div class="col-lg-6">
                 <label>From Alias Bank <span class="text-danger">*</span></label>
-                <select class="form-control"
+                <select class="form-control" 
                         id="ddlFromAliasBank" name="fromBankAliasId" @* bind-name="fromBankAliasId" bind-trigger="change" *@
-                        descriptor-control="#txtFromBankName"
+                        descriptor-control="#txtFromBankName" 
                         disabled></select>
             </div>
             <div class="col-lg-6">
                 <label>To Alias Bank <span class="text-danger">*</span></label>
-                <select class="form-control"
+                <select class="form-control" 
                         id="ddlToAliasBank" name="toBankAliasId" bind-name="toBankAliasId" bind-trigger="change"
                         descriptor-control="#txtToBankName"></select>
             </div>
@@ -100,6 +94,19 @@
             <div class="col-lg-6">
                 <label>To Alias Bank Information</label>
                 <textarea class="form-control" id="txtToBankName" rows="3" disabled style="resize:none"></textarea>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Bank Payment Transfer<span class="text-danger">*</span></label>
+                <select class="form-control" id="ddlBankPaymentType" name="bankPaymentType" bind-name="bankPaymentType">
+                    <option value=""></option>
+                    @foreach (var item in Enum.GetValues(typeof(BankPaymentType)))
+                    {
+                        @Html.Raw($"<option value=\"{item}\">{((BankPaymentType)item).GetDescription()}</option>")
+                        ;
+                    }
+                </select>
             </div>
         </div>
 
@@ -116,13 +123,8 @@
         </div>
     </div>
     <div class="card-footer">
-        <div class="card-footer">
-            <button type="button" id="btnApprove" data-is-submit="true" class="btn btn-success float-right ml-2" style="width:130px">Approve</button>
-            <button type="button" id="btnReject" data-is-submit="false" class="btn btn-danger float-right" style="width:130px">Reject</button>
-        </div>
+        <button type="button" id="btnDelete" class="btn btn-outline-danger" style="width:150px;display:none">Delete</button>
+        <button type="button" id="btnSubmit" data-is-submit="true" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
+        <button type="button" id="btnDraft" data-is-submit="false" class="btn btn-outline-secondary float-right" style="width:150px">Draft</button>
     </div>
 </div>
-
-@section Scripts {
-    @await Html.PartialAsync("~/Areas/Core/Views/Mailbox/Scripts/_Approval.cshtml")
-}

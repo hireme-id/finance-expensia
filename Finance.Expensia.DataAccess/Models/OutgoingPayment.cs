@@ -24,6 +24,7 @@ namespace Finance.Expensia.DataAccess.Models
 		public string ToBankName { get; set; } = string.Empty;
 		public string ToAccountNo { get; set; } = string.Empty;
 		public string ToAccountName { get; set; } = string.Empty;
+        public BankPaymentType BankPaymentType { get; set; }
 		public decimal TotalAmount { get; set; }
 
         public virtual List<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; } = [];

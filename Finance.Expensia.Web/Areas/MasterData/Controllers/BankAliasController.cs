@@ -19,5 +19,12 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         {
             return await _bankAliasService.RetrieveBankAlias(companyId);
         }
+
+        [HttpPost("ddlfrombankaliases")]
+        [AppAuthorize(PermissionConstants.MasterData.CompanyView)]
+        public async Task<ResponseObject<List<BankAliasDto>>> RetrieveFromBankAlias(Guid? companyId)
+        {
+            return await _bankAliasService.RetrieveFromBankAlias(companyId);
+        }
     }
 }

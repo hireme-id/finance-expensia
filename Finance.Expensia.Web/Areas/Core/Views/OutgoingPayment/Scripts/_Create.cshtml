@@ -7,96 +7,10 @@
 	var createOutgoingPaymentUrl = Url.Action("CreateOutgoingPayment", "OutgoingPayment");
 	var uploadFileUrl = Url.Action("UploadFile", "Storage");
 	var downloadFileUrl = Url.Action("DownloadFile", "Storage");
+	var outgoingPaymentHomeUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
 }
 
 <script type="text/javascript">
-	let sampleData = [
-		{
-			"id": null,
-			"invoiceDate": new Date("2025-04-14"),
-			"partner": {
-				"partnerId": "35CDABAD-A750-48DD-B482-852A6C9291CE",
-				"partnerName": "PT Astra Graphia Information Technology"
-			},
-			"description": "Payment for services rendered",
-			"coa": {
-				"coaId": "1C6E5D5C-786B-4EDD-93CF-5B1037FB440D",
-				"accountCode": "100-000-001"
-			},
-			"costCenter": {
-				"costCenterId": "3693694E-5DF6-40BC-A9F3-3C7202AEAAD2",
-				"costCenterCode": "CC-RPD-001"
-			},
-			"amount": 1000,
-			"attachments": [
-				{
-					"id": 1,
-					"fileName": "File 1"
-				},
-				{
-					"id": 2,
-					"fileName": "File 2"
-				}
-			]
-		},
-		{
-			"id": null,
-			"invoiceDate": new Date("2025-04-14"),
-			"partner": {
-				"partnerId": "35CDABAD-A750-48DD-B482-852A6C9291CF",
-				"partnerName": "Adira Dinamika Multi Finance Tbk"
-			},
-			"description": "Purchase of equipment",
-			"coa": {
-				"coaId": "1C6E5D5C-786B-4EDD-93CF-5B1037FB440E",
-				"accountCode": "100-000-002"
-			},
-			"costCenter": {
-				"costCenterId": "3693694E-5DF6-40BC-A9F3-3C7202AEAAD3",
-				"costCenterCode": "CC-RPD-002"
-			},
-			"amount": 1500,
-			"attachments": [
-				{
-					"id": 3,
-					"fileName": "File 3"
-				},
-				{
-					"id": 4,
-					"fileName": "File 4"
-				}
-			]
-		},
-		{
-			"id": null,
-			"invoiceDate": new Date("2025-04-14"),
-			"partner": {
-				"partnerId": "35CDABAD-A750-48DD-B482-852A6C9291CE",
-				"partnerName": "PT Astra Graphia Information Technology"
-			},
-			"description": "Travel expenses",
-			"coa": {
-				"coaId": "1C6E5D5C-786B-4EDD-93CF-5B1037FB440F",
-				"accountCode": "100-000-003"
-			},
-			"costCenter": {
-				"costCenterId": "3693694E-5DF6-40BC-A9F3-3C7202AEAAD4",
-				"costCenterCode": "CC-RPD-003"
-			},
-			"amount": 800,
-			"attachments": [
-				{
-					"id": 5,
-					"fileName": "File 5"
-				},
-				{
-					"id": 6,
-					"fileName": "File 6"
-				}
-			]
-		}
-	];
-
 	//Variable for control
 	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
 	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
@@ -141,10 +55,12 @@
 							type: "date",
 							width: "120px",
 							render: function (data, type, row, meta) {
+								var value = new Date(data).toISOString().split('T')[0];
+
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div class="input-group">
-											<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + `>
+												<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + value + `>
 											<div class="input-group-append">
 												<span class="input-group-text">
 													<i class="fa fa-calendar"></i>
@@ -153,7 +69,7 @@
 										</div>`);
 								}
 
-								return new Date(data).toISOString().split('T')[0];
+								return value;
 							}
 						},
 						{
@@ -340,7 +256,7 @@ Account No : ` + accountNo);
 					if (ValidateAllowModifyDetail()) {
 						const initialOutgoingPaymentDetail = {
 							"id": null,
-							"invoiceDate": new Date(),
+							"invoiceDate": fmtDate2(new Date()),
 							"partner": {
 								"partnerId": "",
 								"partnerName": ""
@@ -358,8 +274,9 @@ Account No : ` + accountNo);
 							"attachments": []
 						};
 
-						indexRowEdit = gridOutgoingPaymentDetail.api().data().length;
-						gridOutgoingPaymentDetail.api().row.add(initialOutgoingPaymentDetail).draw();
+						gridOutgoingPaymentDetail.api().row.add(initialOutgoingPaymentDetail)
+						indexRowEdit = gridOutgoingPaymentDetail.api().rows()[0][gridOutgoingPaymentDetail.api().rows()[0].length - 1];
+						gridOutgoingPaymentDetail.api().draw();
 
 						AfterEditDetail(initialOutgoingPaymentDetail);
 					}
@@ -408,7 +325,7 @@ Account No : ` + accountNo);
 					let attachments = gridOutgoingPaymentDetail.api().row(indexRowSave).data().attachments;
 					let updateData = {
 						"id": null,
-						"invoiceDate": $('#dtInvoiceDate').datepicker('getDate'),
+						"invoiceDate": $('#dtInvoiceDate').val(),
 						"partner": {
 							"partnerId": $('#ddlPartner').val(),
 							"partnerName": $('#ddlPartner option:selected').text()
@@ -492,6 +409,8 @@ Account No : ` + accountNo);
 							data.attachments.push(response.obj);
 							gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 
+							totalAmount = totalAmount - data.amount;
+
 							AfterEditDetail(temporaryData);
 
 							$el.val('');
@@ -538,6 +457,7 @@ Account No : ` + accountNo);
 					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
 					if (dataOutgoingPaymentDetails.length > 0) {
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
+							debugger;
 							formDataObject.outgoingPaymentDetails.push({
 								invoiceDate: v.invoiceDate,
 								partnerId: v.partner.partnerId,
@@ -561,6 +481,8 @@ Account No : ` + accountNo);
 								title: "Success",
 								text: response.message,
 								icon: "success"
+							}).then(() => {
+								window.location.href = "@outgoingPaymentHomeUrl";
 							});
 						}
 						else {
