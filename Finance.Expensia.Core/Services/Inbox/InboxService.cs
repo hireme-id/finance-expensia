@@ -57,49 +57,62 @@ namespace Finance.Expensia.Core.Services.Inbox
 
         public async Task<ResponseBase> DoActionWorkflow(DoActionWorkflowInput input, CurrentUserAccessor currentUserAccessor)
         {
-            var approvalDocument = await _dbContext.ApprovalInboxes.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
-            var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
-            if (approvalDocument == null || outgoingPayment == null)
-                return new ResponseBase("Gagal melanjutkan proses, karena data tidak ditemukan", ResponseCode.NotFound);
+			var approvalDocument = await _dbContext.ApprovalInboxes.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
+			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
+			if (approvalDocument == null || outgoingPayment == null)
+				return new ResponseBase("Gagal melanjutkan proses, karena data tidak ditemukan", ResponseCode.NotFound);
 
-            var dataRoles = await _dbContext.UserRoles
-                                                .Include(ur => ur.Role)
-                                                .Where(d => d.UserId.Equals(currentUserAccessor.Id)).ToListAsync();
-            if (!dataRoles.Any(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode, StringComparison.OrdinalIgnoreCase)))
-                return new ResponseBase("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
+			var dataRoles = await _dbContext.UserRoles
+												.Include(ur => ur.Role)
+												.Where(d => d.UserId.Equals(currentUserAccessor.Id)).ToListAsync();
+			if (!dataRoles.Any(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode, StringComparison.OrdinalIgnoreCase)))
+				return new ResponseBase("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
 
-            var nextApprover = await _dbContext.ApprovalRules.FirstOrDefaultAsync(x =>
-                                                               x.MinAmount == approvalDocument.MinAmount
-                                                               && x.MaxAmount == approvalDocument.MaxAmount
-                                                               && x.Level == approvalDocument.ApprovalLevel + 1);
+			var nextApprover = await _dbContext.ApprovalRules.FirstOrDefaultAsync(x =>
+															   x.MinAmount == approvalDocument.MinAmount
+															   && x.MaxAmount == approvalDocument.MaxAmount
+															   && x.Level == approvalDocument.ApprovalLevel + 1);
 
-            var dataHistory = new ApprovalHistory
-            {
-                ApprovalLevel = approvalDocument.ApprovalLevel,
-                ExecutorName = currentUserAccessor.FullName,
-                ExecutorRoleCode = approvalDocument.ApprovalRoleCode,
-                ExecutorRoleDesc = dataRoles.First(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode)).Role.RoleDescription,
-                ApprovalStatus = approvalDocument.ApprovalStatus,
-                ApprovalUserId = currentUserAccessor.Id,
-                TransactionNo = approvalDocument.TransactionNo,
-                MinAmount = approvalDocument.MinAmount,
-                MaxAmount = approvalDocument.MaxAmount
-            };
-            await _dbContext.ApprovalHistories.AddAsync(dataHistory);
+			var dataHistory = new ApprovalHistory
+			{
+				ApprovalLevel = approvalDocument.ApprovalLevel,
+				ExecutorName = currentUserAccessor.FullName,
+				ExecutorRoleCode = approvalDocument.ApprovalRoleCode,
+				ExecutorRoleDesc = dataRoles.First(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode)).Role.RoleDescription,
+				ApprovalStatus = approvalDocument.ApprovalStatus,
+				ApprovalUserId = currentUserAccessor.Id,
+				TransactionNo = approvalDocument.TransactionNo,
+				MinAmount = approvalDocument.MinAmount,
+				MaxAmount = approvalDocument.MaxAmount
+			};
+			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
 
-            var approvalStatusForApprove = nextApprover == null ? ApprovalStatus.Approved : ApprovalStatus.WaitingApproval;
-            approvalDocument.ApprovalStatus = input.WorkflowAction == WorkflowAction.Reject ? ApprovalStatus.Reject : approvalStatusForApprove;
-            approvalDocument.ApprovalRoleCode = nextApprover == null ? string.Empty : nextApprover.RoleCode;
-            approvalDocument.ApprovalLevel = nextApprover == null ? 0 : nextApprover.Level;
-            _dbContext.Update(approvalDocument);
+			var approvalStatusForApprove = nextApprover == null ? ApprovalStatus.Approved : ApprovalStatus.WaitingApproval;
+			approvalDocument.ApprovalStatus = input.WorkflowAction == WorkflowAction.Reject ? ApprovalStatus.Reject : approvalStatusForApprove;
+			approvalDocument.ApprovalRoleCode = nextApprover == null ? string.Empty : nextApprover.RoleCode;
+			approvalDocument.ApprovalLevel = nextApprover == null ? 0 : nextApprover.Level;
+			_dbContext.Update(approvalDocument);
 
-            if (approvalDocument.ApprovalStatus != ApprovalStatus.WaitingApproval)
-            {
-                await _outgoingPaymentService.UpdateApprovalStatusOutgoingPayment(approvalDocument.TransactionNo, approvalDocument.ApprovalStatus);
+			if (approvalDocument.ApprovalStatus != ApprovalStatus.WaitingApproval)
+			{
+				await _outgoingPaymentService.UpdateApprovalStatusOutgoingPayment(approvalDocument.TransactionNo, approvalDocument.ApprovalStatus);
 			}
 
-            await _dbContext.SaveChangesAsync();
-            return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
-        }
+			await _dbContext.SaveChangesAsync();
+			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
+		}
+
+        public async Task<ResponseBase> DoActionWorkflows(List<DoActionWorkflowInput> inputs, CurrentUserAccessor currentUserAccessor)
+        {
+			foreach (var item in inputs)
+			{
+				var retVal = await DoActionWorkflow(item, currentUserAccessor);
+
+				if (!retVal.Succeeded)
+					return retVal;
+			}
+
+			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
+		}
     }
 }
