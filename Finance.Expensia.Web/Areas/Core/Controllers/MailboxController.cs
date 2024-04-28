@@ -44,5 +44,13 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
         {
             return await _inboxService.DoActionWorkflow(input, _currentUserAccessor);
         }
-    }
+
+		[AppAuthorize(PermissionConstants.ApprovalInbox.ApprovalInboxUpdate)]
+		[Mutation]
+		[HttpPost("inbox/doactions")]
+		public async Task<ResponseBase> DoActionApprovals([FromBody] List<DoActionWorkflowInput> input)
+		{
+			return await _inboxService.DoActionWorkflows(input, _currentUserAccessor);
+		}
+	}
 }

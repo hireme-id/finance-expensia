@@ -5,12 +5,13 @@
     var gridListMailbox = Url.Action("GetListInbox", "Mailbox");
     var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
     var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();
+    var doActionWorkflowsUrl = Url.Action("DoActionApprovals", "Mailbox");
 }
 
 <script type="text/javascript">
-    var gridOutgoingPayment;
     var currentDraw = 0;
     let amount = 0;
+    let listTransactionNo = [];
     
     //Variable for control
     const gridMailbox = $('#gridMailbox');
@@ -63,17 +64,16 @@
                     })),
                     columns: [
                         {
-                            title: '<input id="selectAll" type="checkbox" />', render: function (data, type, row, meta) {
-                                var ischecked = '';
-                                var storedData = localStorage.getItem('selectedItems');
-                                var parsedData = JSON.parse(storedData);
-                                if (Array.isArray(parsedData)) {
-                                    if (parsedData.includes(row.outgoingPaymentId)) {
+                            title: '<input id="selectAll" type="checkbox" />', 
+                            render: function (data, type, row, meta) {
+                                let ischecked;
+                                if (Array.isArray(listTransactionNo)) {
+                                    if (listTransactionNo.includes(row.transactionNo)) {
                                         ischecked = 'checked';
                                     }
                                 }
 
-                                return `<input type="checkbox" class="checkbox-all" data-id="${row.outgoingPaymentId}" data-amount="${row.totalAmount}" ${ischecked}/>`;
+                                return `<input type="checkbox" class="checkbox-document" data-transactionno="${row.transactionNo}" data-amount="${row.totalAmount}" ${ischecked}/>`;
                             },
 
                             orderable: false
@@ -117,9 +117,9 @@
                         bottom2Start: function () {
                             let toolbar = document.createElement('div');
                             toolbar.classList.add("row");
-                            let buttons = '<input type="text" class="form-control w-50 mr-2" id="txttotalamount" placeholder="Total Amount" disabled />' +
-                                '<button class="btn btn-sm btn-outline-danger mr-2">Reject All</button>' +
-                                '<button type="button"  class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#filterModal">Approve All</button>'
+                            let buttons = `<input type="text" class="form-control w-50 mr-2" id="txttotalamount" placeholder="Total Amount" disabled />` +
+                                `<button type="button" id="btnRejectAll" onclick="DoApprovalActions(this, '@WorkflowAction.Reject.GetDescription()')" class="btn btn-sm btn-outline-danger mr-2">Reject All</button>` +
+                                `<button type="button" id="btnApproveAll" onclick="DoApprovalActions(this, '@WorkflowAction.Approve.GetDescription()')" class="btn btn-sm btn-outline-success">Approve All</button>`
                             toolbar.innerHTML = buttons;
 
                             return toolbar;
@@ -172,37 +172,48 @@
                 });
 
                 $('#selectAll').change(function () {
-                    let selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
-                    $('.checkbox-all').prop('checked', this.checked);
+                    let checkElements = this.checked ? $('.checkbox-document:not(:checked)') : $('.checkbox-document:checked');
+
                     if (this.checked) {
-                        $('.checkbox-all:checked').map(function () {
-                            selectedItems.push($(this).data('id'));
+                        checkElements.map(function () {
+                            let transactionno = $(this).data('transactionno');
+
                             amount = amount + parseInt($(this).data('amount'));
-                        }).get();
+                            listTransactionNo.push(transactionno);
+                        });
+
+                        $('.checkbox-document').attr("checked", true);
                     }
                     else {
-                        $('.checkbox-all').not(':checked').each(function () {
-                            selectedItems = selectedItems.filter(item => item !== $(this).data('id'));
-                            amount = amount - parseInt($(this).data('amount'));
-                        }).get();
+                        checkElements.map(function () {
+                            let transactionno = $(this).data('transactionno');
+
+                            amount = amount - $(this).data('amount');
+                            listTransactionNo.splice(listTransactionNo.indexOf(transactionno), 1);
+                        });
+
+                        $('.checkbox-document').removeAttr("checked");
                     }
-                    $("#txttotalamount").val(fmtMoney(amount));
-                    localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+                    $("#txttotalamount").val(amount);
                 });
 
-                $(document).on('change', '.checkbox-all', function () {
-                    let id = $(this).data('id');
-                    let selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
+                $(document).on('change', '.checkbox-document', function () {
+                    let transactionno = $(this).data('transactionno');
+                    
                     if ($(this).prop("checked") == true) {
                         amount = amount + parseInt($(this).data('amount'));
-                        selectedItems.push(id);
+                        listTransactionNo.push(transactionno);
+
+                        $(this).attr("checked", true);
                     }
                     else if ($(this).prop("checked") == false) {
                         amount = amount - $(this).data('amount');
-                        selectedItems = selectedItems.filter(item => item !== id);
+                        listTransactionNo.splice(listTransactionNo.indexOf(transactionno), 1);
+
+                        $(this).removeAttr("checked");
                     }
-                    localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
-                    $("#txttotalamount").val(fmtMoney(amount));
+                    
+                    $("#txttotalamount").val(amount);
                 });
 
                 btnFilter.click(function () {
@@ -212,7 +223,6 @@
             InitValidation: function () {
             },
             InitLoad: function () {
-                localStorage.removeItem("selectedItems");
                 RefreshDdlFromAliasBank();
             }
         }
@@ -246,5 +256,71 @@
 				});
 			}
 		});
+    }
+
+    function DoApprovalActions(btnAction, action) {
+        if (listTransactionNo.length == 0) {
+            Swal.fire({
+                title: "Error",
+                text: "Tidak ada data yang dipilih",
+                icon: "error"
+            });
+            return;
+        }
+
+        let title = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
+        let confirmButtonText = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
+        let html = "Apakah anda yakin ingin melanjutkan proses ini?";
+        $.each(listTransactionNo, function (key, value) {
+            html = html + `<br>` + value;
+        });
+
+        Swal.fire({
+            title: title,
+            html: html,
+            showCancelButton: true,
+            confirmButtonText: confirmButtonText,
+            confirmButtonColor: "#D92D20",
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2',
+            },
+            icon: "warning"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                let payload = [];
+                $.each(listTransactionNo, function (key, value) {
+                    payload.push({
+                        "transactionNo": value,
+                        "workflowAction": action
+                    })
+                });
+
+                $.ajax(Object.assign({}, glbBaseRequest, {
+                    method: "POST",
+                    url: "@doActionWorkflowsUrl",
+                    data: JSON.stringify(payload),
+                    contentType: "application/json"
+                })).done(function (response) {
+                    if (response.succeeded) {
+                        Swal.fire({
+                            title: "Success",
+                            text: response.message,
+                            icon: "success"
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message,
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        });
     }
 </script>

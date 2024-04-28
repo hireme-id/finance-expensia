@@ -520,29 +520,31 @@ Account No : ` + accountNo);
 						},
 						icon: "warning"
 					}).then(async (result) => {
-						var pathArray = window.location.pathname.split('/');
+						if (result.isConfirmed) {
+							var pathArray = window.location.pathname.split('/');
 
-						await $.ajax(Object.assign({}, glbBaseRequest, {
-							method: "POST",
-							url: "@deleteOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
-						})).done(function (response) {
-							if (response.succeeded) {
-								Swal.fire({
-									title: "Success",
-									text: response.message,
-									icon: "success"
-								}).then(() => {
-									window.location.href = "@outgoingPaymentHomeUrl";
-								});
-							}
-							else {
-								Swal.fire({
-									title: "Error",
-									text: response.message,
-									icon: "error"
-								});
-							}
-						});
+							await $.ajax(Object.assign({}, glbBaseRequest, {
+								method: "POST",
+								url: "@deleteOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
+							})).done(function (response) {
+								if (response.succeeded) {
+									Swal.fire({
+										title: "Success",
+										text: response.message,
+										icon: "success"
+									}).then(() => {
+										window.location.href = "@outgoingPaymentHomeUrl";
+									});
+								}
+								else {
+									Swal.fire({
+										title: "Error",
+										text: response.message,
+										icon: "error"
+									});
+								}
+							});
+						}
 					});
 				});
 			},
