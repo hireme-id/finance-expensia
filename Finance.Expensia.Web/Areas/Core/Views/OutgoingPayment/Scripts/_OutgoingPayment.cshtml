@@ -68,7 +68,12 @@
                             }
                         },
                         { title: "Requestor", data: "requestor"},
-                        { title: "Total Transaction", data: "totalAmount"},
+                        { 
+                            title: "Total Transaction", render: function (data, type, row) {
+                                var totalAmount = fmtMoney(row.totalAmount);
+                                return totalAmount;
+                            }
+                        },
                         { title: "Remark", data: "remark"},
                         { title: "From Bank Alias", data: "fromBankAlias"},
                         { title: "To Bank Alias", data: "toBankAlias"},
@@ -81,7 +86,7 @@
                             }
                         },
                         {
-                          title: "",
+                            title: "", width: '6.8%',
                             render: function (data, type, row) {
                                 let isdisabled = '';
                                 let linkedit = '';
@@ -90,8 +95,8 @@
                                     isdisabled = 'adisabled';
                                     linkedit = '#';
                                 }
-                                let html = `<a href="${linkedit}" class="${isdisabled}" style="color: dimgray; font-size: 18px;"><i class="fas fa-pencil-alt mr-3 ${isdisabled}"></i></a>` +
-                                    `<a href="../Core/OutgoingPayment/Detail/${row.outgoingPaymentId}" style="color: dimgray; font-size: 18px;"><i class="fas fa-file-alt"></i></a>`;
+                                let html = `<a href="${linkedit}" class="${isdisabled}" style="color: dimgray; font-size: 17px;"><i class="fas fa-pencil-alt mr-3 ${isdisabled}"></i></a>` +
+                                    `<a href="../Core/OutgoingPayment/Detail/${row.outgoingPaymentId}" style="color: dimgray; font-size: 17px;"><i class="fas fa-file-alt"></i></a>`;
 
                                 return html;
                             }
@@ -107,7 +112,7 @@
                         bottomStart: 'info',
                         bottom2Start: function () {
                             let toolbar = document.createElement('div');
-                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2 ml-2">Download Summary</button>' +
+                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2">Download Summary</button>' +
                                 '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>'
                             toolbar.innerHTML = buttons;
 
