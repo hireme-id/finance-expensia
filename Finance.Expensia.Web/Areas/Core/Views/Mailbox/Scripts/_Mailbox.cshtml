@@ -182,7 +182,7 @@
                             listTransactionNo.push(transactionno);
                         });
 
-                        $('.checkbox-document').attr("checked", true);
+                        $('.checkbox-document').prop('checked', true)
                     }
                     else {
                         checkElements.map(function () {
@@ -192,7 +192,7 @@
                             listTransactionNo.splice(listTransactionNo.indexOf(transactionno), 1);
                         });
 
-                        $('.checkbox-document').removeAttr("checked");
+                        $('.checkbox-document').prop('checked', false)
                     }
                     $("#txttotalamount").val(amount);
                 });
@@ -203,14 +203,10 @@
                     if ($(this).prop("checked") == true) {
                         amount = amount + parseInt($(this).data('amount'));
                         listTransactionNo.push(transactionno);
-
-                        $(this).attr("checked", true);
                     }
                     else if ($(this).prop("checked") == false) {
                         amount = amount - $(this).data('amount');
                         listTransactionNo.splice(listTransactionNo.indexOf(transactionno), 1);
-
-                        $(this).removeAttr("checked");
                     }
                     
                     $("#txttotalamount").val(amount);
