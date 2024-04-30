@@ -19,7 +19,7 @@
 	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
 
 	let indexRowEdit = -1;
-	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
+	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas, ddlCompanyDatas;
 	let totalAmount = 0;
 
 	$(function () {
@@ -53,7 +53,7 @@
 							data: "invoiceDate",
 							title: "Date",
 							type: "date",
-							width: "120px",
+							width: "140px",
 							render: function (data, type, row, meta) {
 								var value = new Date(data).toISOString().split('T')[0];
 
@@ -73,6 +73,21 @@
 							}
 						},
 						{
+							data: "postingaccount",
+							title: "Posting Account",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<select class="form-control select2" id="ddlPostingAccount"></select>
+										</div>`);
+								}
+
+								return data.postingaccountName;
+							}
+						},
+						{
 							data: "partner",
 							title: "Partner",
 							width: "200px",
@@ -80,7 +95,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-											<select class="form-control" id="ddlPartner"></select>
+											<select class="form-control select2" id="ddlPartner"></select>
 										</div>`);
 								}
 
@@ -95,7 +110,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-											<input type="text" class="form-control" id="txtDescription" value="` + data + `"/>
+											<textarea id="txtDescription" rows="3" class="form-control form-control-area" value="` + data + `"></textarea>
 										</div>`);
 								}
 
@@ -110,7 +125,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-											<select class="form-control" id="ddlCoa"></select>
+											<select class="form-control select2" id="ddlCoa"></select>
 										</div>`);
 								}
 
@@ -125,7 +140,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-											<select class="form-control" id="ddlCostCenter"></select>
+											<select class="form-control select2" id="ddlCostCenter"></select>
 										</div>`);
 								}
 
@@ -137,12 +152,12 @@
 							title: "Amount",
 							width: "150px",
 							render: function (data, type, row, meta) {
-								totalAmount = totalAmount + data;
+								
 
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-											<input type="text" class="form-control" id="txtAmount" value="` + data + `"/>
+											<input type="text" class="form-control" id="txtAmount" value="` + data + `" onkeydown="return numbersonly(this, event);"/>
 										</div>`);
 								}
 
@@ -196,7 +211,7 @@
 									return (
 										`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-save"></i></a>
 										<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-upload"></i></a>
-										<input type="file" id="fiUpload" accept=".pdf,.xlsx,.docx,.pptx" style="display: none;">`);
+										<input type="file" id="fiUpload" accept=".pdf,.xlsx,.docx,.pptx,image/*" style="display: none;">`);
 								}
 
 								return (
@@ -213,7 +228,10 @@
 
 							return toolbar;
 						}
-					}
+					},
+					"fnDrawCallback": function () {
+						$(".select2").select2();
+					},
 				});
 
 				dtRequestDate.datepicker({
@@ -261,6 +279,10 @@ Account No : ` + accountNo);
 								"partnerId": "",
 								"partnerName": ""
 							},
+							"postingaccount": {
+								"postingaccountId": "",
+								"postingaccountName": ""
+							},
 							"description": "",
 							"coa": {
 								"coaId": "",
@@ -286,11 +308,11 @@ Account No : ` + accountNo);
 					if (ValidateAllowModifyDetail()) {
 						indexRowEdit = parseInt($(this).attr('data-row-index'));
 						let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
+						let dataamount = (data.amount).replace(/\./g, "");
 						gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
-
+						gridOutgoingPaymentDetail.api().draw();
 						AfterEditDetail(data);
-
-						totalAmount = totalAmount - 2 * data.amount;
+						totalAmount = totalAmount - parseInt(dataamount);
 					}
 				});
 
@@ -312,10 +334,11 @@ Account No : ` + accountNo);
 					}).then((result) => {
 						if (result.isConfirmed) {
 							let data = gridOutgoingPaymentDetail.api().row(indexRowDelete).data();
+							let dataamount = (data.amount).replace(/\./g, "");
 							gridOutgoingPaymentDetail.api().row(indexRowDelete).remove().draw();
 
-							totalAmount = totalAmount - data.amount;
-							txtTotalAmount.val(totalAmount);
+							totalAmount = totalAmount - parseInt(dataamount);
+							txtTotalAmount.val(fmtMoney(totalAmount));
 						}
 					});
 				});
@@ -330,6 +353,10 @@ Account No : ` + accountNo);
 							"partnerId": $('#ddlPartner').val(),
 							"partnerName": $('#ddlPartner option:selected').text()
 						},
+						"postingaccount": {
+							"postingaccountId": $('#ddlPostingAccount').val(),
+							"postingaccountName": $('#ddlPostingAccount option:selected').text()
+						},
 						"description": $('#txtDescription').val(),
 						"coa": {
 							"coaId": $('#ddlCoa').val(),
@@ -339,14 +366,15 @@ Account No : ` + accountNo);
 							"costCenterId": $('#ddlCostCenter').val(),
 							"costCenterCode": $('#ddlCostCenter option:selected').text()
 						},
-						"amount": parseInt($('#txtAmount').val()),
+						"amount": $('#txtAmount').val(),
 						"attachments": attachments
 					}
-
+					let dataamount = $('#txtAmount').val().replace(/\./g, "");
 					indexRowEdit = -1;
 					gridOutgoingPaymentDetail.api().row(indexRowSave).data(updateData);
+					totalAmount = totalAmount + parseInt(dataamount);
 
-					txtTotalAmount.val(totalAmount);
+					txtTotalAmount.val(fmtMoney(totalAmount));
 				});
 
 				gridOutgoingPaymentDetail.on("click", "td .fas.fa-upload", function (e) {
@@ -457,6 +485,8 @@ Account No : ` + accountNo);
 					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
 					if (dataOutgoingPaymentDetails.length > 0) {
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
+							let amount = v.amount;
+							amount = amount.replace(/\./g, "");
 							debugger;
 							formDataObject.outgoingPaymentDetails.push({
 								invoiceDate: v.invoiceDate,
@@ -464,7 +494,7 @@ Account No : ` + accountNo);
 								description: v.description,
 								chartOfAccountId: v.coa.coaId,
 								costCenterId: v.costCenter.costCenterId,
-								amount: v.amount,
+								amount: parseInt(amount),
 								outgoingPaymentDetailAttachments: v.attachments
 							});
 						});
@@ -515,6 +545,7 @@ Account No : ` + accountNo);
 			url: "@ddlCompanyUrl"
 		})).done(function (response) {
 			if (response.succeeded) {
+				ddlCompanyDatas = response.obj;
 				ddlCompany.empty().append(`<option value=""></option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
@@ -656,6 +687,17 @@ Account No : ` + accountNo);
 		}
 	}
 
+	function RefreshDdlPostingAccount() {
+		let ddlPostingAccount = $("#ddlPostingAccount");
+		ddlPostingAccount.empty().append(`<option value=""></option>`);
+
+		for (let i = 0; i < ddlCompanyDatas.length; i++) {
+			const data = ddlCompanyDatas[i];
+			const isSelected = ddlCompany.val().toLowerCase() == data.companyId.toLowerCase() ? ` selected` : ``;
+			ddlPostingAccount.append(`<option value="` + data.companyId + `"` + isSelected + `>` + data.companyName + `</option>`);
+		}
+	}
+
 	function ValidateAllowModifyDetail() {
 		let message = '';
 
@@ -688,6 +730,7 @@ Account No : ` + accountNo);
 		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);
 		RefreshDdlCostCenter(data.costCenter.costCenterId);
+		RefreshDdlPostingAccount();
 		$('#txtAmount').val(data.amount);
 	}
 

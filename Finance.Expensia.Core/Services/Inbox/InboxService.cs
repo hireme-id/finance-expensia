@@ -34,17 +34,18 @@ namespace Finance.Expensia.Core.Services.Inbox
                                 && (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
                                 && (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
                                 && (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
-                            orderby otp.RequestDate descending
+                            orderby otp.TotalAmount descending
                             select new ListInboxDto
                             {
                                 OutgoingPaymentId = otp.Id,
                                 TransactionNo = ibx.TransactionNo,
+                                CompanyName = otp.CompanyName,
                                 RequestDate = otp.RequestDate,
                                 Requestor = otp.Requestor,
                                 TotalAmount = otp.TotalAmount,
                                 Remark = otp.Remark,
                                 BankPaymentType = string.Empty,
-                                FromBankAliasName = otp.ToBankAliasName,
+                                FromBankAliasName = otp.FromBankAliasName,
                                 ToBankAliasName = otp.ToBankAliasName,
                                 ApprovalStatus = otp.ApprovalStatus
                             };

@@ -61,18 +61,21 @@
                         },
                     })),
                     columns: [
-                        { title: "Transaction No", data: "transactionNo"},
-                        { title: "Request Date",
-                            render: function (data, type, row) {
-                                return fmtDate(row.requestDate);
-                            }
+                        {
+                            title: "Transaction Info", render: function (data, type, row) {
+                                var reqDate = fmtDate(row.requestDate);
+                                var elem = `${row.transactionNo} <br /> ${reqDate}`;
+                                return elem;
+                            },
                         },
+                        { title: "Company", data: "companyName" },
                         { title: "Requestor", data: "requestor"},
                         { 
                             title: "Total Transaction", render: function (data, type, row) {
                                 var totalAmount = fmtMoney(row.totalAmount);
                                 return totalAmount;
-                            }
+                            },
+                            className: "dt-body-right"
                         },
                         { title: "Remark", data: "remark"},
                         { title: "From Bank Alias", data: "fromBankAlias"},
@@ -82,11 +85,13 @@
                             render: function (data, type, row) {
                                 var statusList = @Html.Raw(Json.Serialize(statusList));
                                 var status = statusList[row.approvalStatus];
-                                return status;
+                                var badgeType = badgeStatus[row.approvalStatus];
+                                var bgstatus = `<span class="badge ${badgeType}">${status}</span>`;
+                                return bgstatus;
                             }
                         },
                         {
-                            title: "", width: '6.8%',
+                            title: "", width: '6.5%',
                             render: function (data, type, row) {
                                 let isdisabled = '';
                                 let linkedit = '';
