@@ -86,11 +86,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             if (dataTransactionType == null)
                 return new ResponseBase("Data to transaction type tidak valid", ResponseCode.NotFound);
 
-            var prefixTransactionNo = dataCompany.CompanyName.Substring(0, 3).ToUpper();
             var dateNow = DateTime.Now;
-			var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0);
-			TimeSpan timeSinceEpoch = dateNow - unixEpoch;
-			long unixTimeStamp = (long)timeSinceEpoch.TotalSeconds;
 
 			var runningNumberConfig = await GetRunningNumberDocument(dataTransactionType.TransactionTypeCode, dataCompany.CompanyCode, dateNow);
 
