@@ -28,7 +28,8 @@
             public const string PartnerView = "MasterData.Partner.View";
 			public const string CoaView = "MasterData.CoA.View";
 			public const string CostCenterView = "MasterData.CostCenter.View";
-		}
+            public const string TransactionTypeView = "MasterData.TransactionType.View";
+        }
 
         public static class Storage
         {

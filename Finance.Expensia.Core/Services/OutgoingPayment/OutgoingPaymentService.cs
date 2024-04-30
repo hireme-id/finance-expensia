@@ -9,6 +9,7 @@ using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Xml.Linq;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
 {
@@ -71,8 +72,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			var dataCompany = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(input.CompanyId));
             var dataFromBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.FromBankAliasId) && d.CompanyId.Equals(input.CompanyId));
 			var dataToBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.ToBankAliasId));
+            var dataTransactionType = await _dbContext.TransactionTypes.FirstOrDefaultAsync(d => d.Id.Equals(input.TransactionTypeId));
 
-			if (dataCompany == null)
+            if (dataCompany == null)
                 return new ResponseBase("Data company tidak valid", ResponseCode.NotFound);
 
 			if (dataFromBankAlias == null)
@@ -81,19 +83,21 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			if (dataToBankAlias == null)
 				return new ResponseBase("Data to bank alias tidak valid", ResponseCode.NotFound);
 
-			var prefixTransactionNo = dataCompany.CompanyName.Substring(0, 3).ToUpper();
+            if (dataTransactionType == null)
+                return new ResponseBase("Data to transaction type tidak valid", ResponseCode.NotFound);
+
             var dateNow = DateTime.Now;
-			var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0);
-			TimeSpan timeSinceEpoch = dateNow - unixEpoch;
-			long unixTimeStamp = (long)timeSinceEpoch.TotalSeconds;
+
+			var runningNumberConfig = await GetRunningNumberDocument(dataTransactionType.TransactionTypeCode, dataCompany.CompanyCode, dateNow);
 
 			#region set data entity => OutgoingPayment
 			var dataOutgoingPayment = _mapper.Map<DataAccess.Models.OutgoingPayment>(input);
 
-			dataOutgoingPayment.TransactionNo = $"{prefixTransactionNo}-{dateNow:yyyy/MM/dd}-{unixTimeStamp}";
+			dataOutgoingPayment.TransactionNo = $"{dataCompany.CompanyCode}-{dataTransactionType.TransactionTypeCode}-{dateNow:ddMMyy}-{runningNumberConfig.RunningNumber + 1}";
 			dataOutgoingPayment.Requestor = currentUserAccessor.FullName;
 			dataOutgoingPayment.RequestDate = dateNow.Date;
 			dataOutgoingPayment.CompanyName = dataCompany.CompanyName;
+			dataOutgoingPayment.TransactionTypeCode = dataTransactionType.TransactionTypeCode;
 			dataOutgoingPayment.ApprovalStatus = input.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
 
 			dataOutgoingPayment.FromBankAliasName = dataFromBankAlias.AliasName;
@@ -105,6 +109,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			dataOutgoingPayment.ToBankName = dataToBankAlias.BankName;
 			dataOutgoingPayment.ToAccountNo = dataToBankAlias.AccountNo;
 			dataOutgoingPayment.ToAccountName = dataToBankAlias.AccountName;
+
 
 			dataOutgoingPayment.TotalAmount = input.OutgoingPaymentDetails.Sum(d => d.Amount);
 			#endregion
@@ -149,7 +154,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             await _dbContext.SaveChangesAsync();
 
-			return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
+            _ = await UpdateRunningNumber(runningNumberConfig.Id);
+
+            return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
 		}
 		
 		public async Task<ResponseBase> EditOutgoingPayment(EditOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
@@ -163,6 +170,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             var dataCompany = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(input.CompanyId));
             var dataFromBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.FromBankAliasId) && d.CompanyId.Equals(input.CompanyId));
             var dataToBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.ToBankAliasId));
+            var dataTransactionType = await _dbContext.TransactionTypes.FirstOrDefaultAsync(d => d.Id.Equals(input.TransactionTypeId));
 
             if (dataCompany == null)
                 return new ResponseBase("Data company tidak valid", ResponseCode.NotFound);
@@ -172,8 +180,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             if (dataToBankAlias == null)
                 return new ResponseBase("Data to bank alias tidak valid", ResponseCode.NotFound);
+            if (dataTransactionType == null)
+                return new ResponseBase("Data to transaction type tidak valid", ResponseCode.NotFound);
 
-			var existOutgoing = await _dbContext.OutgoingPayments.Include(x => x.OutgoingPaymentDetails)
+            var existOutgoing = await _dbContext.OutgoingPayments.Include(x => x.OutgoingPaymentDetails)
 				.ThenInclude(x => x.OutgoingPaymentDetailAttachments)
 				.FirstOrDefaultAsync(x => x.Id == input.Id);
 
@@ -182,6 +192,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             #region edit data outgoing payment
             existOutgoing.CompanyName = dataCompany.CompanyName;
+			existOutgoing.TransactionTypeCode = dataTransactionType.TransactionTypeCode;
             existOutgoing.ApprovalStatus = input.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
 
             existOutgoing.FromBankAliasName = dataFromBankAlias.AliasName;
@@ -330,8 +341,20 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
 		}
 		#endregion
+		public async Task<bool> UpdateApprovalStatusOutgoingPayment(string transactionNo, ApprovalStatus approvalStatus)
+		{
+			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(transactionNo));
+			if (outgoingPayment == null) return false;
 
-		private async Task<bool> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
+			outgoingPayment.ApprovalStatus = approvalStatus;
+			_dbContext.Update(outgoingPayment);
+			await _dbContext.SaveChangesAsync();
+
+			return true;
+		}
+
+        #region private service
+        private async Task<bool> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
 		{
 			var dataRoleCodes = await _dbContext.UserRoles.Include(ur => ur.Role).Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.Role.RoleCode).ToListAsync();
 			var workflowRule = await _dbContext.ApprovalRules.AsNoTracking()
@@ -385,16 +408,52 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			return true;
 		}
 
-		public async Task<bool> UpdateApprovalStatusOutgoingPayment(string transactionNo, ApprovalStatus approvalStatus)
+		private async Task<DocNumberConfig> GetRunningNumberDocument(string transactionTypeCode, string companyCode, DateTime date)
 		{
-			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(transactionNo));
-			if (outgoingPayment == null) return false;
+            DocNumberConfig? docNumberConfig = null;
+			int month = date.Month;
+			int year = date.Year;
 
-			outgoingPayment.ApprovalStatus = approvalStatus;
-			_dbContext.Update(outgoingPayment);
-			await _dbContext.SaveChangesAsync();
+            docNumberConfig = await _dbContext.DocNumberConfigs
+                .FirstOrDefaultAsync(x => x.TransactionTypeCode == transactionTypeCode && x.CompanyCode == companyCode && x.Month == month && x.Year == year);
 
-			return true;
-		}
+
+            if (docNumberConfig == null)
+            {
+                docNumberConfig = new DocNumberConfig
+                {
+                    TransactionTypeCode = transactionTypeCode,
+                    CompanyCode = companyCode,
+                    Month = month,
+                    Year = year,
+                    RunningNumber = 0
+                };
+
+                await _dbContext.DocNumberConfigs.AddAsync(docNumberConfig);
+                await _dbContext.SaveChangesAsync();
+
+                return docNumberConfig;
+            }
+            else
+            {
+                return docNumberConfig;
+            }
+        }
+
+        private async Task<DocNumberConfig?> UpdateRunningNumber(Guid idData)
+        {
+            var docNumberConfig = await _dbContext.DocNumberConfigs
+                .FirstOrDefaultAsync(x => x.Id == idData);
+
+            if (docNumberConfig == null)
+                return null;
+
+            docNumberConfig.RunningNumber = docNumberConfig.RunningNumber + 1;
+            _dbContext.DocNumberConfigs.Update(docNumberConfig);
+            await _dbContext.SaveChangesAsync();
+
+            return docNumberConfig;
+        }
+        #endregion
     }
 }

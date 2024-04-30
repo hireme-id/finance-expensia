@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240430032253_AddTableTransactionType")]
+    partial class AddTableTransactionType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -873,15 +876,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("25de2280-2402-4b9a-ba71-d47174d85ff8"),
-                            Created = new DateTime(2024, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "MasterData.TransactionType.View",
-                            PermissionDescription = "Akses untuk view transaction type",
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"),
                             Created = new DateTime(2024, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "",
@@ -1131,15 +1125,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7dde3578-ef9d-4f05-8717-b1b035517a53"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("25de2280-2402-4b9a-ba71-d47174d85ff8"),
-                            RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("65ba5cdf-3cd2-485b-ad7c-79ce544212aa"),
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
@@ -1225,15 +1210,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
                             PermissionId = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"),
-                            RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("bb81ea29-c146-4eb1-b1ae-4c3e2f1f11b9"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("25de2280-2402-4b9a-ba71-d47174d85ff8"),
                             RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"),
                             RowStatus = 0
                         });

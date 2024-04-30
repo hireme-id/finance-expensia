@@ -22,6 +22,8 @@ namespace Finance.Expensia.DataAccess
         public virtual DbSet<Partner> Partners { get; set; }
         public virtual DbSet<ChartOfAccount> ChartOfAccounts { get; set; }
         public virtual DbSet<CostCenter> CostCenters { get; set; }
+        public virtual DbSet<TransactionType> TransactionTypes { get; set; }
+        public virtual DbSet<DocNumberConfig> DocNumberConfigs { get; set; }
         #endregion
 
         #region Transaction
@@ -53,6 +55,8 @@ namespace Finance.Expensia.DataAccess
             new PartnerEntityBuilder().Configure(modelBuilder.Entity<Partner>());
             new ChartOfAccountEntityBuilder().Configure(modelBuilder.Entity<ChartOfAccount>());
             new CostCenterEntityBuilder().Configure(modelBuilder.Entity<CostCenter>());
+            new TransactionTypeEntityBuilder().Configure(modelBuilder.Entity<TransactionType>());
+            new DocNumberConfigEntityBuilder().Configure(modelBuilder.Entity<DocNumberConfig>());
             #endregion
 
             #region Transaction

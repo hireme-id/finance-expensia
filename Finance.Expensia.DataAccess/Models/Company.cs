@@ -4,6 +4,7 @@ namespace Finance.Expensia.DataAccess.Models
 {
     public partial class Company : EntityBase
     {
+        public string CompanyCode { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
