@@ -12,6 +12,10 @@ namespace Finance.Expensia.DataAccess.Builders
             base.Configure(builder);
 
             builder
+                .Property(e => e.CompanyCode)
+                .HasMaxLength(25);
+
+            builder
                 .Property(e => e.CompanyName)
                 .HasMaxLength(150);
 
