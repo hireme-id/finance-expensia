@@ -11,6 +11,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
     {
         public Guid OutgoingPaymentId { get; set; }
         public string TransactionNo { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
         public DateTime RequestDate { get; set; }
         public string Requestor { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }

@@ -83,3 +83,17 @@ label{
     cursor: not-allowed;
     opacity: 50%;
 }
+
+.badge {
+    padding: 0.5em 0.85em;
+    font-size: 85%;
+    font-weight: 600;
+}
+
+.select2-container--default.select2-container--disabled .select2-selection--single {
+    background-color: #e9ecef;
+}
+
+.select2-container--default{
+    width: 100% !important;
+}

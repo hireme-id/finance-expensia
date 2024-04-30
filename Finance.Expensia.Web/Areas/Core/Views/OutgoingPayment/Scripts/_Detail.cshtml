@@ -59,7 +59,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div class="input-group">
-												<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + ` disabled>
+												<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data + ` disabled>
 												<div class="input-group-append">
 													<span class="input-group-text">
 														<i class="fa fa-calendar"></i>
@@ -94,7 +94,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-													<input type="text" class="form-control" id="txtDescription" value="` + data + `" disabled/>
+												<textarea id="txtDescription" rows="3" class="form-control form-control-area" value="` + data + `" disabled></textarea>
 											</div>`);
 								}
 
@@ -136,7 +136,6 @@
 							title: "Amount",
 							width: "150px",
 							render: function (data, type, row, meta) {
-								totalAmount = totalAmount + data;
 
 								if (meta.row == indexRowEdit) {
 									return (
@@ -181,15 +180,6 @@
 						},
 						
 					],
-					layout: {
-						top1End: function () {
-							let toolbar = document.createElement('div');
-							let buttons = `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
-							toolbar.innerHTML = buttons;
-
-							return toolbar;
-						}
-					}
 				});
 
 				dtRequestDate.datepicker({
@@ -270,8 +260,7 @@ Account No : ` + accountNo);
 	};
 
 	function SetFormForView() {
-		$('input:not(:disabled)').add('select:not(:disabled)').attr('disabled', true);
-		$('button:not(:disabled)').hide();
+		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
 	}
 
 	async function LoadDdlPartnerData() {
@@ -424,10 +413,9 @@ Account No : ` + accountNo);
 							"contentType": cValue.contentType
 						});
 					});
-
 					gridOutgoingPaymentDetail.api().row.add({
 						"id": value.id,
-						"invoiceDate": new Date(value.invoiceDate),
+						"invoiceDate": (value.invoiceDate).split('T')[0],
 						"partner": {
 							"partnerId": value.partnerId,
 							"partnerName": value.partnerName
@@ -441,14 +429,15 @@ Account No : ` + accountNo);
 							"costCenterId": value.costCenterId,
 							"costCenterCode": value.costCenterCode
 						},
-						"amount": value.amount,
+						"amount": fmtMoney(value.amount),
 						"attachments": attachments
 					});
-
+					let dataamount = value.amount;
 					gridOutgoingPaymentDetail.api().draw();
 
-					txtTotalAmount.val(totalAmount);
+					totalAmount = totalAmount + parseInt(dataamount);
 				});
+				txtTotalAmount.val(fmtMoney(totalAmount));
 			}
 			else {
 				Swal.fire({

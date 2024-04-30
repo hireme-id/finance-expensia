@@ -11,8 +11,13 @@
                 <input type="text" class="form-control" id="txtTransactionNo" bind-name="transactionNo" disabled />
             </div>
             <div class="col-lg-6">
-                <label>Company <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
+                <label>Transaction Type <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlTransactionType" name="transactionType" bind-name="transactionType" bind-trigger="change">
+                    <option></option>
+                    <option value="PAY">Payroll</option>
+                    <option value="REM">Reimbursement</option>
+                    <option value="CAD">Cash Advance </option>
+                </select>
             </div>
         </div>
         <div class="row mb-3">
@@ -21,8 +26,8 @@
                 <input type="text" class="form-control" id="txtRequestor" bind-name="requestor" disabled />
             </div>
             <div class="col-lg-6">
-                <label>Document Status</label>
-                <input type="text" class="form-control" id="txtDocumentStatus" bind-name="approvalStatus" disabled />
+                <label>Company <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
             </div>
         </div>
         <div class="row mb-3">
@@ -38,26 +43,16 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <label>Expected Transfer <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlExpectedTransfer" name="expectedTransfer" bind-name="expectedTransfer">
-                    <option value=""></option>
-                    @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
-                    {
-                        @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>");
-                    }
-                </select>
+                <label>Document Status</label>
+                <input type="text" class="form-control" id="txtDocumentStatus" bind-name="approvalStatus" disabled />
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-lg-6">
-                <label>Remark</label>
-                <input type="text" class="form-control" id="txtRemark" name="remark" bind-name="remark" />
-            </div>
-            <div class="col-lg-6">
                 <label>Scheduled Date <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
-                    <input type="text" 
-                           class="form-control datepicker" 
+                    <input type="text"
+                           class="form-control datepicker"
                            id="dtScheduledDate" name="scheduledDate" bind-name="scheduledDate" bind-type="datetime"
                            autocomplete="off">
                     <div class="input-group-append">
@@ -67,6 +62,23 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-6">
+                <label>Expected Transfer <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlExpectedTransfer" name="expectedTransfer" bind-name="expectedTransfer">
+                    <option value=""></option>
+                    @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
+                    {
+                        @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Remark</label>
+                <textarea id="txtRemark" rows="3" class="form-control form-control-area" name="remark" bind-name="remark"></textarea>
+            </div>
         </div>
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4 border-bottom border-dark"></div>
@@ -74,14 +86,14 @@
         <div class="row mb-3">
             <div class="col-lg-6">
                 <label>From Alias Bank <span class="text-danger">*</span></label>
-                <select class="form-control" 
+                <select class="form-control select2"
                         id="ddlFromAliasBank" name="fromBankAliasId" @* bind-name="fromBankAliasId" bind-trigger="change" *@
                         descriptor-control="#txtFromBankName" 
                         disabled></select>
             </div>
             <div class="col-lg-6">
                 <label>To Alias Bank <span class="text-danger">*</span></label>
-                <select class="form-control" 
+                <select class="form-control select2"
                         id="ddlToAliasBank" name="toBankAliasId" bind-name="toBankAliasId" bind-trigger="change"
                         descriptor-control="#txtToBankName"></select>
             </div>
@@ -98,8 +110,8 @@
         </div>
         <div class="row mb-3">
             <div class="col-lg-6">
-                <label>Bank Payment Transfer<span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlBankPaymentType" name="bankPaymentType" bind-name="bankPaymentType">
+                <label>Bank Payment Type<span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlBankPaymentType" name="bankPaymentType" bind-name="bankPaymentType">
                     <option value=""></option>
                     @foreach (var item in Enum.GetValues(typeof(BankPaymentType)))
                     {
@@ -122,9 +134,15 @@
             </div>
         </div>
     </div>
-    <div class="card-footer">
-        <button type="button" id="btnDelete" class="btn btn-outline-danger" style="width:150px;display:none">Delete</button>
-        <button type="button" id="btnSubmit" data-is-submit="true" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
-        <button type="button" id="btnDraft" data-is-submit="false" class="btn btn-outline-secondary float-right" style="width:150px">Draft</button>
-    </div>
+    @if (Context.Request.Path != Url.Action("Detail", "OutgoingPayment"))
+    {
+        <div class="card-footer">
+            @if (Context.Request.Path == Url.Action("Edit", "OutgoingPayment"))
+            {
+                <button type="button" id="btnDelete" class="btn btn-outline-danger" style="width:150px;">Delete</button>
+            }
+            <button type="button" id="btnSubmit" data-is-submit="true" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
+            <button type="button" id="btnDraft" data-is-submit="false" class="btn btn-outline-secondary float-right" style="width:150px">Save as Draft</button>
+        </div>
+    }
 </div>

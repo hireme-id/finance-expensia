@@ -9,11 +9,11 @@
         <div class="row mb-3">
             <div class="col-lg-8">
                 <label>Company</label>
-                <select class="form-control" id="ddlCompany" name="companyId"></select>
+                <select class="form-control select2" id="ddlCompany" name="companyId"></select>
             </div>
             <div class="col-lg-4">
                 <label>Status</label>
-                <select class="form-control" id="ddlApprovalStatus">
+                <select class="form-control select2" id="ddlApprovalStatus">
                     <option value=""></option>
                     @foreach (var item in Enum.GetValues(typeof(ApprovalStatus)))
                     {

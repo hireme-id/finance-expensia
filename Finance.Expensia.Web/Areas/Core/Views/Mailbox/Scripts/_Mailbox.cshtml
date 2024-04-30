@@ -78,31 +78,26 @@
 
                             orderable: false
                         },
-                        { title: "Transaction No", data: "transactionNo" },
                         {
-                            title: "Request Date",
-                            render: function (data, type, row) {
-                                return fmtDate(row.requestDate);
-                            }
+                            title: "Transaction Info", render: function (data, type, row) {
+                                var reqDate = fmtDate(row.requestDate);
+                                var elem = `${row.transactionNo} <br /> ${reqDate}`;
+                                return elem;
+                            },
                         },
-                        { title: "Requestor", data: "requestor" },
+                        { title: "Company", data: "companyName" },
+                        { title: "From Bank Alias", data: "fromBankAliasName" },
+                        { title: "To Bank Alias", data: "toBankAliasName" },
+                        
                         {
                             title: "Total Transaction", render: function (data, type, row) {
                                 var totalAmount = fmtMoney(row.totalAmount);
                                 return totalAmount;
-                            }
+                            },
+                            className: "dt-body-right"
                         },
                         { title: "Remark", data: "remark" },
-                        { title: "From Bank Alias", data: "fromBankAliasName" },
-                        { title: "To Bank Alias", data: "toBankAliasName" },
-                        { 
-                            title: "Status",
-                            render: function (data, type, row) {
-                                var statusList = @Html.Raw(Json.Serialize(statusList));
-                                var status = statusList[row.approvalStatus];
-                                return status;
-                            }
-                        },
+                        { title: "Requestor", data: "requestor" },
                         {
                             title: "", render: function (data, type, row) {
                                 let html = `<a href="../Core/Mailbox/Approval/${row.outgoingPaymentId}" style="color: dimgray; font-size: 17px;"><i class="fas fa-file-alt"></i></a>`;
