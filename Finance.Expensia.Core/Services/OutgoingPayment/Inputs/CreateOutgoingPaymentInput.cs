@@ -13,6 +13,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Inputs
 		public Guid FromBankAliasId { get; set; }
 		public Guid ToBankAliasId { get; set; }
 		public BankPaymentType BankPaymentType { get; set; }
+		public Guid TransactionTypeId { get; set; }
 
 		public bool IsSubmit { get; set; }
 	}

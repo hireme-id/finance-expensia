@@ -18,6 +18,8 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
 				.ForMember(dest => dest.CoaId, opt => opt.MapFrom(src => src.Id));
 			CreateMap<CostCenter, CostCenterDto>()
 				.ForMember(dest => dest.CostCenterId, opt => opt.MapFrom(src => src.Id));
-		}
+            CreateMap<TransactionType, TransactionTypeDto>()
+                .ForMember(dest => dest.TransactionTypeId, opt => opt.MapFrom(src => src.Id));
+        }
     }
 }

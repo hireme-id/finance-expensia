@@ -29,6 +29,7 @@ namespace Finance.Expensia.Core
 			services.AddScoped<PartnerService>();
 			services.AddScoped<CoaService>();
 			services.AddScoped<CostCenterService>();
+            services.AddScoped<TransactionTypeService>();
 			services.AddScoped<StorageService>();
             services.AddScoped<InboxService>();
 
