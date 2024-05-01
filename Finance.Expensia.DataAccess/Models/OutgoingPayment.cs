@@ -15,7 +15,7 @@ namespace Finance.Expensia.DataAccess.Models
         public ApprovalStatus ApprovalStatus { get; set; }
         public ExpectedTransfer ExpectedTransfer { get; set; }
         public string Remark { get; set; } = string.Empty;
-        public DateTime ScheduledDate { get; set; }
+        public DateTime? ScheduledDate { get; set; }
         public Guid FromBankAliasId { get; set; }
         public string FromBankAliasName { get; set; } = string.Empty;
         public string FromBankName { get; set; } = string.Empty;

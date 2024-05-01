@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Finance.Expensia.Shared.Enums
+@{
 	var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
 	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
 	var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
@@ -16,6 +17,7 @@
 	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
 	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
 	const ddlTransactionType = $('#ddlTransactionType'), ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
+	const ddlExpectedTransfer = $('#ddlExpectedTransfer');
 	const txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
 	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
 
@@ -243,7 +245,8 @@
 
 				dtScheduledDate.datepicker({
 					dateFormat: "yy-mm-dd",
-					minDate: new Date()
+					minDate: new Date(),
+					disabled: true
 				});
 			},
 			InitHandlers: function () {
@@ -255,6 +258,16 @@
 					LoadDdlCostCenterData();
 
 					$(this).attr("disabled", true);
+				});
+
+				ddlExpectedTransfer.on("change", function (e) {
+					if (ddlExpectedTransfer.val() == "@ExpectedTransfer.Scheduled") {
+						dtScheduledDate.datepicker('option', 'disabled', false);
+					}
+					else {
+						dtScheduledDate.datepicker('option', 'disabled', true);
+						dtScheduledDate.val('');
+					}
 				});
 
 				ddlFromAliasBank.add(ddlToAliasBank).on("change", function (e) {
@@ -478,6 +491,10 @@ Account No : ` + accountNo);
 
 					let formDataObject = {};
 					formDataArray.forEach(function (field) {
+						if (field.name == "scheduledDate" && field.value == "") {
+							return;
+						}
+
 						formDataObject[field.name] = field.value;
 					});
 					formDataObject.isSubmit = isSubmit == 'true' ? true : false;

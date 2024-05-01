@@ -25,7 +25,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public string BankPaymentType { get; set; } = string.Empty;
         public string ApprovalStatus { get; set; } = string.Empty;
         public string ExpectedTransfer { get; set; } = string.Empty;
-        public DateTime ScheduledDate { get; set; }
+        public DateTime? ScheduledDate { get; set; }
         public Guid TransactionTypeId { get; set; }
         public string TransactionTypeCode { get; set; } = string.Empty;
 

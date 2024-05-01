@@ -9,7 +9,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Inputs
 		public ExpectedTransfer ExpectedTransfer { get; set; }
 		public string Remark { get; set; } = string.Empty;
 		[DataType(DataType.Date)]
-		public DateTime ScheduledDate { get; set; }
+		public DateTime? ScheduledDate { get; set; }
 		public Guid FromBankAliasId { get; set; }
 		public Guid ToBankAliasId { get; set; }
 		public BankPaymentType BankPaymentType { get; set; }

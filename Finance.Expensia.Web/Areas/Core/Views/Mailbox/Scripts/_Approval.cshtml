@@ -477,7 +477,7 @@ Account No : ` + accountNo);
 						let bindTrigger = input.attr('bind-trigger');
 						let bindType = input.attr('bind-type');
 
-						if (bindType == 'datetime') {
+						if (bindType == 'datetime' && value != null) {
 							value = value.split('T')[0];
 						}
 

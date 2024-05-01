@@ -66,6 +66,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			if (input == null)
 				return new ResponseBase("Tolong lengkapi informasi yang mandatory", ResponseCode.NotFound);
 
+			if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
+				return new ResponseBase("Schedule date harus diisi");
+
 			if (input.OutgoingPaymentDetails.Count == 0 && input.IsSubmit)
 				return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);
 
@@ -169,7 +172,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             if (input == null)
                 return new ResponseBase("Tolong lengkapi informasi yang mandatory", ResponseCode.NotFound);
 
-            if (input.OutgoingPaymentDetails.Count == 0 && input.IsSubmit)
+			if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
+				return new ResponseBase("Schedule date harus diisi");
+
+			if (input.OutgoingPaymentDetails.Count == 0 && input.IsSubmit)
                 return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);
 
             var dataCompany = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(input.CompanyId));
