@@ -272,9 +272,15 @@ Account No : ` + accountNo);
 				btnApprove.add(btnReject).on('click', function (e) {
 					let title = $(this)[0].id == btnApprove[0].id ? "Approve" : "Reject";
 					let confirmButtonText = $(this)[0].id == btnApprove[0].id ? "Approve" : "Reject";
+					let html = $(this)[0].id == btnApprove[0].id ? "Apakah anda yakin untuk menyetujui dokumen ini?" : "Apakah anda yakin untuk tidak menyetujui dokumen ini?<br>Jika iya harap isi keterangan di bawah ini";
+
 					Swal.fire({
 						title: title,
-						html: "Apakah anda yakin ingin melanjutkan proses ini?",
+						html: html,
+						input: "textarea",
+						inputAttributes: {
+							autocapitalize: "off"
+						},
 						showCancelButton: true,
 						confirmButtonText: confirmButtonText,
 						confirmButtonColor: "#D92D20",
@@ -283,15 +289,25 @@ Account No : ` + accountNo);
 							cancelButton: 'order-1 right-gap',
 							confirmButton: 'order-2',
 						},
-						icon: "warning"
-					}).then(async (result) => {
+						icon: "warning",
+						preConfirm: async (remark) => {
+							if (remark == "" && title == "Reject") {
+								Swal.showValidationMessage(`Keterangan harus diisi`);
+							}
+							else {
+								return remark;
+							}
+						},
+						allowOutsideClick: () => !Swal.isLoading()
+					}).then((result) => {
 						if (result.isConfirmed) {
 							$.ajax(Object.assign({}, glbBaseRequest, {
 								method: "POST",
 								url: "@doActionWorkflowUrl",
 								data: JSON.stringify({
 									"transactionNo": txtTransactionNo.val(),
-									"workflowAction": $(this)[0].id == btnApprove[0].id ? "@WorkflowAction.Approve.GetDescription()" : "@WorkflowAction.Reject.GetDescription()"
+									"workflowAction": $(this)[0].id == btnApprove[0].id ? "@WorkflowAction.Approve.GetDescription()" : "@WorkflowAction.Reject.GetDescription()",
+									"remakr": result.value
 								}),
 								contentType: "application/json"
 							})).done(function (response) {
@@ -532,8 +548,9 @@ Account No : ` + accountNo);
 
 					gridOutgoingPaymentDetail.api().draw();
 
-					txtTotalAmount.val(totalAmount);
+					totalAmount = totalAmount + value.amount;
 				});
+				txtTotalAmount.val(fmtMoney(totalAmount));
 			}
 			else {
 				Swal.fire({

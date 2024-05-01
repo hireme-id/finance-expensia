@@ -335,15 +335,22 @@
 
         let title = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
         let confirmButtonText = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
-        let html = "Apakah anda yakin ingin melanjutkan proses ini?";
+        let html = action == '@WorkflowAction.Approve.GetDescription()' ? "Apakah anda yakin untuk menyetujui dokumen-dokumen ini?<br>" : "Apakah anda yakin untuk tidak menyetujui dokumen-dokumen ini?<br>";
         $.each(listTransactions, function (key, value) {
             html = html + `<br>` + value.transactionNo + ` untuk ` + value.toBankAliasName + ` (` + fmtMoney(value.amount) + `)`
         });
+        if (action != '@WorkflowAction.Approve.GetDescription()') {
+            html = html + `<br><br>Jika iya harap isi keterangan di bawah ini`
+        }
 
         Swal.fire({
             title: title,
             html: html,
-            width: '600px',
+            width: '800px',
+            input: "textarea",
+            inputAttributes: {
+                autocapitalize: "off"
+            },
             showCancelButton: true,
             confirmButtonText: confirmButtonText,
             confirmButtonColor: "#D92D20",
@@ -352,14 +359,24 @@
                 cancelButton: 'order-1 right-gap',
                 confirmButton: 'order-2',
             },
-            icon: "warning"
-        }).then(async (result) => {
+            icon: "warning",
+            preConfirm: async (remark) => {
+                if (remark == "" && title == "Reject") {
+                    Swal.showValidationMessage(`Keterangan harus diisi`);
+                }
+                else {
+                    return remark;
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
             if (result.isConfirmed) {
                 let payload = [];
                 $.each(listTransactions, function (key, value) {
                     payload.push({
                         "transactionNo": value,
-                        "workflowAction": action
+                        "workflowAction": action,
+                        "remark": result.value
                     })
                 });
 

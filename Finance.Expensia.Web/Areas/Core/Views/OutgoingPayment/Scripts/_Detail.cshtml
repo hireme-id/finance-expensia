@@ -454,6 +454,7 @@ Account No : ` + accountNo);
 							"contentType": cValue.contentType
 						});
 					});
+
 					gridOutgoingPaymentDetail.api().row.add({
 						"id": value.id,
 						"invoiceDate": (value.invoiceDate).split('T')[0],
@@ -477,10 +478,10 @@ Account No : ` + accountNo);
 						"amount": fmtMoney(value.amount),
 						"attachments": attachments
 					});
-					let dataamount = value.amount;
+					
 					gridOutgoingPaymentDetail.api().draw();
 
-					totalAmount = totalAmount + parseInt(dataamount);
+					totalAmount = totalAmount + value.amount;
 				});
 				txtTotalAmount.val(fmtMoney(totalAmount));
 			}
