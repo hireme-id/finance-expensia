@@ -1,7 +1,4 @@
-﻿using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
-using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
-using Finance.Expensia.Core.Services.OutgoingPayment;
-using Finance.Expensia.Shared.Attributes;
+﻿using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +10,7 @@ using Finance.Expensia.Core.Services.Inbox.Dtos;
 
 namespace Finance.Expensia.Web.Areas.Core.Controllers
 {
-	public class MailboxController(InboxService inboxService, CurrentUserAccessor currentUserAccessor) : Controller
+    public class MailboxController(InboxService inboxService, CurrentUserAccessor currentUserAccessor) : Controller
 	{
         private readonly InboxService _inboxService = inboxService;
         private readonly CurrentUserAccessor _currentUserAccessor = currentUserAccessor;

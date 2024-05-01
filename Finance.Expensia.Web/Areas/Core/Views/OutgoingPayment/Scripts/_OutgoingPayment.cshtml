@@ -191,7 +191,7 @@
             url: "@ddlCompanyUrl"
         })).done(function (response) {
             if (response.succeeded) {
-                ddlCompany.empty().append(`<option value=""></option>`);
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
 
                 for (let i = 0; i < response.obj.length; i++) {
                     const data = response.obj[i];

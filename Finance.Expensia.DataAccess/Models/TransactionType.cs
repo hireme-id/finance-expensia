@@ -6,5 +6,7 @@ namespace Finance.Expensia.DataAccess.Models
     {
         public string TransactionTypeCode { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+
+        public List<OutgoingPayment> OutgoingPayments { get; set; } = [];
     }
 }

@@ -45,7 +45,7 @@
             <div class="col-lg-6">
                 <label>Expected Transfer <span class="text-danger">*</span></label>
                 <select class="form-control" id="ddlExpectedTransfer" name="expectedTransfer" bind-name="expectedTransfer">
-                    <option value=""></option>
+                    <option value="">&nbsp</option>
                     @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
                     {
                         @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>")

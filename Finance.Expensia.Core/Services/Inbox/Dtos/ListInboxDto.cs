@@ -5,6 +5,7 @@ namespace Finance.Expensia.Core.Services.Inbox.Dtos
     public class ListInboxDto
     {
         public Guid OutgoingPaymentId { get; set; }
+        public string TransactionTypeDescription { get; set; } = string.Empty;
         public string TransactionNo { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
         public DateTime RequestDate { get; set; }

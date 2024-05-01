@@ -192,6 +192,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             #region edit data outgoing payment
             existOutgoing.CompanyName = dataCompany.CompanyName;
+			existOutgoing.TransactionTypeId = dataTransactionType.Id;
 			existOutgoing.TransactionTypeCode = dataTransactionType.TransactionTypeCode;
             existOutgoing.ApprovalStatus = input.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
 
@@ -341,6 +342,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
 		}
 		#endregion
+
 		public async Task<bool> UpdateApprovalStatusOutgoingPayment(string transactionNo, ApprovalStatus approvalStatus)
 		{
 			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(transactionNo));

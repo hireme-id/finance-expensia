@@ -1,6 +1,8 @@
 ﻿@using Finance.Expensia.Shared.Enums
 @using Finance.Expensia.Shared.Helpers
 @{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
     var ddlBankAliasUrl = Url.Action("RetrieveFromBankAlias", "BankAlias");
     var gridListMailbox = Url.Action("GetListInbox", "Mailbox");
     var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
@@ -10,13 +12,13 @@
 
 <script type="text/javascript">
     var currentDraw = 0;
-    let amount = 0;
-    let listTransactionNo = [];
+    let totalAmount = 0;
+    let listTransactions = [];
     
     //Variable for control
     const gridMailbox = $('#gridMailbox');
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
-    const ddlFromBankAlias = $("#ddlFromBankAlias");
+    const ddlCompany = $("#ddlCompany"), ddlTransactionType = $("#ddlTransactionType"), ddlFromBankAlias = $("#ddlFromBankAlias");
     const txtSearch = $("#txtSearch");
     const btnFilter = $("#btnFilter");
 
@@ -45,6 +47,8 @@
                         url: "@gridListMailbox",
                         data: function (d) {
                             return JSON.stringify({
+                                "companyId": ddlCompany.val() == '' ? null : ddlCompany.val(),
+                                "transactiontypeId": ddlTransactionType.val() == '' ? null : ddlTransactionType.val(),
                                 "fromBankAliasId": ddlFromBankAlias.val() == '' ? null : ddlFromBankAlias.val(),
                                 "startDate": dtStartDate.val() == '' ? null : dtStartDate.val(),
                                 "endDate": dtEndDate.val() == '' ? null : dtEndDate.val(),
@@ -67,17 +71,18 @@
                             title: '<input id="selectAll" type="checkbox" />', 
                             render: function (data, type, row, meta) {
                                 let ischecked;
-                                if (Array.isArray(listTransactionNo)) {
-                                    if (listTransactionNo.includes(row.transactionNo)) {
+                                if (Array.isArray(listTransactions)) {
+                                    if (listTransactions.findIndex(d => d.transactionNo == row.transactionNo) != -1) {
                                         ischecked = 'checked';
                                     }
                                 }
 
-                                return `<input type="checkbox" class="checkbox-document" data-transactionno="${row.transactionNo}" data-amount="${row.totalAmount}" ${ischecked}/>`;
+                                return `<input type="checkbox" class="checkbox-document" data-transactionno="${row.transactionNo}" data-amount="${row.totalAmount}" data-tobankalias="${row.toBankAliasName}" ${ischecked}/>`;
                             },
 
                             orderable: false
                         },
+                        { title: "Transaction Type", data: "transactionTypeDescription" },
                         {
                             title: "Transaction Info", render: function (data, type, row) {
                                 var reqDate = fmtDate(row.requestDate);
@@ -177,9 +182,15 @@
                     if (this.checked) {
                         checkElements.map(function () {
                             let transactionno = $(this).data('transactionno');
+                            let amount = parseInt($(this).data('amount'));
+                            let toBankAliasName = $(this).data('tobankalias');
 
-                            amount = amount + parseInt($(this).data('amount'));
-                            listTransactionNo.push(transactionno);
+                            totalAmount = totalAmount + amount;
+                            listTransactions.push({
+                                transactionNo,
+                                amount,
+                                toBankAliasName
+                            });
                         });
 
                         $('.checkbox-document').prop('checked', true)
@@ -187,29 +198,37 @@
                     else {
                         checkElements.map(function () {
                             let transactionno = $(this).data('transactionno');
+                            let amount = parseInt($(this).data('amount'));
+                            let toBankAliasName = $(this).data('tobankalias');
 
-                            amount = amount - $(this).data('amount');
-                            listTransactionNo.splice(listTransactionNo.indexOf(transactionno), 1);
+                            totalAmount = totalAmount - amount;
+                            listTransactions.splice(listTransactions.findIndex(d => d.transactionNo == transactionNo), 1);
                         });
 
                         $('.checkbox-document').prop('checked', false)
                     }
-                    $("#txttotalamount").val(fmtMoney(amount));
+                    $("#txttotalamount").val(fmtMoney(totalAmount));
                 });
 
                 $(document).on('change', '.checkbox-document', function () {
-                    let transactionno = $(this).data('transactionno');
+                    let transactionNo = $(this).data('transactionno');
+                    let amount = parseInt($(this).data('amount'));
+                    let toBankAliasName = $(this).data('tobankalias');
                     
                     if ($(this).prop("checked") == true) {
-                        amount = amount + parseInt($(this).data('amount'));
-                        listTransactionNo.push(transactionno);
+                        totalAmount = totalAmount + amount;
+                        listTransactions.push({
+                            transactionNo,
+                            amount,
+                            toBankAliasName
+                        });
                     }
                     else if ($(this).prop("checked") == false) {
-                        amount = amount - $(this).data('amount');
-                        listTransactionNo.splice(listTransactionNo.indexOf(transactionno), 1);
+                        totalAmount = totalAmount - amount;
+                        listTransactions.splice(listTransactions.findIndex(d => d.transactionNo == transactionNo), 1);
                     }
                     
-                    $("#txttotalamount").val(fmtMoney(amount));
+                    $("#txttotalamount").val(fmtMoney(totalAmount));
                 });
 
                 btnFilter.click(function () {
@@ -219,29 +238,25 @@
             InitValidation: function () {
             },
             InitLoad: function () {
+                RefreshDdlCompany();
+                RefreshDdlTransactionType();
                 RefreshDdlFromAliasBank();
             }
         }
     };
 
-    function RefreshDdlFromAliasBank() {
-        $.ajax(Object.assign({}, glbBaseRequest, {
+    async function RefreshDdlCompany() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
-            url: "@ddlBankAliasUrl"
+            url: "@ddlCompanyUrl"
 		})).done(function (response) {
 			if (response.succeeded) {
-                ddlFromBankAlias.empty().append(`<option value=""></option>`);
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
 					const data = response.obj[i];
-                    ddlFromBankAlias.append(
-						`<option
-							value="` + data.bankAliasId + `"
-							data-bank-name="` + data.bankName + `"
-							data-account-no="` + data.accountNo + `"
-							data-account-name="` + data.accountName + `"
-							>` + data.aliasName +
-						`</option>`);
+                    ddlCompany.append(
+						`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
 				}
 			}
 			else {
@@ -254,8 +269,62 @@
 		});
     }
 
+    async function RefreshDdlTransactionType() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+            url: "@ddlTransactionTypeUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+                ddlTransactionType.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+                    ddlTransactionType.append(
+                        `<option value="` + data.transactionTypeId + `">` + data.description + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+    }
+
+    async function RefreshDdlFromAliasBank() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlBankAliasUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlFromBankAlias.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlFromBankAlias.append(
+                        `<option
+                                value="` + data.bankAliasId + `"
+                                data-bank-name="` + data.bankName + `"
+                                data-account-no="` + data.accountNo + `"
+                                data-account-name="` + data.accountName + `"
+                                >` + data.aliasName +
+                        `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+
     function DoApprovalActions(btnAction, action) {
-        if (listTransactionNo.length == 0) {
+        if (listTransactions.length == 0) {
             Swal.fire({
                 title: "Error",
                 text: "Tidak ada data yang dipilih",
@@ -267,13 +336,14 @@
         let title = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
         let confirmButtonText = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
         let html = "Apakah anda yakin ingin melanjutkan proses ini?";
-        $.each(listTransactionNo, function (key, value) {
-            html = html + `<br>` + value;
+        $.each(listTransactions, function (key, value) {
+            html = html + `<br>` + value.transactionNo + ` untuk ` + value.toBankAliasName + ` (` + fmtMoney(value.amount) + `)`
         });
 
         Swal.fire({
             title: title,
             html: html,
+            width: '600px',
             showCancelButton: true,
             confirmButtonText: confirmButtonText,
             confirmButtonColor: "#D92D20",
@@ -286,7 +356,7 @@
         }).then(async (result) => {
             if (result.isConfirmed) {
                 let payload = [];
-                $.each(listTransactionNo, function (key, value) {
+                $.each(listTransactions, function (key, value) {
                     payload.push({
                         "transactionNo": value,
                         "workflowAction": action

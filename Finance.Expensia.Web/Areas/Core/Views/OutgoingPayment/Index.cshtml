@@ -14,7 +14,7 @@
             <div class="col-lg-4">
                 <label>Status</label>
                 <select class="form-control select2" id="ddlApprovalStatus">
-                    <option value=""></option>
+                    <option value="">&nbsp</option>
                     @foreach (var item in Enum.GetValues(typeof(ApprovalStatus)))
                     {
                         @Html.Raw($"<option value=\"{item}\">{((ApprovalStatus)item).GetDescription()}</option>")
