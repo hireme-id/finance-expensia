@@ -15,9 +15,9 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 
         [HttpPost("ddlpartner")]
         [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
-        public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner(Guid companyId)
+        public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner()
         {
-            return await _partnerService.RetrievePartner(companyId);
+            return await _partnerService.RetrievePartner();
         }
     }
 }

@@ -318,7 +318,7 @@ Account No : ` + accountNo);
 	async function LoadDdlPartnerData() {
 		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
-			url: "@ddlPartnerUrl" + "?companyId=" + ddlCompany.val()
+			url: "@ddlPartnerUrl"
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlPartnerDatas = response.obj;

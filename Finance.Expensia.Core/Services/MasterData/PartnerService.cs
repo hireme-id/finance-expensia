@@ -11,7 +11,7 @@ namespace Finance.Expensia.Core.Services.MasterData
     public class PartnerService(ApplicationDbContext dbContext, IMapper mapper, ILogger<PartnerService> logger)
         : BaseService<PartnerService>(dbContext, mapper, logger)
     {
-        public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner(Guid companyId)
+        public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner()
         {
             var dataPartners = await _dbContext.Partners
                                                .OrderBy(d => d.PartnerName)
