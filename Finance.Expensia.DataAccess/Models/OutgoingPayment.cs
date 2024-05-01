@@ -4,8 +4,10 @@ using Finance.Expensia.Shared.Enums;
 namespace Finance.Expensia.DataAccess.Models
 {
     public class OutgoingPayment : EntityBase
-    {
-        public string TransactionNo { get; set; } = string.Empty;
+	{
+		public Guid TransactionTypeId { get; set; }
+		public string TransactionTypeCode { get; set; } = string.Empty;
+		public string TransactionNo { get; set; } = string.Empty;
         public string Requestor { get; set; } = string.Empty;
         public DateTime RequestDate { get; set; }
         public Guid CompanyId { get; set; }
@@ -25,10 +27,9 @@ namespace Finance.Expensia.DataAccess.Models
 		public string ToAccountNo { get; set; } = string.Empty;
 		public string ToAccountName { get; set; } = string.Empty;
         public BankPaymentType BankPaymentType { get; set; }
-        public Guid TransactionTypeId { get; set; }
-        public string TransactionTypeCode { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
 
         public virtual List<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; } = [];
+        public virtual TransactionType TransactionType { get; set; } = null!;
     }
 }

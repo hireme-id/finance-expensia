@@ -45,6 +45,12 @@ namespace Finance.Expensia.DataAccess.Builders
                 .WithMany(e => e.OutgoingPaymentDetails)
                 .HasForeignKey(e => e.OutgoingPaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
-        }
+
+			builder
+				.HasOne(e => e.PostingAccount)
+				.WithMany(e => e.OutgoingPaymentDetails)
+				.HasForeignKey(e => e.PostingAccountId)
+				.OnDelete(DeleteBehavior.Restrict);
+		}
     }
 }

@@ -375,7 +375,7 @@ Account No : ` + accountNo);
 			url: "@ddlCompanyUrl"
 		})).done(function (response) {
 			if (response.succeeded) {
-				ddlCompany.empty().append(`<option value=""></option>`);
+				ddlCompany.empty().append(`<option value="">&nbsp</option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
 					const data = response.obj[i];
@@ -398,7 +398,7 @@ Account No : ` + accountNo);
 			url: "@ddlBankAliasUrl" + "?companyId=" + ddlCompany.val()
 		})).done(function (response) {
 			if (response.succeeded) {
-				ddlBankAlias.empty().append(`<option value=""></option>`);
+				ddlBankAlias.empty().append(`<option value="">&nbsp</option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
 					const data = response.obj[i];

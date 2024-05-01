@@ -1,5 +1,6 @@
 ﻿using Finance.Expensia.DataAccess.Bases;
 using Finance.Expensia.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Finance.Expensia.DataAccess.Builders
@@ -17,6 +18,12 @@ namespace Finance.Expensia.DataAccess.Builders
             builder
                 .Property(e => e.Description)
                 .HasMaxLength(200);
+
+            builder
+                .HasMany(e => e.OutgoingPayments)
+                .WithOne(e => e.TransactionType)
+                .HasForeignKey(e => e.TransactionTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             SeedingData(builder);
         }

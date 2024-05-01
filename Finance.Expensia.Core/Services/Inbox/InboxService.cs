@@ -29,14 +29,18 @@ namespace Finance.Expensia.Core.Services.Inbox
 
             var dataInbox = from ibx in _dbContext.ApprovalInboxes
                             join otp in _dbContext.OutgoingPayments on ibx.TransactionNo equals otp.TransactionNo
+							join tt in _dbContext.TransactionTypes on otp.TransactionTypeId equals tt.Id
                             where
 								role.Select(d => d.Role.RoleCode).Contains(ibx.ApprovalRoleCode)
                                 && (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
                                 && (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
+                                && (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
+                                && (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
                                 && (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
                             orderby otp.TotalAmount descending
                             select new ListInboxDto
                             {
+								TransactionTypeDescription = tt.Description,
                                 OutgoingPaymentId = otp.Id,
                                 TransactionNo = ibx.TransactionNo,
                                 CompanyName = otp.CompanyName,

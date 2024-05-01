@@ -1,4 +1,5 @@
 ﻿@{
+	var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
 	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
 	var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
 	var ddlPartnerUrl = Url.Action("RetrievePartner", "Partner");
@@ -12,7 +13,7 @@
 	//Variable for control
 	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
 	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
-	const ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
+	const ddlTransactionType = $("#ddlTransactionType"), ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
 	const ddlExpectedTransfer = $("#ddlExpectedTransfer"), txtRequestor = $("#txtRequestor"), txtRemark = $("#txtRemark");
 	const txtTransactionNo = $("#txtTransactionNo");
 	const txtDocumentStatus = $("#txtDocumentStatus"), txtTotalAmount = $("#txtTotalAmount"); txtFromBankName = $("#txtFromBankName");
@@ -251,6 +252,7 @@ Account No : ` + accountNo);
 			InitValidation: function () {
 			},
 			InitLoad: async function () {
+				await RefreshDdlTransactionType();
 				await RefreshDdlCompany();
 				await RefreshDdlBankAlias(ddlToAliasBank);
 				await LoadOutgoingPaymentDetailData();
@@ -317,13 +319,36 @@ Account No : ` + accountNo);
 		});
 	}
 
+	async function RefreshDdlTransactionType() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlTransactionTypeUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlTransactionType.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlTransactionType.append(`<option value="` + data.transactionTypeId + `">` + data.description + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
 	async function RefreshDdlCompany() {
 		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
 			url: "@ddlCompanyUrl"
 		})).done(function (response) {
 			if (response.succeeded) {
-				ddlCompany.empty().append(`<option value=""></option>`);
+				ddlCompany.empty().append(`<option value="">&nbsp</option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
 					const data = response.obj[i];
@@ -346,7 +371,7 @@ Account No : ` + accountNo);
 			url: "@ddlBankAliasUrl" + "?companyId=" + ddlCompany.val()
 		})).done(function (response) {
 			if (response.succeeded) {
-				ddlBankAlias.empty().append(`<option value=""></option>`);
+				ddlBankAlias.empty().append(`<option value="">&nbsp</option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
 					const data = response.obj[i];

@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240501092232_AddPostingAccountName")]
+    partial class AddPostingAccountName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -614,7 +617,7 @@ namespace Finance.Expensia.DataAccess.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<Guid>("PostingAccountId")
+                    b.Property<Guid?>("PostingAccountId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PostingAccountName")
@@ -1484,8 +1487,7 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.HasOne("Finance.Expensia.DataAccess.Models.Company", "PostingAccount")
                         .WithMany("OutgoingPaymentDetails")
                         .HasForeignKey("PostingAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("OutgoingPayment");
 

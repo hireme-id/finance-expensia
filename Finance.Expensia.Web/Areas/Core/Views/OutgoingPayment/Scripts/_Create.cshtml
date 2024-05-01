@@ -1,4 +1,5 @@
 ﻿@{
+	var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
 	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
 	var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
 	var ddlPartnerUrl = Url.Action("RetrievePartner", "Partner");
@@ -14,7 +15,7 @@
 	//Variable for control
 	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
 	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
-	const ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
+	const ddlTransactionType = $('#ddlTransactionType'), ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
 	const txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
 	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
 
@@ -70,21 +71,6 @@
 								}
 
 								return value;
-							}
-						},
-						{
-							data: "postingaccount",
-							title: "Posting Account",
-							width: "200px",
-							render: function (data, type, row, meta) {
-								if (meta.row == indexRowEdit) {
-									return (
-										`<div>
-											<select class="form-control select2" id="ddlPostingAccount"></select>
-										</div>`);
-								}
-
-								return data.postingaccountName;
 							}
 						},
 						{
@@ -145,6 +131,21 @@
 								}
 
 								return data.costCenterCode
+							}
+						},
+						{
+							data: "postingaccount",
+							title: "Posting Account",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+												<select class="form-control select2" id="ddlPostingAccount"></select>
+											</div>`);
+								}
+
+								return data.postingaccountName;
 							}
 						},
 						{
@@ -487,7 +488,6 @@ Account No : ` + accountNo);
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
 							let amount = v.amount;
 							amount = amount.replace(/\./g, "");
-							debugger;
 							formDataObject.outgoingPaymentDetails.push({
 								invoiceDate: v.invoiceDate,
 								partnerId: v.partner.partnerId,
@@ -528,6 +528,7 @@ Account No : ` + accountNo);
 			InitValidation: function () {
 			},
 			InitLoad: function () {
+				RefreshDdlTransactionType();
 				RefreshDdlCompany();
 
 				txtRequestor.val(localStorage.getItem("displayName"));
@@ -539,6 +540,29 @@ Account No : ` + accountNo);
 		}
 	};
 
+	function RefreshDdlTransactionType() {
+		$.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlTransactionTypeUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlTransactionType.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlTransactionType.append(`<option value="` + data.transactionTypeId + `">` + data.description + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
 	function RefreshDdlCompany() {
 		$.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
@@ -546,7 +570,7 @@ Account No : ` + accountNo);
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlCompanyDatas = response.obj;
-				ddlCompany.empty().append(`<option value=""></option>`);
+				ddlCompany.empty().append(`<option value="">&nbsp</option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
 					const data = response.obj[i];
@@ -575,7 +599,7 @@ Account No : ` + accountNo);
 			url: url
 		})).done(function (response) {
 			if (response.succeeded) {
-				ddlBankAlias.empty().append(`<option value=""></option>`);
+				ddlBankAlias.empty().append(`<option value="">&nbsp</option>`);
 
 				for (let i = 0; i < response.obj.length; i++) {
 					const data = response.obj[i];
@@ -620,7 +644,7 @@ Account No : ` + accountNo);
 
 	function RefreshDdlPartner(partnerId) {
 		let ddlPartner = $("#ddlPartner");
-		ddlPartner.empty().append(`<option value=""></option>`);
+		ddlPartner.empty().append(`<option value="">&nbsp</option>`);
 
 		for (let i = 0; i < ddlPartnerDatas.length; i++) {
 			const data = ddlPartnerDatas[i];
@@ -649,7 +673,7 @@ Account No : ` + accountNo);
 
 	function RefreshDdlCoa(coaId) {
 		let ddlCoa = $("#ddlCoa");
-		ddlCoa.empty().append(`<option value=""></option>`);
+		ddlCoa.empty().append(`<option value="">&nbsp</option>`);
 
 		for (let i = 0; i < ddlCoaDatas.length; i++) {
 			const data = ddlCoaDatas[i];
@@ -678,7 +702,7 @@ Account No : ` + accountNo);
 
 	function RefreshDdlCostCenter(costCenterId) {
 		let ddlCostCenter = $("#ddlCostCenter");
-		ddlCostCenter.empty().append(`<option value=""></option>`);
+		ddlCostCenter.empty().append(`<option value="">&nbsp</option>`);
 
 		for (let i = 0; i < ddlCostCenterDatas.length; i++) {
 			const data = ddlCostCenterDatas[i];
@@ -689,7 +713,7 @@ Account No : ` + accountNo);
 
 	function RefreshDdlPostingAccount() {
 		let ddlPostingAccount = $("#ddlPostingAccount");
-		ddlPostingAccount.empty().append(`<option value=""></option>`);
+		ddlPostingAccount.empty().append(`<option value="">&nbsp</option>`);
 
 		for (let i = 0; i < ddlCompanyDatas.length; i++) {
 			const data = ddlCompanyDatas[i];
