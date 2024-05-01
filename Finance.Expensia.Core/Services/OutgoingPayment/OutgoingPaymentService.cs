@@ -120,6 +120,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId));
 				var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.ChartOfAccountId) && d.CompanyId.Equals(input.CompanyId));
 				var dataCostCenter = await _dbContext.CostCenters.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.CostCenterId) && d.CompanyId.Equals(input.CompanyId));
+				var dataPostingAccount = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PostingAccountId));
 
 				if (dataPartner == null)
 					return new ResponseBase("Data partner tidak valid", ResponseCode.NotFound);
@@ -130,12 +131,16 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				if (dataCostCenter == null)
 					return new ResponseBase("Data cost center tidak valid", ResponseCode.NotFound);
 
+				if (dataPostingAccount == null)
+					return new ResponseBase("Data posting account tidak valid", ResponseCode.NotFound);
+
 				var dataOutgoingPaymentDetail = _mapper.Map<OutgoingPaymentDetail>(outgoingPaymentDetailInput);
 
 				dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
 				dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
 				dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
 				dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
+				dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;
 				dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
 
 				dataOutgoingPayment.OutgoingPaymentDetails.Add(dataOutgoingPaymentDetail);
@@ -244,8 +249,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                 var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId));
                 var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.ChartOfAccountId) && d.CompanyId.Equals(input.CompanyId));
                 var dataCostCenter = await _dbContext.CostCenters.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.CostCenterId) && d.CompanyId.Equals(input.CompanyId));
+				var dataPostingAccount = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PostingAccountId));
 
-                if (dataPartner == null)
+				if (dataPartner == null)
                     return new ResponseBase("Data partner tidak valid", ResponseCode.NotFound);
 
                 if (dataCoa == null)
@@ -254,19 +260,24 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                 if (dataCostCenter == null)
                     return new ResponseBase("Data cost center tidak valid", ResponseCode.NotFound);
 
+				if (dataPostingAccount == null)
+					return new ResponseBase("Data posting account tidak valid", ResponseCode.NotFound);
+
 				var existOutgoingDetail = existOutgoing.OutgoingPaymentDetails.FirstOrDefault(x => x.Id == outgoingPaymentDetailInput.Id);
 				if (existOutgoingDetail != null)
 				{
-                    //Edit data yang sudah ada
-                    existOutgoingDetail.PartnerName = dataPartner.PartnerName;
-                    existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
-                    existOutgoingDetail.CostCenterCode = dataCostCenter.CostCenterCode;
-                    existOutgoingDetail.CostCenterName = dataCostCenter.CostCenterName;
+					//Edit data yang sudah ada
 					existOutgoingDetail.InvoiceDate = outgoingPaymentDetailInput.InvoiceDate;
-                    existOutgoingDetail.PartnerId = outgoingPaymentDetailInput.PartnerId;
-                    existOutgoingDetail.Description = outgoingPaymentDetailInput.Description;
-                    existOutgoingDetail.ChartOfAccountId = outgoingPaymentDetailInput.ChartOfAccountId;
-                    existOutgoingDetail.CostCenterId = outgoingPaymentDetailInput.CostCenterId;
+					existOutgoingDetail.Description = outgoingPaymentDetailInput.Description;
+					existOutgoingDetail.PartnerId = outgoingPaymentDetailInput.PartnerId;
+					existOutgoingDetail.PartnerName = dataPartner.PartnerName;
+					existOutgoingDetail.ChartOfAccountId = outgoingPaymentDetailInput.ChartOfAccountId;
+					existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
+					existOutgoingDetail.CostCenterId = outgoingPaymentDetailInput.CostCenterId;
+					existOutgoingDetail.CostCenterCode = dataCostCenter.CostCenterCode;
+                    existOutgoingDetail.CostCenterName = dataCostCenter.CostCenterName;
+					existOutgoingDetail.PostingAccountId = outgoingPaymentDetailInput.PostingAccountId;
+					existOutgoingDetail.PostingAccountName = dataPostingAccount.CompanyName;
 					existOutgoingDetail.Amount = outgoingPaymentDetailInput.Amount;
 
 					//delete attachment
@@ -304,6 +315,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                     dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
                     dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
                     dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
+					dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;
                     dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
 
 					await _dbContext.AddAsync(dataOutgoingPaymentDetail);

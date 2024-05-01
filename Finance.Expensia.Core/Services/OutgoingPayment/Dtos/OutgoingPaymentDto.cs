@@ -45,6 +45,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public Guid CostCenterId { get; set; }
         public string CostCenterCode { get; set; } = string.Empty;
         public string CostCenterName { get; set; } = string.Empty;
+        public Guid PostingAccountId { get; set; }
+        public string PostingAccountName { get; set; } = string.Empty;
         public decimal Amount { get; set; }
 
         public List<OutgoingPaymentDetailAttachmentDto> OutgoingPaymentDetailAttachments { get; set; } = [];

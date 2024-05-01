@@ -134,18 +134,18 @@
 							}
 						},
 						{
-							data: "postingaccount",
+							data: "postingAccount",
 							title: "Posting Account",
 							width: "200px",
 							render: function (data, type, row, meta) {
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-												<select class="form-control select2" id="ddlPostingAccount"></select>
-											</div>`);
+											<select class="form-control select2" id="ddlPostingAccount"></select>
+										</div>`);
 								}
 
-								return data.postingaccountName;
+								return data.postingAccountName;
 							}
 						},
 						{
@@ -280,9 +280,9 @@ Account No : ` + accountNo);
 								"partnerId": "",
 								"partnerName": ""
 							},
-							"postingaccount": {
-								"postingaccountId": "",
-								"postingaccountName": ""
+							"postingAccount": {
+								"postingAccountId": "",
+								"postingAccountName": ""
 							},
 							"description": "",
 							"coa": {
@@ -354,9 +354,9 @@ Account No : ` + accountNo);
 							"partnerId": $('#ddlPartner').val(),
 							"partnerName": $('#ddlPartner option:selected').text()
 						},
-						"postingaccount": {
-							"postingaccountId": $('#ddlPostingAccount').val(),
-							"postingaccountName": $('#ddlPostingAccount option:selected').text()
+						"postingAccount": {
+							"postingAccountId": $('#ddlPostingAccount').val(),
+							"postingAccountName": $('#ddlPostingAccount option:selected').text()
 						},
 						"description": $('#txtDescription').val(),
 						"coa": {
@@ -494,6 +494,7 @@ Account No : ` + accountNo);
 								description: v.description,
 								chartOfAccountId: v.coa.coaId,
 								costCenterId: v.costCenter.costCenterId,
+								postingAccountId: v.postingAccount.postingAccountId,
 								amount: parseInt(amount),
 								outgoingPaymentDetailAttachments: v.attachments
 							});
@@ -711,13 +712,14 @@ Account No : ` + accountNo);
 		}
 	}
 
-	function RefreshDdlPostingAccount() {
+	function RefreshDdlPostingAccount(postingAccountId) {
 		let ddlPostingAccount = $("#ddlPostingAccount");
+		postingAccountId = postingAccountId == "" ? ddlCompany.val() : postingAccountId;
 		ddlPostingAccount.empty().append(`<option value="">&nbsp</option>`);
 
 		for (let i = 0; i < ddlCompanyDatas.length; i++) {
 			const data = ddlCompanyDatas[i];
-			const isSelected = ddlCompany.val().toLowerCase() == data.companyId.toLowerCase() ? ` selected` : ``;
+			const isSelected = postingAccountId.toLowerCase() == data.companyId.toLowerCase() ? ` selected` : ``;
 			ddlPostingAccount.append(`<option value="` + data.companyId + `"` + isSelected + `>` + data.companyName + `</option>`);
 		}
 	}
@@ -754,7 +756,7 @@ Account No : ` + accountNo);
 		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);
 		RefreshDdlCostCenter(data.costCenter.costCenterId);
-		RefreshDdlPostingAccount();
+		RefreshDdlPostingAccount(data.postingAccount.postingAccountId);
 		$('#txtAmount').val(data.amount);
 	}
 

@@ -133,6 +133,21 @@
 							}
 						},
 						{
+							data: "postingAccount",
+							title: "Posting Account",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<select class="form-control select2" id="ddlPostingAccount"></select>
+										</div>`);
+								}
+
+								return data.postingAccountName;
+							}
+						},
+						{
 							data: "amount",
 							title: "Amount",
 							width: "150px",
@@ -453,6 +468,10 @@ Account No : ` + accountNo);
 						"costCenter": {
 							"costCenterId": value.costCenterId,
 							"costCenterCode": value.costCenterCode
+						},
+						"postingAccount": {
+							"postingAccountId": value.postingAccountId,
+							"postingAccountName": value.postingAccountName
 						},
 						"amount": fmtMoney(value.amount),
 						"attachments": attachments

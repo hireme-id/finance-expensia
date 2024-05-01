@@ -26,6 +26,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Inputs
 		public string Description { get; set; } = string.Empty;
 		public Guid ChartOfAccountId { get; set; }
 		public Guid CostCenterId { get; set; }
+		public Guid PostingAccountId { get; set; }
 		public decimal Amount { get; set; }
 	}
 
