@@ -28,12 +28,6 @@ namespace Finance.Expensia.DataAccess.Builders
                 .HasMaxLength(250);
 
             builder
-                .HasMany(e => e.Partners)
-                .WithOne(e => e.Company)
-                .HasForeignKey(e => e.CompanyId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder
                 .HasMany(e => e.ChartOfAccounts)
                 .WithOne(e => e.Company)
                 .HasForeignKey(e => e.CompanyId)

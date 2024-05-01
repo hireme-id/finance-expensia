@@ -14,7 +14,6 @@ namespace Finance.Expensia.Core.Services.MasterData
         public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner(Guid companyId)
         {
             var dataPartners = await _dbContext.Partners
-                                               .Where(d => d.CompanyId.Equals(companyId))
                                                .OrderBy(d => d.PartnerName)
                                                .Select(d => _mapper.Map<PartnerDto>(d))
                                                .ToListAsync();

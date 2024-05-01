@@ -117,7 +117,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			#region set data entity => OutgoingPaymentDetail & OutgoingPaymentDetailAttachment
 			foreach (var outgoingPaymentDetailInput in input.OutgoingPaymentDetails)
 			{
-				var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId) && d.CompanyId.Equals(input.CompanyId));
+				var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId));
 				var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.ChartOfAccountId) && d.CompanyId.Equals(input.CompanyId));
 				var dataCostCenter = await _dbContext.CostCenters.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.CostCenterId) && d.CompanyId.Equals(input.CompanyId));
 
@@ -240,7 +240,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			// add / edit outgoing payment detail
 			foreach (var outgoingPaymentDetailInput in input.OutgoingPaymentDetails)
 			{
-                var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId) && d.CompanyId.Equals(input.CompanyId));
+                var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId));
                 var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.ChartOfAccountId) && d.CompanyId.Equals(input.CompanyId));
                 var dataCostCenter = await _dbContext.CostCenters.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.CostCenterId) && d.CompanyId.Equals(input.CompanyId));
 
