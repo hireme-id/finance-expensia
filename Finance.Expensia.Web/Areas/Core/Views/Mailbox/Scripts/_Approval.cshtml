@@ -1,6 +1,7 @@
 ﻿@using Finance.Expensia.Shared.Enums;
 @using Finance.Expensia.Shared.Helpers;
 @{
+	var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
 	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
 	var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
 	var ddlPartnerUrl = Url.Action("RetrievePartner", "Partner");
@@ -16,7 +17,7 @@
 	//Variable for control
 	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
 	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
-	const ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
+	const ddlTransactionType = $("#ddlTransactionType"), ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
 	const ddlExpectedTransfer = $("#ddlExpectedTransfer"), txtRequestor = $("#txtRequestor"), txtRemark = $("#txtRemark");
 	const txtTransactionNo = $("#txtTransactionNo");
 	const txtDocumentStatus = $("#txtDocumentStatus"), txtTotalAmount = $("#txtTotalAmount"); txtFromBankName = $("#txtFromBankName");
@@ -133,6 +134,21 @@
 								}
 
 								return data.costCenterCode
+							}
+						},
+						{
+							data: "postingAccount",
+							title: "Posting Account",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<select class="form-control select2" id="ddlPostingAccount"></select>
+										</div>`);
+								}
+
+								return data.postingAccountName;
 							}
 						},
 						{
@@ -303,6 +319,7 @@ Account No : ` + accountNo);
 			InitValidation: function () {
 			},
 			InitLoad: async function () {
+				await RefreshDdlTransactionType();
 				await RefreshDdlCompany();
 				await RefreshDdlBankAlias(ddlToAliasBank);
 				await LoadOutgoingPaymentDetailData();
@@ -312,7 +329,7 @@ Account No : ` + accountNo);
 	};
 
 	function SetFormForView() {
-		$('input:not(:disabled)').add('select:not(:disabled)').attr('disabled', true);
+		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
 	}
 
 	async function LoadDdlPartnerData() {
@@ -358,6 +375,29 @@ Account No : ` + accountNo);
 		})).done(function (response) {
 			if (response.succeeded) {
 				ddlCostCenterDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function RefreshDdlTransactionType() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlTransactionTypeUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlTransactionType.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlTransactionType.append(`<option value="` + data.transactionTypeId + `">` + data.description + `</option>`);
+				}
 			}
 			else {
 				Swal.fire({
@@ -481,6 +521,10 @@ Account No : ` + accountNo);
 						"costCenter": {
 							"costCenterId": value.costCenterId,
 							"costCenterCode": value.costCenterCode
+						},
+						"postingAccount": {
+							"postingAccountId": value.postingAccountId,
+							"postingAccountName": value.postingAccountName
 						},
 						"amount": value.amount,
 						"attachments": attachments

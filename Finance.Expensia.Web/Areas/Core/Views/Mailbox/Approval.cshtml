@@ -12,12 +12,12 @@
     <div class="card-body">
         <div class="row mb-3">
             <div class="col-lg-6">
-                <label>Transaction No</label>
-                <input type="text" class="form-control" id="txtTransactionNo" bind-name="transactionNo" disabled />
+                <label>Transaction Type <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlTransactionType" name="transactionTypeId" bind-name="transactionTypeId" bind-trigger="change"></select>
             </div>
             <div class="col-lg-6">
-                <label>Company <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
+                <label>Transaction No</label>
+                <input type="text" class="form-control" id="txtTransactionNo" bind-name="transactionNo" disabled />
             </div>
         </div>
         <div class="row mb-3">
@@ -32,6 +32,10 @@
         </div>
         <div class="row mb-3">
             <div class="col-lg-6">
+                <label>Company <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
+            </div>
+            <div class="col-lg-6">
                 <label>Request Date</label>
                 <div class="input-group date mb-2">
                     <input type="text" class="form-control" id="dtRequestDate" bind-name="requestDate" bind-type="datetime" autocomplete="off">
@@ -42,9 +46,11 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row mb-3">
             <div class="col-lg-6">
                 <label>Expected Transfer <span class="text-danger">*</span></label>
-                <select class="form-control" id="ddlExpectedTransfer" name="expectedTransfer" bind-name="expectedTransfer">
+                <select class="form-control select2" id="ddlExpectedTransfer" name="expectedTransfer" bind-name="expectedTransfer" bind-trigger="change">
                     <option value="">&nbsp</option>
                     @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
                     {
@@ -52,12 +58,6 @@
                         ;
                     }
                 </select>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-lg-6">
-                <label>Remark</label>
-                <input type="text" class="form-control" id="txtRemark" name="remark" bind-name="remark" />
             </div>
             <div class="col-lg-6">
                 <label>Scheduled Date <span class="text-danger">*</span></label>
@@ -72,6 +72,12 @@
                         </span>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Remark</label>
+                <textarea id="txtRemark" rows="3" class="form-control form-control-area" name="remark" bind-name="remark"></textarea>
             </div>
         </div>
 
