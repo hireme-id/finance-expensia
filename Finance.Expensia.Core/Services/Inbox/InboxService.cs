@@ -2,6 +2,7 @@
 using Finance.Expensia.Core.Services.Inbox.Dtos;
 using Finance.Expensia.Core.Services.Inbox.Inputs;
 using Finance.Expensia.Core.Services.OutgoingPayment;
+using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
@@ -58,6 +59,21 @@ namespace Finance.Expensia.Core.Services.Inbox
 
             return await Task.FromResult(retVal);
         }
+
+		public async Task<ResponseObject<List<ListApprovalHistoryDto>>> GetHistoryApproval(ListApprovalHistoryFilterInput request)
+		{
+			var retVal = new ResponseObject<List<ListApprovalHistoryDto>>();
+
+            var dataApprovalHistory = await _dbContext.ApprovalHistories
+				.Where(x => x.TransactionNo == request.TransactionNo)
+                .Select(x => _mapper.Map<ListApprovalHistoryDto>(x))
+				.ToListAsync();
+
+			retVal.OK("");
+			retVal.Obj = dataApprovalHistory;
+
+            return retVal;
+        }
         #endregion
 
         public async Task<ResponseBase> DoActionWorkflow(DoActionWorkflowInput input, CurrentUserAccessor currentUserAccessor)
@@ -88,7 +104,8 @@ namespace Finance.Expensia.Core.Services.Inbox
 				ApprovalUserId = currentUserAccessor.Id,
 				TransactionNo = approvalDocument.TransactionNo,
 				MinAmount = approvalDocument.MinAmount,
-				MaxAmount = approvalDocument.MaxAmount
+				MaxAmount = approvalDocument.MaxAmount,
+				Remark = input.Remark
 			};
 			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
 

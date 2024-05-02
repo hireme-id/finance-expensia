@@ -6,5 +6,6 @@ namespace Finance.Expensia.Core.Services.Inbox.Inputs
     {
         public string TransactionNo { get; set; } = string.Empty;
         public WorkflowAction WorkflowAction { get; set; }
+        public string Remark { get; set; } = string.Empty;
     }
 }

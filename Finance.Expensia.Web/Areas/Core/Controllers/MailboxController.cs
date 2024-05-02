@@ -34,6 +34,13 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
             return await _inboxService.GetListOfActiveInbox(input, _currentUserAccessor.Id);
         }
 
+        [AppAuthorize(PermissionConstants.ApprovalInbox.ApprovalInboxView)]
+        [HttpPost("inbox/getlistHistory")]
+        public async Task<ResponseObject<List<ListApprovalHistoryDto>>> GetListApprovalHistory([FromBody] ListApprovalHistoryFilterInput input)
+        {
+            return await _inboxService.GetHistoryApproval(input);
+        }
+
         [AppAuthorize(PermissionConstants.ApprovalInbox.ApprovalInboxUpdate)]
         [Mutation]
         [HttpPost("inbox/doaction")]

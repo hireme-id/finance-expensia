@@ -307,7 +307,7 @@ Account No : ` + accountNo);
 								data: JSON.stringify({
 									"transactionNo": txtTransactionNo.val(),
 									"workflowAction": $(this)[0].id == btnApprove[0].id ? "@WorkflowAction.Approve.GetDescription()" : "@WorkflowAction.Reject.GetDescription()",
-									"remakr": result.value
+									"remark": result.value
 								}),
 								contentType: "application/json"
 							})).done(function (response) {

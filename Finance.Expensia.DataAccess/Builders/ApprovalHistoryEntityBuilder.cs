@@ -39,6 +39,10 @@ namespace Finance.Expensia.DataAccess.Builders
                 .HasMaxLength(150);
 
             builder
+                .Property(e => e.Remark)
+                .HasMaxLength(300);
+
+            builder
                 .Property(e => e.MinAmount)
                 .HasColumnType("money");
 
