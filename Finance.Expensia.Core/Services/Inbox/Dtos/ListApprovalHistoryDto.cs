@@ -1,4 +1,5 @@
 ﻿using Finance.Expensia.Shared.Enums;
+using Finance.Expensia.Shared.Helpers;
 
 namespace Finance.Expensia.Core.Services.Inbox.Dtos
 {
@@ -12,5 +13,6 @@ namespace Finance.Expensia.Core.Services.Inbox.Dtos
         public string ExecutorName { get; set; } = string.Empty;
         public int ApprovalLevel { get; set; }
         public string Remark { get; set; } = string.Empty;
+        public string ApprovalStatusText {  get; set; } = string.Empty;
     }
 }

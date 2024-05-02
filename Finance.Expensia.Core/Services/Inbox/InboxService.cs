@@ -94,13 +94,15 @@ namespace Finance.Expensia.Core.Services.Inbox
 															   && x.MaxAmount == approvalDocument.MaxAmount
 															   && x.Level == approvalDocument.ApprovalLevel + 1);
 
+			var statusApprove = input.WorkflowAction == WorkflowAction.Approve ? ApprovalStatus.Approved : ApprovalStatus.Reject;
+
 			var dataHistory = new ApprovalHistory
 			{
 				ApprovalLevel = approvalDocument.ApprovalLevel,
 				ExecutorName = currentUserAccessor.FullName,
 				ExecutorRoleCode = approvalDocument.ApprovalRoleCode,
 				ExecutorRoleDesc = dataRoles.First(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode)).Role.RoleDescription,
-				ApprovalStatus = approvalDocument.ApprovalStatus,
+				ApprovalStatus = statusApprove,
 				ApprovalUserId = currentUserAccessor.Id,
 				TransactionNo = approvalDocument.TransactionNo,
 				MinAmount = approvalDocument.MinAmount,
