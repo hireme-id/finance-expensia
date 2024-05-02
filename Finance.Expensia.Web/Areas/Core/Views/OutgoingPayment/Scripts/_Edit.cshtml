@@ -168,11 +168,11 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-											<input type="text" class="form-control" id="txtAmount" value="` + data + `" onkeydown="return numbersonly(this, event);"/>
+											<input type="text" class="form-control" id="txtAmount" value="` + fmtMoney(data) + `" onkeydown="return numbersonly(this, event);"/>
 										</div>`);
 								}
 
-								return data;
+								return fmtMoney(data);
 							}
 						},
 						{
@@ -328,12 +328,12 @@ Account No : ` + accountNo);
 					if (ValidateAllowModifyDetail()) {
 						indexRowEdit = parseInt($(this).attr('data-row-index'));
 						let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
-						let dataamount = (data.amount).replace(/\./g, "");
+						
 						gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 						gridOutgoingPaymentDetail.api().draw();
 						AfterEditDetail(data);
 
-						totalAmount = totalAmount - parseInt(dataamount);
+						totalAmount = totalAmount - parseInt(data.amount);
 					}
 				});
 
@@ -387,13 +387,14 @@ Account No : ` + accountNo);
 							"costCenterId": $('#ddlCostCenter').val(),
 							"costCenterCode": $('#ddlCostCenter option:selected').text()
 						},
-						"amount": $('#txtAmount').val(),
+						"amount": parseInt($('#txtAmount').val().replace(/\./g, "")),
 						"attachments": attachments
 					}
-					let dataamount = $('#txtAmount').val().replace(/\./g, "");
+					
 					indexRowEdit = -1;
 					gridOutgoingPaymentDetail.api().row(indexRowSave).data(updateData);
-					totalAmount = totalAmount + parseInt(dataamount);
+					totalAmount = totalAmount + updateData.amount;
+
 					txtTotalAmount.val(fmtMoney(totalAmount));
 				});
 
@@ -456,8 +457,6 @@ Account No : ` + accountNo);
 							data.attachments.push(response.obj);
 							gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 
-							totalAmount = totalAmount - data.amount;
-
 							AfterEditDetail(temporaryData);
 
 							$el.val('');
@@ -510,8 +509,6 @@ Account No : ` + accountNo);
 
 					if (dataOutgoingPaymentDetails.length > 0) {
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
-							let amount = v.amount;
-							amount = amount.replace(/\./g, "");
 							formDataObject.outgoingPaymentDetails.push({
 								id: v.id,
 								invoiceDate: v.invoiceDate,
@@ -520,7 +517,7 @@ Account No : ` + accountNo);
 								chartOfAccountId: v.coa.coaId,
 								costCenterId: v.costCenter.costCenterId,
 								postingAccountId: v.postingAccount.postingAccountId,
-								amount: parseInt(amount),
+								amount: parseInt(v.amount),
 								outgoingPaymentDetailAttachments: v.attachments
 							});
 						});
@@ -843,7 +840,7 @@ Account No : ` + accountNo);
 							"postingAccountId": value.postingAccountId,
 							"postingAccountName": value.postingAccountName
 						},
-						"amount": fmtMoney(value.amount),
+						"amount": value.amount,
 						"attachments": attachments
 					});
 					let dataamount = value.amount;
@@ -889,13 +886,13 @@ Account No : ` + accountNo);
 		$('#dtInvoiceDate').datepicker({
 			dateFormat: "yy-mm-dd"
 		});
-		$('#dtInvoiceDate').datepicker("setDate", (data.invoiceDate).split('T')[0]);
+		$('#dtInvoiceDate').datepicker("setDate", data.invoiceDate);
 		RefreshDdlPartner(data.partner.partnerId);
 		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);
 		RefreshDdlCostCenter(data.costCenter.costCenterId);
 		RefreshDdlPostingAccount(data.postingAccount.postingAccountId);
-		$('#txtAmount').val(data.amount);
+		$('#txtAmount').val(fmtMoney(data.amount));
 	}
 
 	function GetTemporaryData() {
@@ -919,7 +916,11 @@ Account No : ` + accountNo);
 				"costCenterId": $('#ddlCostCenter').val(),
 				"costCenterCode": $('#ddlCostCenter option:selected').text()
 			},
-			"amount": parseInt($('#txtAmount').val()),
+			"postingAccount": {
+				"postingAccountId": $('#ddlPostingAccount').val(),
+				"postingAccountName": $('#ddlPostingAccount option:selected').text()
+			},
+			"amount": parseInt($('#txtAmount').val().replace(/\./g, ""))
 		}
 
 		return temporaryData;

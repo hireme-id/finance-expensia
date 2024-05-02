@@ -8,6 +8,7 @@
 	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
 	var downloadFileUrl = Url.Action("DownloadFile", "Storage");
 	var gridDetailOutgoingPayment = Url.Action("GetDetailOutgoingPayment", "OutgoingPayment");
+	var createOutgoingPaymentUrl = Url.Action("Create", "OutgoingPayment", new { area = "Core" });
 }
 
 <script type="text/javascript">
@@ -19,7 +20,7 @@
 	const txtTransactionNo = $("#txtTransactionNo");
 	const txtDocumentStatus = $("#txtDocumentStatus"), txtTotalAmount = $("#txtTotalAmount"); txtFromBankName = $("#txtFromBankName");
 	const txtToBankName = $("#txtToBankName");
-	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
+	const btnCopy = $("#btnCopy");
 
 	let indexRowEdit = -1;
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
@@ -263,6 +264,12 @@ Account No : ` + accountNo);
 						document.body.removeChild(a);
 						window.URL.revokeObjectURL(a.href);
 					});
+				});
+
+				btnCopy.on("click", function (e) {
+					var pathArray = window.location.pathname.split('/');
+
+					window.location.href = "@createOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
 				});
 			},
 			InitValidation: function () {
