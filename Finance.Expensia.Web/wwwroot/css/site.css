@@ -74,6 +74,12 @@
     }
 }
 
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 650px !important;
+    }
+}
+
 label{
     font-size: 15px;
 }
@@ -96,4 +102,11 @@ label{
 
 .select2-container--default{
     width: 100% !important;
+}
+
+.btnloader {
+    width: 1rem;
+    height: 1rem;
+    border: 0.15em solid currentColor;
+    border-right-color: transparent !important;
 }
