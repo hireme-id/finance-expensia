@@ -69,6 +69,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
 				return new ResponseBase("Schedule date harus diisi");
 
+			if (input.ScheduledDate.HasValue && input.ScheduledDate.Value.Date < DateTime.Now.Date)
+				return new ResponseBase("Schedule date tidak boleh lebih kecil dari hari ini");
+
 			if (input.OutgoingPaymentDetails.Count == 0 && input.IsSubmit)
 				return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);
 
@@ -174,6 +177,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
 				return new ResponseBase("Schedule date harus diisi");
+
+			if (input.ScheduledDate.HasValue && input.ScheduledDate.Value.Date < DateTime.Now.Date)
+				return new ResponseBase("Schedule date tidak boleh lebih kecil dari hari ini");
 
 			if (input.OutgoingPaymentDetails.Count == 0 && input.IsSubmit)
                 return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);

@@ -10,6 +10,7 @@
 	var uploadFileUrl = Url.Action("UploadFile", "Storage");
 	var downloadFileUrl = Url.Action("DownloadFile", "Storage");
 	var outgoingPaymentHomeUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
+	var detailOutgoingPaymentUrl = Url.Action("GetDetailOutgoingPayment", "OutgoingPayment");
 }
 
 <script type="text/javascript">
@@ -18,7 +19,7 @@
 	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
 	const ddlTransactionType = $('#ddlTransactionType'), ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
 	const ddlExpectedTransfer = $('#ddlExpectedTransfer');
-	const txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
+	const txtTransactionNo = $('#txtTransactionNo'), txtDocumentStatus = $('#txtDocumentStatus'), txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
 	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
 
 	let indexRowEdit = -1;
@@ -155,16 +156,14 @@
 							title: "Amount",
 							width: "150px",
 							render: function (data, type, row, meta) {
-								
-
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-											<input type="text" class="form-control" id="txtAmount" value="` + data + `" onkeydown="return numbersonly(this, event);"/>
+											<input type="text" class="form-control" id="txtAmount" value="` + fmtMoney(data) + `" onkeydown="return numbersonly(this, event);"/>
 										</div>`);
 								}
 
-								return data;
+								return fmtMoney(data);
 							}
 						},
 						{
@@ -322,11 +321,11 @@ Account No : ` + accountNo);
 					if (ValidateAllowModifyDetail()) {
 						indexRowEdit = parseInt($(this).attr('data-row-index'));
 						let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
-						let dataamount = (data.amount).replace(/\./g, "");
+						
 						gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 						gridOutgoingPaymentDetail.api().draw();
 						AfterEditDetail(data);
-						totalAmount = totalAmount - parseInt(dataamount);
+						totalAmount = totalAmount - parseInt(data.amount);
 					}
 				});
 
@@ -380,13 +379,13 @@ Account No : ` + accountNo);
 							"costCenterId": $('#ddlCostCenter').val(),
 							"costCenterCode": $('#ddlCostCenter option:selected').text()
 						},
-						"amount": $('#txtAmount').val(),
+						"amount": parseInt($('#txtAmount').val().replace(/\./g, "")),
 						"attachments": attachments
 					}
-					let dataamount = $('#txtAmount').val().replace(/\./g, "");
+					
 					indexRowEdit = -1;
 					gridOutgoingPaymentDetail.api().row(indexRowSave).data(updateData);
-					totalAmount = totalAmount + parseInt(dataamount);
+					totalAmount = totalAmount + updateData.amount;
 
 					txtTotalAmount.val(fmtMoney(totalAmount));
 				});
@@ -451,8 +450,6 @@ Account No : ` + accountNo);
 							data.attachments.push(response.obj);
 							gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 
-							totalAmount = totalAmount - data.amount;
-
 							AfterEditDetail(temporaryData);
 
 							$el.val('');
@@ -503,8 +500,6 @@ Account No : ` + accountNo);
 					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
 					if (dataOutgoingPaymentDetails.length > 0) {
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
-							let amount = v.amount;
-							amount = amount.replace(/\./g, "");
 							formDataObject.outgoingPaymentDetails.push({
 								invoiceDate: v.invoiceDate,
 								partnerId: v.partner.partnerId,
@@ -512,7 +507,7 @@ Account No : ` + accountNo);
 								chartOfAccountId: v.coa.coaId,
 								costCenterId: v.costCenter.costCenterId,
 								postingAccountId: v.postingAccount.postingAccountId,
-								amount: parseInt(amount),
+								amount: parseInt(v.amount),
 								outgoingPaymentDetailAttachments: v.attachments
 							});
 						});
@@ -545,21 +540,28 @@ Account No : ` + accountNo);
 			},
 			InitValidation: function () {
 			},
-			InitLoad: function () {
-				RefreshDdlTransactionType();
-				RefreshDdlCompany();
+			InitLoad: async function () {
+				await RefreshDdlTransactionType();
+				await RefreshDdlCompany();
+				await RefreshDdlBankAlias(ddlToAliasBank);
+
+				let urlParams = new URLSearchParams(window.location.search);
+				let outgoingPaymentId = urlParams.get('outgoingPaymentId');
+
+				if (outgoingPaymentId != null) {
+					await LoadOutgoingPaymentDetailData(outgoingPaymentId);
+				}
 
 				txtRequestor.val(localStorage.getItem("displayName"));
-
-				RefreshDdlBankAlias(ddlToAliasBank);
-
-				txtTotalAmount.val(totalAmount);
+				txtTransactionNo.val("");
+				txtDocumentStatus.val("");
+				dtRequestDate.datepicker("setDate", new Date());
 			}
 		}
 	};
 
-	function RefreshDdlTransactionType() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
+	async function RefreshDdlTransactionType() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
 			url: "@ddlTransactionTypeUrl"
 		})).done(function (response) {
@@ -581,8 +583,8 @@ Account No : ` + accountNo);
 		});
 	}
 
-	function RefreshDdlCompany() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
+	async function RefreshDdlCompany() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
 			url: "@ddlCompanyUrl"
 		})).done(function (response) {
@@ -605,14 +607,14 @@ Account No : ` + accountNo);
 		});
 	}
 
-	function RefreshDdlBankAlias(ddlBankAlias) {
+	async function RefreshDdlBankAlias(ddlBankAlias) {
 		let url = "@ddlBankAliasUrl"
 
 		if (ddlBankAlias == ddlFromAliasBank) {
 			url = url + "?companyId=" + ddlCompany.val();
 		}
 
-		$.ajax(Object.assign({}, glbBaseRequest, {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
 			url: url
 		})).done(function (response) {
@@ -774,7 +776,7 @@ Account No : ` + accountNo);
 		RefreshDdlCoa(data.coa.coaId);
 		RefreshDdlCostCenter(data.costCenter.costCenterId);
 		RefreshDdlPostingAccount(data.postingAccount.postingAccountId);
-		$('#txtAmount').val(data.amount);
+		$('#txtAmount').val(fmtMoney(data.amount));
 	}
 
 	function GetTemporaryData() {
@@ -794,9 +796,97 @@ Account No : ` + accountNo);
 				"costCenterId": $('#ddlCostCenter').val(),
 				"costCenterCode": $('#ddlCostCenter option:selected').text()
 			},
-			"amount": parseInt($('#txtAmount').val()),
+			"postingAccount": {
+				"postingAccountId": $('#ddlPostingAccount').val(),
+				"postingAccountName": $('#ddlPostingAccount option:selected').text()
+			},
+			"amount": parseInt($('#txtAmount').val().replace(/\./g, ""))
 		}
 
 		return temporaryData;
+	}
+
+	async function LoadOutgoingPaymentDetailData(outgoingPaymentId) {
+		var pathArray = window.location.pathname.split('/');
+
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "GET",
+			url: "@detailOutgoingPaymentUrl?outgoingPaymentId=" + outgoingPaymentId
+		})).done(function (response) {
+			if (response.succeeded) {
+				$.each(response.obj, function (key, value) {
+					let input = $('[bind-name="' + key + '"]');
+
+					if (input.length > 0) {
+						let bindTrigger = input.attr('bind-trigger');
+						let bindType = input.attr('bind-type');
+
+						if (bindType == 'datetime' && value != null) {
+							value = value.split('T')[0];
+						}
+
+						input.val(value);
+
+						if (bindTrigger != undefined) {
+							input.trigger(bindTrigger);
+						}
+					}
+				});
+
+				setTimeout(() => {
+					ddlFromAliasBank.val(response.obj.fromBankAliasId);
+					ddlFromAliasBank.trigger('change');
+				}, 500);
+
+				$.each(response.obj.outgoingPaymentDetails, function (key, value) {
+					let attachments = [];
+					$.each(value.outgoingPaymentDetailAttachments, function (cKey, cValue) {
+						attachments.push({
+							"fileId": cValue.fileId,
+							"fileName": cValue.fileName,
+							"fileSize": cValue.fileSize,
+							"fileUrl": cValue.fileUrl,
+							"contentType": cValue.contentType
+						});
+					});
+
+					gridOutgoingPaymentDetail.api().row.add({
+						"id": value.id,
+						"invoiceDate": (value.invoiceDate).split('T')[0],
+						"partner": {
+							"partnerId": value.partnerId,
+							"partnerName": value.partnerName
+						},
+						"description": value.description,
+						"coa": {
+							"coaId": value.chartOfAccountId,
+							"accountCode": value.chartOfAccountNo
+						},
+						"costCenter": {
+							"costCenterId": value.costCenterId,
+							"costCenterCode": value.costCenterCode
+						},
+						"postingAccount": {
+							"postingAccountId": value.postingAccountId,
+							"postingAccountName": value.postingAccountName
+						},
+						"amount": value.amount,
+						"attachments": attachments
+					});
+
+					gridOutgoingPaymentDetail.api().draw();
+
+					totalAmount = totalAmount + value.amount;
+				});
+				txtTotalAmount.val(fmtMoney(totalAmount));
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
 	}
 </script>
