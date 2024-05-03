@@ -14,5 +14,6 @@ namespace Finance.Expensia.Core.Services.Inbox.Dtos
         public int ApprovalLevel { get; set; }
         public string Remark { get; set; } = string.Empty;
         public string ApprovalStatusText {  get; set; } = string.Empty;
-    }
+		public DateTime Created { get; set; }
+	}
 }

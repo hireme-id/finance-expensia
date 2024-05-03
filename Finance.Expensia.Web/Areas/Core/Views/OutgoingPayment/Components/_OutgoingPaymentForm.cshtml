@@ -4,6 +4,15 @@
 
 <!-- Main Form -->
 <div class="card">
+    @if (Context.Request.Path == Url.Action("Detail", "OutgoingPayment"))
+    {
+        <div class="card-header">
+            <button id="btnHistory" class="btn btn-outline-success" data-toggle="modal" data-target="#historyApproval">
+                History Approval <i class="fa fa-info-circle"></i>
+                <div id="btnloader" class="spinner-border ml-2 d-none btnloader" role="status"></div>
+            </button>
+        </div>
+    }
     <div class="card-body">
         <div class="row mb-3">
             <div class="col-lg-6">
@@ -140,4 +149,5 @@
             <button type="button" id="btnDraft" data-is-submit="false" class="btn btn-outline-secondary float-right" style="width:150px">Save as Draft</button>
         </div>
     }
+    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Components/_HistoryApproval.cshtml")
 </div>

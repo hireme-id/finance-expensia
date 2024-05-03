@@ -66,6 +66,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 
             var dataApprovalHistory = await _dbContext.ApprovalHistories
 				.Where(x => x.TransactionNo == request.TransactionNo)
+				.OrderByDescending(x => x.Created)
                 .Select(x => _mapper.Map<ListApprovalHistoryDto>(x))
 				.ToListAsync();
 
