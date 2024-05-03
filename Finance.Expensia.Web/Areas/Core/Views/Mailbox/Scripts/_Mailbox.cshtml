@@ -181,7 +181,7 @@
 
                     if (this.checked) {
                         checkElements.map(function () {
-                            let transactionno = $(this).data('transactionno');
+                            let transactionNo = $(this).data('transactionno');
                             let amount = parseInt($(this).data('amount'));
                             let toBankAliasName = $(this).data('tobankalias');
 
@@ -197,7 +197,7 @@
                     }
                     else {
                         checkElements.map(function () {
-                            let transactionno = $(this).data('transactionno');
+                            let transactionNo = $(this).data('transactionno');
                             let amount = parseInt($(this).data('amount'));
                             let toBankAliasName = $(this).data('tobankalias');
 
@@ -374,7 +374,7 @@
                 let payload = [];
                 $.each(listTransactions, function (key, value) {
                     payload.push({
-                        "transactionNo": value,
+                        "transactionNo": value.transactionNo,
                         "workflowAction": action,
                         "remark": result.value
                     })
