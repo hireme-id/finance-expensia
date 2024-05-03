@@ -1,0 +1,247 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var gridPartner = Url.Action("GetListPartner", "Partner");
+    var getDetailPartner = Url.Action("GetDetailPartner", "Partner");
+    var createPartnerUrl = Url.Action("CreatePartner", "Partner");
+    var partnerHomeUrl = Url.Action("Index", "Partner", new { area = "MasterData" });
+}
+
+<script type="text/javascript">
+    //Variable for control
+    const ddlCompany = $("#ddlCompany");
+    const dmInput = $('#dvModalPartner input'), dmSelect = $('#dvModalPartner select'), dmButton = $('#dvModalPartner button');
+    const lblTitle = $("#title-modal");
+    const mdPartner = $('#partnerForm');
+    const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit")
+
+    var gridPartner;
+    var isEdit = false;
+    var idPartner;
+    var currentDraw = 0;
+    $(function () {
+        OutgoingPaymentManager = new OutgoingPaymentManager();
+        OutgoingPaymentManager.InitManagement();
+    });
+
+    function OutgoingPaymentManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridPartner = $('#gridPartner').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridPartner",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": null
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { title: "Partner Id", data: "partnerId" },
+                        { title: "Partner Name", data: "partnerName" },
+                        { title: "Description", data: "description" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                var id = row.partnerId;
+                                var elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-danger" data-id="${id}" name="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: null,
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+                $(document).on('click', '[name="editbutton"]', function () {
+                    var partnerId = $(this).data('id');
+                    fnEditForm(partnerId);
+                });
+
+                $(document).on('click', '[name="deletebutton"]', function () {
+                    var partnerId = $(this).data('id');
+                    fnDeleteForm(partnerId);
+                });
+
+                $(document).on('click', '[name="detailbutton"]', function () {
+                    var partnerId = $(this).data('id');
+                    fnDetailForm(partnerId);
+                });
+
+                $("#btnCreate").click(function () { 
+                    fnCreateForm();
+                })
+
+                btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let isSubmit = $el.attr('data-is-submit');
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('.card-body :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    mdPartner.modal('toggle');
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        formDataObject[field.name] = field.value;
+                    });
+                    
+                    if (isEdit) {
+                        formDataObject.Id = idPartner;
+                    }
+                    else {
+                        formDataObject.Id = null;
+                    }
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@createPartnerUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "@partnerHomeUrl";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+            }
+        }
+    };
+    function fnCreateForm(){
+        isEdit = false;
+        lblTitle.text("Create Partner");
+        dmInput.add(dmSelect).prop('disabled', false);
+        dmInput.add(dmSelect).val('');
+        dmButton.show();
+        mdPartner.modal('show');
+    }
+
+    function fnEditForm(partnerId) {
+        isEdit = true;
+        idPartner = partnerId;
+        lblTitle.text("Edit Partner");
+        dmInput.add(dmSelect).prop('disabled', false);
+        dmButton.show();
+        loadDataPartner(partnerId);
+    }
+
+    function fnDeleteForm(partnerId) {
+        Swal.fire({
+            title: 'Delete',
+            html: 'Are you sure to delete this data?',
+            width: '500px',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            confirmButtonColor: "#D92D20",
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2',
+            },
+            icon: "warning",
+            allowOutsideClick: () => !Swal.isLoading()
+        })
+    }
+
+    function fnDetailForm(partnerId) {
+        lblTitle.text("Detail Partner");
+        dmInput.add(dmSelect).attr('disabled', true);
+        dmButton.hide();
+        loadDataPartner(partnerId);
+    }
+
+    function loadDataPartner(partnerId) {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@getDetailPartner" + "?partnertId=" + partnerId
+        })).done(function (response) {
+            if (response.succeeded) {
+                $.each(response.obj, function (key, value) {
+                    let input = $('[bind-name="' + key + '"]');
+
+                    if (input.length > 0) {
+                        let bindTrigger = input.attr('bind-trigger');
+
+                        input.val(value);
+
+                        if (bindTrigger != undefined) {
+                            input.trigger(bindTrigger);
+                        }
+                    }
+                });
+
+                mdPartner.modal('show');
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+</script>
