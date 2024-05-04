@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Finance.Expensia.Core.Services.MasterData.Dtos;
+using Finance.Expensia.Core.Services.MasterData.Inputs;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects.Dtos;
@@ -11,6 +12,7 @@ namespace Finance.Expensia.Core.Services.MasterData
     public class PartnerService(ApplicationDbContext dbContext, IMapper mapper, ILogger<PartnerService> logger)
         : BaseService<PartnerService>(dbContext, mapper, logger)
     {
+        #region Query
         public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner()
         {
             var dataPartners = await _dbContext.Partners
@@ -23,5 +25,59 @@ namespace Finance.Expensia.Core.Services.MasterData
                 Obj = dataPartners
             };
         }
+
+        public async Task<ResponsePaging<PartnerDto>> GetListPartner(ListPartnerInput input)
+        {
+            var retVal = new ResponsePaging<PartnerDto>();
+            var dataPartners = _dbContext.Partners
+                                               .OrderBy(d => d.PartnerName)
+                                               .Select(d => _mapper.Map<PartnerDto>(d));
+
+            retVal.ApplyPagination(input.Page, input.PageSize, dataPartners);
+
+            return await Task.FromResult(retVal);
+        }
+
+        public async Task<ResponseObject<PartnerDto>> GetDetailPartner(Guid partnerId)
+		{
+			var dataPartners = await _dbContext.Partners
+											   .FirstOrDefaultAsync(x => x.Id == partnerId);
+
+            if (dataPartners != null)
+            {
+                var dataPartnersDto = _mapper.Map<PartnerDto>(dataPartners);
+                return await Task.FromResult(new ResponseObject<PartnerDto>(responseCode: ResponseCode.Ok)
+                {
+                    Obj = dataPartnersDto,
+                });
+
+            }
+
+            return await Task.FromResult(new ResponseObject<PartnerDto>("Data partner tidak ditemukan", ResponseCode.NotFound));
+        }
+        #endregion
+
+        #region Mutation
+        public async Task<ResponseBase> UpsertPartner(UpsertPartnerInput input)
+        {
+            if (input.Id.Equals(null))
+            {
+                var dataPartner = _mapper.Map<DataAccess.Models.Partner>(input);
+                await _dbContext.Partners.AddAsync(dataPartner);
+
+            }
+            else
+            {
+                var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(v => v.Id.Equals(input.Id));
+                if (dataPartner != null)
+                {
+                    _mapper.Map(input, dataPartner);
+                    _dbContext.Update(dataPartner);
+                } 
+            }
+            await _dbContext.SaveChangesAsync();
+            return new ResponseBase($"Data partner berhasil {(input.Id.Equals(null) ? "dibuat" : "diedit")}", ResponseCode.Ok);
+        }
+        #endregion
     }
 }
