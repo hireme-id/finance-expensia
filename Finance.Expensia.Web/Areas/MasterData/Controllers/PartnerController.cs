@@ -46,10 +46,18 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 
         [Mutation]
         [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
-        [HttpPost("partner/create")]
-        public async Task<ResponseBase> CreatePartner([FromBody] UpsertPartnerInput input)
+        [HttpPost("partner/upsert")]
+        public async Task<ResponseBase> UpsertPartner([FromBody] UpsertPartnerInput input)
         {
             return await _partnerService.UpsertPartner(input);
+        }
+
+        [Mutation]
+        [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
+        [HttpPost("partner/delete")]
+        public async Task<ResponseBase> DeletePartner([FromQuery] Guid partnerId)
+        {
+            return await _partnerService.DeletePartner(partnerId);
         }
     }
 }

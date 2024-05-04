@@ -1,10 +1,9 @@
-﻿namespace Finance.Expensia.Core.Services.MasterData.Dtos
+﻿namespace Finance.Expensia.Core.Services.MasterData.Inputs
 {
-    public class BankAliasDto
+    public class UpsertBankAliasInput
     {
-        public Guid BankAliasId { get; set; }
+        public Guid? Id { get; set; }
         public Guid? CompanyId { get; set; }
-        public string CompanyName { get; set; } = string.Empty;
         public string AliasName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string BankName { get; set; } = string.Empty;

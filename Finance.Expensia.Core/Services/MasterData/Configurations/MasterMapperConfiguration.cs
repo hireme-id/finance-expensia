@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Finance.Expensia.Core.Services.MasterData.Dtos;
 using Finance.Expensia.Core.Services.MasterData.Inputs;
-using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess.Models;
 
 namespace Finance.Expensia.Core.Services.MasterData.Configurations
@@ -13,7 +12,8 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
             CreateMap<Company, CompanyDto>()
                 .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Id));
             CreateMap<BankAlias, BankAliasDto>()
-                .ForMember(dest => dest.BankAliasId, opt => opt.MapFrom(src => src.Id));
+                .ForMember(dest => dest.BankAliasId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.CompanyName));
 			CreateMap<Partner, PartnerDto>()
 				.ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.Id));
 			CreateMap<ChartOfAccount, CoaDto>()
@@ -24,7 +24,11 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
                 .ForMember(dest => dest.TransactionTypeId, opt => opt.MapFrom(src => src.Id));
 
             #region mutation
-            CreateMap<Partner, UpsertPartnerInput>().ReverseMap();
+            CreateMap<UpsertPartnerInput, Partner>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<UpsertBankAliasInput, BankAlias>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
             #endregion
         }
     }

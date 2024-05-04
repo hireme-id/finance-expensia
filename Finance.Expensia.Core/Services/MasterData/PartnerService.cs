@@ -64,19 +64,32 @@ namespace Finance.Expensia.Core.Services.MasterData
             {
                 var dataPartner = _mapper.Map<DataAccess.Models.Partner>(input);
                 await _dbContext.Partners.AddAsync(dataPartner);
-
             }
             else
             {
                 var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(v => v.Id.Equals(input.Id));
-                if (dataPartner != null)
-                {
-                    _mapper.Map(input, dataPartner);
-                    _dbContext.Update(dataPartner);
-                } 
+                if (dataPartner == null)
+                    return new ResponseBase("Data partner tidak ditemukan", ResponseCode.NotFound);
+
+                _mapper.Map(input, dataPartner);
+                _dbContext.Update(dataPartner);
             }
+
             await _dbContext.SaveChangesAsync();
             return new ResponseBase($"Data partner berhasil {(input.Id.Equals(null) ? "dibuat" : "diedit")}", ResponseCode.Ok);
+        }
+
+        public async Task<ResponseBase> DeletePartner(Guid partnerId)
+        {
+            var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(v => v.Id.Equals(partnerId));
+            if (dataPartner == null)
+                return new ResponseBase("Data partner tidak ditemukan", ResponseCode.NotFound);
+
+            dataPartner.RowStatus = 1;
+            _dbContext.Update(dataPartner);
+            await _dbContext.SaveChangesAsync();
+
+            return new ResponseBase("Data partner berasil dihapus", ResponseCode.Ok);
         }
         #endregion
     }

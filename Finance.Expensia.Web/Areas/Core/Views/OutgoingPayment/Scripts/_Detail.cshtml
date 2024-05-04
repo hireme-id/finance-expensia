@@ -279,7 +279,7 @@ Account No : ` + accountNo);
 					var reqBody = {
 						'TransactionNo': transactionNo
 					};
-					
+
 					$.ajax(Object.assign({}, glbBaseRequest, {
 						method: "POST",
 						url: "@getHistoryApproval",
@@ -293,11 +293,11 @@ Account No : ` + accountNo);
 						},
 					})).done(function (response) {
 						if (response.succeeded) {
-							if(response.obj.length == 0){
+							if (response.obj.length == 0) {
 								html = '<div class="text-center"><span> Tidak ada history</span></div>';
 								divHistory.html(html);
 							}
-							else{
+							else {
 								html = `<div class="col-md-12">
 											<div class="timeline">`
 								for (var item of response.obj) {
@@ -309,10 +309,10 @@ Account No : ` + accountNo);
 									bgstatus = objIcon ? objIcon.background : 'bg-grey';
 									iconstatus = objIcon ? objIcon.icon : 'fa-dot-circle';
 
-									if(item.remark != ""){
+									if (item.remark != "") {
 										remark = `<br /><i>Remark: </i>${item.remark}`;
 									}
-									else{
+									else {
 										remark = '';
 									}
 
@@ -340,11 +340,12 @@ Account No : ` + accountNo);
 							divHistory.html(errhtml);
 						}
 					});
+				});
 
 				btnCopy.on("click", function (e) {
 					var pathArray = window.location.pathname.split('/');
 
-					window.location.href = "@createOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
+					window.location.href = "@createOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1];
 				});
 			},
 			InitValidation: function () {
@@ -554,11 +555,11 @@ Account No : ` + accountNo);
 						"description": value.description,
 						"coa": {
 							"coaId": value.chartOfAccountId,
-							"accountCode": value.chartOfAccountNo
+							"accountCode": value.chartOfAccountNo + ' - ' + value.chartOfAccountName
 						},
 						"costCenter": {
 							"costCenterId": value.costCenterId,
-							"costCenterCode": value.costCenterCode
+							"costCenterCode": value.costCenterCode + ' - ' + value.costCenterName
 						},
 						"postingAccount": {
 							"postingAccountId": value.postingAccountId,

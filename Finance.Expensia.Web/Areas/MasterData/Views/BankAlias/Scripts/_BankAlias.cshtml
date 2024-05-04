@@ -2,31 +2,30 @@
 @using Finance.Expensia.Shared.Helpers
 @{
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
-    var gridPartner = Url.Action("GetListPartner", "Partner");
-    var getDetailPartner = Url.Action("GetDetailPartner", "Partner");
-    var upsertPartnerUrl = Url.Action("UpsertPartner", "Partner");
-    var deletePartnerUrl = Url.Action("DeletePartner", "Partner");
-    var partnerHomeUrl = Url.Action("Index", "Partner", new { area = "MasterData" });
+    var listBankAliasUrl = Url.Action("GetListBankAlias", "BankAlias");
+    var detailBankAliasUrl = Url.Action("GetDetailBankAlias", "BankAlias");
+    var upsertBankAliasUrl = Url.Action("UpsertBankAlias", "BankAlias");
+    var deleteBankAliasUrl = Url.Action("DeleteBankAlias", "BankAlias");
+    var bankAliasHomeUrl = Url.Action("Index", "BankAlias", new { area = "MasterData" });
 }
 
 <script type="text/javascript">
     //Variable for control
     const ddlCompany = $("#ddlCompany");
-    const dmInput = $('#dvModalPartner input'), dmSelect = $('#dvModalPartner select'), dmButton = $('#dvModalPartner button');
     const lblTitle = $("#title-modal");
-    const mdPartner = $('#partnerForm');
-    const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit")
+    const dvModalBankAlias = $('#dvModalBankAlias');
+    const bankAliasForm = $('#bankAliasForm');
+    const dmInput = $('#dvModalBankAlias input'), dmSelect = $('#dvModalBankAlias select'), dmButton = $('#dvModalBankAlias button');
+    const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit");
+    const gridBankAlias = $("#gridBankAlias");
+    let currentDraw = 0, idBankAlias;
 
-    var gridPartner;
-    var isEdit = false;
-    var idPartner;
-    var currentDraw = 0;
     $(function () {
-        OutgoingPaymentManager = new OutgoingPaymentManager();
-        OutgoingPaymentManager.InitManagement();
+        BankAliasManager = new BankAliasManager();
+        BankAliasManager.InitManagement();
     });
 
-    function OutgoingPaymentManager() {
+    function BankAliasManager() {
         return {
             InitManagement: function () {
                 this.InitControls();
@@ -35,7 +34,7 @@
                 this.InitLoad();
             },
             InitControls: function () {
-                gridPartner = $('#gridPartner').DataTable({
+                gridBankAlias.dataTable({
                     paging: true,
                     pagingType: "first_last_numbers",
                     ordering: false,
@@ -43,12 +42,12 @@
                     serverSide: true,
                     ajax: (Object.assign({}, glbBaseRequest, {
                         type: "POST",
-                        url: "@gridPartner",
+                        url: "@listBankAliasUrl",
                         data: function (d) {
                             return JSON.stringify({
                                 "page": d.start / d.length + 1,
                                 "pageSize": d.length,
-                                "searchKey": null
+                                "searchKey": d.search.value
                             });
                         },
                         dataSrc: function (json) {
@@ -60,16 +59,18 @@
                         },
                     })),
                     columns: [
-                        { title: "Partner Id", data: "partnerId" },
-                        { title: "Partner Name", data: "partnerName" },
-                        { title: "Description", data: "description" },
+                        { title: "Company", data: "companyName" },
+                        { title: "Alias Name", data: "aliasName" },
+                        { title: "Bank Name", data: "bankName" },
+                        { title: "Account No", data: "accountNo" },
+                        { title: "Account Name", data: "accountName" },
                         {
                             title: "", width: '6%', className: "py-1", render: function (data, type, row) {
-                                var id = row.partnerId;
+                                var id = row.bankAliasId;
                                 var elem = `<div class="d-inline-flex justify-content-between">
-                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
-                                                <button class="edit-button btn btn-link text-danger" data-id="${id}" name="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
-                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" action="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-danger" data-id="${id}" action="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" action="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
                                             </div>`;
                                 return elem;
                             },
@@ -81,7 +82,11 @@
                                 menu: [10, 25, 50, 100]
                             }
                         },
-                        topEnd: null,
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
                         bottomStart: 'info',
                         bottom2Start: null,
                         bottomEnd: 'paging',
@@ -98,19 +103,19 @@
                 });
             },
             InitHandlers: function () {
-                $(document).on('click', '[name="editbutton"]', function () {
-                    var partnerId = $(this).data('id');
-                    fnEditForm(partnerId);
+                $(document).on('click', '[action="editbutton"]', function () {
+                    var bankAliasId = $(this).data('id');
+                    fnEditForm(bankAliasId);
                 });
 
-                $(document).on('click', '[name="deletebutton"]', function () {
-                    var partnerId = $(this).data('id');
-                    fnDeleteForm(partnerId);
+                $(document).on('click', '[action="deletebutton"]', function () {
+                    var bankAliasId = $(this).data('id');
+                    fnDeleteForm(bankAliasId);
                 });
 
-                $(document).on('click', '[name="detailbutton"]', function () {
-                    var partnerId = $(this).data('id');
-                    fnDetailForm(partnerId);
+                $(document).on('click', '[action="detailbutton"]', function () {
+                    var bankAliasId = $(this).data('id');
+                    fnDetailForm(bankAliasId);
                 });
 
                 $("#btnCreate").click(function () { 
@@ -126,15 +131,13 @@
                     let formDataArray = $('.card-body :input').serializeArray();
                     disabledElement.attr('disabled', true);
 
-                    mdPartner.modal('toggle');
-
                     let formDataObject = {};
                     formDataArray.forEach(function (field) {
                         formDataObject[field.name] = field.value;
                     });
                     
                     if (isEdit) {
-                        formDataObject.Id = idPartner;
+                        formDataObject.Id = idBankAlias;
                     }
                     else {
                         formDataObject.Id = null;
@@ -142,7 +145,7 @@
 
                     $.ajax(Object.assign({}, glbBaseRequest, {
                         method: "POST",
-                        url: "@upsertPartnerUrl",
+                        url: "@upsertBankAliasUrl",
                         data: JSON.stringify(formDataObject),
                         contentType: "application/json"
                     })).done(function (response) {
@@ -152,7 +155,7 @@
                                 text: response.message,
                                 icon: "success"
                             }).then(() => {
-                                window.location.href = "@partnerHomeUrl";
+                                window.location.href = "@bankAliasHomeUrl";
                             });
                         }
                         else {
@@ -167,33 +170,57 @@
             },
             InitValidation: function () {
             },
-            InitLoad: function () {
+            InitLoad: async function () {
+                await RefreshDdlCompany();
             }
         }
     };
 
+    async function RefreshDdlCompany() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlCompanyUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+
     function fnCreateForm(){
         isEdit = false;
-        lblTitle.text("Create Partner");
+        lblTitle.text("Create Bank Alias");
         dmInput.add(dmSelect).prop('disabled', false);
         dmInput.add(dmSelect).val('');
         dmButton.show();
-        mdPartner.modal('show');
+        bankAliasForm.modal('show');
     }
 
-    function fnEditForm(partnerId) {
+    function fnEditForm(bankAliasId) {
         isEdit = true;
-        idPartner = partnerId;
-        lblTitle.text("Edit Partner");
+        idBankAlias = bankAliasId;
+        lblTitle.text("Edit Bank Alias");
         dmInput.add(dmSelect).prop('disabled', false);
         dmButton.show();
-        loadDataPartner(partnerId);
+        loadDataBankAlias(bankAliasId);
     }
 
-    function fnDeleteForm(partnerId) {
+    function fnDeleteForm(bankAliasId) {
         Swal.fire({
             title: 'Delete',
-            html: 'Are you sure to delete this data?',
+            html: 'Apakah anda yakin menghapus data ini?',
             width: '500px',
             showCancelButton: true,
             confirmButtonText: 'Delete',
@@ -209,7 +236,7 @@
             if (result.isConfirmed) {
                 $.ajax(Object.assign({}, glbBaseRequest, {
                     method: "POST",
-                    url: "@deletePartnerUrl?partnerId=" + partnerId,
+                    url: "@deleteBankAliasUrl?bankAliasId=" + bankAliasId,
                     contentType: "application/json"
                 })).done(function (response) {
                     if (response.succeeded) {
@@ -218,7 +245,7 @@
                             text: response.message,
                             icon: "success"
                         }).then(() => {
-                            window.location.href = "@partnerHomeUrl";
+                            window.location.href = "@bankAliasHomeUrl";
                         });
                     }
                     else {
@@ -233,17 +260,17 @@
         });
     }
 
-    function fnDetailForm(partnerId) {
-        lblTitle.text("Detail Partner");
+    function fnDetailForm(bankAliasId) {
+        lblTitle.text("Detail Bank Alias");
         dmInput.add(dmSelect).attr('disabled', true);
         dmButton.hide();
-        loadDataPartner(partnerId);
+        loadDataBankAlias(bankAliasId);
     }
 
-    function loadDataPartner(partnerId) {
+    function loadDataBankAlias(bankAliasId) {
         $.ajax(Object.assign({}, glbBaseRequest, {
             method: "POST",
-            url: "@getDetailPartner" + "?partnertId=" + partnerId
+            url: "@detailBankAliasUrl" + "?bankAliasId=" + bankAliasId
         })).done(function (response) {
             if (response.succeeded) {
                 $.each(response.obj, function (key, value) {
@@ -260,7 +287,7 @@
                     }
                 });
 
-                mdPartner.modal('show');
+                bankAliasForm.modal('show');
             }
             else {
                 Swal.fire({
