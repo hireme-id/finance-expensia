@@ -698,7 +698,7 @@ Account No : ` + accountNo);
 		for (let i = 0; i < ddlCoaDatas.length; i++) {
 			const data = ddlCoaDatas[i];
 			const isSelected = coaId.toLowerCase() == data.coaId.toLowerCase() ? ` selected` : ``;
-			ddlCoa.append(`<option value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + `</option>`);
+			ddlCoa.append(`<option value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + ` - ` + data.accountName + `</option>`);
 		}
 	}
 
@@ -727,7 +727,7 @@ Account No : ` + accountNo);
 		for (let i = 0; i < ddlCostCenterDatas.length; i++) {
 			const data = ddlCostCenterDatas[i];
 			const isSelected = costCenterId.toLowerCase() == data.costCenterId.toLowerCase() ? ` selected` : ``;
-			ddlCostCenter.append(`<option value="` + data.costCenterId + `"` + isSelected + `>` + data.costCenterCode + `</option>`);
+			ddlCostCenter.append(`<option value="` + data.costCenterId + `"` + isSelected + `>` + data.costCenterCode + ` - ` + data.costCenterName + `</option>`);
 		}
 	}
 

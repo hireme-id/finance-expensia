@@ -144,7 +144,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 				dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
 				dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
-				dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
+                dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
+                dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
 				dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
 				dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;
 				dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
@@ -284,7 +285,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					existOutgoingDetail.PartnerId = outgoingPaymentDetailInput.PartnerId;
 					existOutgoingDetail.PartnerName = dataPartner.PartnerName;
 					existOutgoingDetail.ChartOfAccountId = outgoingPaymentDetailInput.ChartOfAccountId;
-					existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
+                    existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
+                    existOutgoingDetail.ChartOfAccountName = dataCoa.AccountName;
 					existOutgoingDetail.CostCenterId = outgoingPaymentDetailInput.CostCenterId;
 					existOutgoingDetail.CostCenterCode = dataCostCenter.CostCenterCode;
                     existOutgoingDetail.CostCenterName = dataCostCenter.CostCenterName;
@@ -325,6 +327,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					dataOutgoingPaymentDetail.OutgoingPaymentId = existOutgoing.Id;
 					dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
                     dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
+                    dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
                     dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
                     dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
 					dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;

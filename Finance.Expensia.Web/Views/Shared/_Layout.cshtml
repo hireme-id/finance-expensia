@@ -3,6 +3,7 @@
     var homePage = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
     var mailbox = Url.Action("Index", "Mailbox", new { area = "Core" });
     var masterPartner = Url.Action("Index", "Partner", new { area = "MasterData" });
+    var masterBankAlias = Url.Action("Index", "BankAlias", new { area = "MasterData" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
 }
@@ -58,7 +59,30 @@
 
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-database"></i>
+                                <p>
+                                    Master Data
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview" style="padding-left:10px;">
+                                <li class="nav-item">
+                                    <a href="@masterPartner" class="nav-link">
+                                        <i class="far fa-handshake nav-icon"></i>
+                                        <p>Partner</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@masterBankAlias" class="nav-link">
+                                        <i class="fas fa-piggy-bank nav-icon"></i>
+                                        <p>Bank Alias</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a href="@homePage" class="nav-link">
                                 <i class="nav-icon fas fa-edit"></i>
@@ -74,29 +98,6 @@
                                     Mailbox
                                 </p>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-database"></i>
-                                <p>
-                                    Master Data
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="@masterPartner" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Partner</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Bank</p>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
                     </ul>
                 </nav>

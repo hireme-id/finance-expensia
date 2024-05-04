@@ -42,6 +42,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public string Description { get; set; } = string.Empty;
         public Guid ChartOfAccountId { get; set; }
         public string ChartOfAccountNo { get; set; } = string.Empty;
+        public string ChartOfAccountName { get; set; } = string.Empty;
         public Guid CostCenterId { get; set; }
         public string CostCenterCode { get; set; } = string.Empty;
         public string CostCenterName { get; set; } = string.Empty;
