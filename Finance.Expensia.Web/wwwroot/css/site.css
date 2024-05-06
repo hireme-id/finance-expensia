@@ -80,6 +80,12 @@
     }
 }
 
+.dt-search > .form-control {
+    display: initial;
+    width: auto;
+    margin-left: 5px;
+}
+
 label{
     font-size: 15px;
 }
@@ -109,4 +115,9 @@ label{
     height: 1rem;
     border: 0.15em solid currentColor;
     border-right-color: transparent !important;
+}
+
+[class*="sidebar-light-"] .nav-treeview > .nav-item > .nav-link.active, [class*="sidebar-light-"] .nav-treeview > .nav-item > .nav-link.active:hover {
+    background-color: transparent;
+    color: #007bff;
 }

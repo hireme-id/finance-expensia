@@ -15,7 +15,7 @@
     const lblTitle = $("#title-modal");
     const dvModalBankAlias = $('#dvModalBankAlias');
     const bankAliasForm = $('#bankAliasForm');
-    const dmInput = $('#dvModalBankAlias input'), dmSelect = $('#dvModalBankAlias select'), dmButton = $('#dvModalBankAlias button');
+    const dmInput = $('#dvModalBankAlias input'), dmSelect = $('#dvModalBankAlias select'), dmTextArea = $('#dvModalBankAlias textarea'), dmButton = $('#dvModalBankAlias button');
     const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit");
     const gridBankAlias = $("#gridBankAlias");
     let currentDraw = 0, idBankAlias;
@@ -131,6 +131,8 @@
                     let formDataArray = $('.card-body :input').serializeArray();
                     disabledElement.attr('disabled', true);
 
+                    bankAliasForm.modal('toggle');
+
                     let formDataObject = {};
                     formDataArray.forEach(function (field) {
                         formDataObject[field.name] = field.value;
@@ -202,8 +204,8 @@
     function fnCreateForm(){
         isEdit = false;
         lblTitle.text("Create Bank Alias");
-        dmInput.add(dmSelect).prop('disabled', false);
-        dmInput.add(dmSelect).val('');
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
+        dmInput.add(dmSelect).add(dmTextArea).val('');
         dmButton.show();
         bankAliasForm.modal('show');
     }
@@ -212,7 +214,7 @@
         isEdit = true;
         idBankAlias = bankAliasId;
         lblTitle.text("Edit Bank Alias");
-        dmInput.add(dmSelect).prop('disabled', false);
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
         dmButton.show();
         loadDataBankAlias(bankAliasId);
     }
@@ -262,7 +264,7 @@
 
     function fnDetailForm(bankAliasId) {
         lblTitle.text("Detail Bank Alias");
-        dmInput.add(dmSelect).attr('disabled', true);
+        dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true);
         dmButton.hide();
         loadDataBankAlias(bankAliasId);
     }

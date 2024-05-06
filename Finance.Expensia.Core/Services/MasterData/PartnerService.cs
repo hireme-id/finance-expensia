@@ -31,6 +31,9 @@ namespace Finance.Expensia.Core.Services.MasterData
             var retVal = new ResponsePaging<PartnerDto>();
             var dataPartners = _dbContext.Partners
                                                .OrderBy(d => d.PartnerName)
+                                               .Where(d =>
+                                                EF.Functions.Like(d.PartnerName, $"%{input.SearchKey}%")
+                                                || EF.Functions.Like(d.Description, $"%{input.SearchKey}%"))
                                                .Select(d => _mapper.Map<PartnerDto>(d));
 
             retVal.ApplyPagination(input.Page, input.PageSize, dataPartners);
