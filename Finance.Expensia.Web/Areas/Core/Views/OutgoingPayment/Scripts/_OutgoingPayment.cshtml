@@ -62,14 +62,17 @@
                     })),
                     columns: [
                         {
-                            title: "Transaction Info", render: function (data, type, row) {
-                                var reqDate = fmtDate(row.requestDate);
+                            title: "Transaction Info", 
+                            render: function (data, type, row) {
+                                var reqDate = fmtDate4(row.requestDate);
                                 var elem = `${row.transactionNo} <br /> ${reqDate}`;
                                 return elem;
                             },
                         },
                         { title: "Company", data: "companyName" },
                         { title: "Requestor", data: "requestor"},
+                        { title: "From Bank Alias", data: "fromBankAlias" },
+                        { title: "To Bank Alias", data: "toBankAlias" },
                         { 
                             title: "Total Transaction", render: function (data, type, row) {
                                 var totalAmount = fmtMoney(row.totalAmount);
@@ -78,8 +81,6 @@
                             className: "dt-body-right"
                         },
                         { title: "Remark", data: "remark"},
-                        { title: "From Bank Alias", data: "fromBankAlias"},
-                        { title: "To Bank Alias", data: "toBankAlias"},
                         {
                             title: "Status", 
                             render: function (data, type, row) {

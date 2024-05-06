@@ -76,7 +76,7 @@
 												</div>`);
 								}
 
-								return new Date(data).toISOString().split('T')[0];
+								return fmtDate4(data);
 							}
 						},
 						{
@@ -141,7 +141,7 @@
 						},
 						{
 							data: "postingAccount",
-							title: "Posting Account",
+							title: "Consumer Account",
 							width: "200px",
 							render: function (data, type, row, meta) {
 								if (meta.row == indexRowEdit) {
@@ -575,7 +575,7 @@ Account No : ` + accountNo);
 						let bindType = input.attr('bind-type');
 
 						if (bindType == 'datetime' && value != null) {
-							value = value.split('T')[0];
+							value = fmtDate4(value);// value.split('T')[0];
 						}
 
 						input.val(value);

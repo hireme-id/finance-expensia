@@ -84,8 +84,9 @@
                         },
                         { title: "Transaction Type", data: "transactionTypeDescription" },
                         {
-                            title: "Transaction Info", render: function (data, type, row) {
-                                var reqDate = fmtDate(row.requestDate);
+                            title: "Transaction Info", 
+                            render: function (data, type, row) {
+                                var reqDate = fmtDate4(row.requestDate);
                                 var elem = `${row.transactionNo} <br /> ${reqDate}`;
                                 return elem;
                             },

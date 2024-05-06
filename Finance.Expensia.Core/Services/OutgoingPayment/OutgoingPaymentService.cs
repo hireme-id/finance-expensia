@@ -99,7 +99,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			#region set data entity => OutgoingPayment
 			var dataOutgoingPayment = _mapper.Map<DataAccess.Models.OutgoingPayment>(input);
 
-			dataOutgoingPayment.TransactionNo = $"{dataCompany.CompanyCode}-{dataTransactionType.TransactionTypeCode}-{dateNow:ddMMyy}-{runningNumberConfig.RunningNumber + 1}";
+			dataOutgoingPayment.TransactionNo = $"{dataCompany.CompanyCode}-{dataTransactionType.TransactionTypeCode}-{dateNow:ddMMyy}-{(runningNumberConfig.RunningNumber + 1).ToString().PadLeft(4, '0')}";
 			dataOutgoingPayment.Requestor = currentUserAccessor.FullName;
 			dataOutgoingPayment.RequestDate = dateNow.Date;
 			dataOutgoingPayment.CompanyName = dataCompany.CompanyName;
