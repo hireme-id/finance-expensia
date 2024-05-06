@@ -48,7 +48,7 @@
                             return JSON.stringify({
                                 "page": d.start / d.length + 1,
                                 "pageSize": d.length,
-                                "searchKey": null
+                                "searchKey": d.search.value
                             });
                         },
                         dataSrc: function (json) {
@@ -81,7 +81,11 @@
                                 menu: [10, 25, 50, 100]
                             }
                         },
-                        topEnd: null,
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
                         bottomStart: 'info',
                         bottom2Start: null,
                         bottomEnd: 'paging',
