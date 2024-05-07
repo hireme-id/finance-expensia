@@ -8,6 +8,7 @@ namespace Finance.Expensia.Shared.Enums
         [Description("Waiting Approval")]
         WaitingApproval,
         Approved,
-        Reject
+        Reject,
+        Submitted
     }
 }

@@ -412,21 +412,15 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				.FirstOrDefaultAsync(x =>
 					x.MinAmount <= input.TotalAmount
 					&& input.TotalAmount <= x.MaxAmount
-					&& x.Level == 1
-					&& dataRoleCodes.Contains(x.RoleCode));
+					&& x.Level == 1);
 
 			if (workflowRule == null)
 				return false;
 
 			var firstRoleApprover = await _dbContext.ApprovalRules.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.MinAmount == workflowRule.MinAmount && x.MaxAmount == workflowRule.MaxAmount && x.Level == 2);
+				.FirstOrDefaultAsync(x => x.TransactionTypeCode == input.TransactionTypeCode && x.MinAmount == workflowRule.MinAmount && x.MaxAmount == workflowRule.MaxAmount && x.Level == 2);
 
 			if (firstRoleApprover == null)
-				return false;
-
-			var dataRole = await _dbContext.Roles.FirstAsync(x => x.RoleCode == workflowRule.RoleCode);
-
-			if (dataRole == null)
 				return false;
 
 			var dataInbox = new ApprovalInbox
@@ -446,9 +440,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			{
 				ApprovalLevel = 1,
 				ExecutorName = input.Requestor,
-				ExecutorRoleCode = workflowRule.RoleCode,
-				ExecutorRoleDesc = dataRole.RoleDescription,
-				ApprovalStatus = ApprovalStatus.WaitingApproval,
+				ExecutorRoleCode = string.Empty,
+				ExecutorRoleDesc = string.Empty,
+				ApprovalStatus = ApprovalStatus.Submitted,
 				ApprovalUserId = currentUserAccessor.Id,
 				TransactionNo = input.TransactionNo,
 				MinAmount = workflowRule.MinAmount,

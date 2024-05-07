@@ -91,7 +91,8 @@ namespace Finance.Expensia.Core.Services.Inbox
 				return new ResponseBase("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
 
 			var nextApprover = await _dbContext.ApprovalRules.FirstOrDefaultAsync(x =>
-															   x.MinAmount == approvalDocument.MinAmount
+															   x.TransactionTypeCode == approvalDocument.TransactionTypeCode
+															   && x.MinAmount == approvalDocument.MinAmount
 															   && x.MaxAmount == approvalDocument.MaxAmount
 															   && x.Level == approvalDocument.ApprovalLevel + 1);
 
