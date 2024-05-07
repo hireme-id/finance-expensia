@@ -160,6 +160,8 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script type="text/javascript">
+        $.fn.dataTable.ext.errMode = 'none';
+
         var myPermission = {
             "url": "@myPermissionUrl",
             "method": "POST",
@@ -194,7 +196,7 @@
             })
             .fail(function (xhr, status, error) {
                 alert("Anda tidak diizinkan untuk mengakses halaman ini. Hubungi administrator anda!");
-                RedirectToLogin();
+                //RedirectToLogin();
             });
 
         var glbBaseRequest = {
