@@ -1,0 +1,160 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Styles/_CreateCSS.cshtml")
+
+<!-- Main Form -->
+<div class="card">
+    @if (Context.Request.Path == Url.Action("Detail", "OutgoingPayment"))
+    {
+        <div class="card-header">
+            <button id="btnHistory" class="btn btn-outline-success" data-toggle="modal" data-target="#historyApproval">
+                History Approval <i class="fa fa-info-circle"></i>
+                <div id="btnloader" class="spinner-border ml-2 d-none btnloader" role="status"></div>
+            </button>
+        </div>
+    }
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Transaction Type <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlTransactionType" name="transactionTypeId" bind-name="transactionTypeId" bind-trigger="change"></select>
+            </div>
+            <div class="col-lg-6">
+                <label>Transaction No</label>
+                <input type="text" class="form-control" id="txtTransactionNo" bind-name="transactionNo" disabled />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Requestor</label>
+                <input type="text" class="form-control" id="txtRequestor" bind-name="requestor" disabled />
+            </div>
+            <div class="col-lg-6">
+                <label>Document Status</label>
+                <input type="text" class="form-control" id="txtDocumentStatus" bind-name="approvalStatus" disabled />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Company <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
+            </div>
+            <div class="col-lg-6">
+                <label>Request Date</label>
+                <div class="input-group date mb-2">
+                    <input type="text" class="form-control" id="dtRequestDate" bind-name="requestDate" bind-type="datetime" autocomplete="off">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Expected Transfer <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlExpectedTransfer" name="expectedTransfer" bind-name="expectedTransfer" bind-trigger="change">
+                    <option value="">&nbsp</option>
+                    @foreach (var item in Enum.GetValues(typeof(ExpectedTransfer)))
+                    {
+                        @Html.Raw($"<option value=\"{item}\">{((ExpectedTransfer)item).GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
+            <div class="col-lg-6">
+                <label>Scheduled Date</label>
+                <div class="input-group date mb-2">
+                    <input type="text"
+                           class="form-control datepicker"
+                           id="dtScheduledDate" name="scheduledDate" bind-name="scheduledDate" bind-type="datetime"
+                           autocomplete="off">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Remark</label>
+                <textarea id="txtRemark" rows="3" class="form-control form-control-area" name="remark" bind-name="remark"></textarea>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4 border-bottom border-dark"></div>
+
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>From Alias Bank <span class="text-danger">*</span></label>
+                <select class="form-control select2"
+                        id="ddlFromAliasBank" name="fromBankAliasId" @* bind-name="fromBankAliasId" bind-trigger="change" *@
+                        descriptor-control="#txtFromBankName" 
+                        disabled></select>
+            </div>
+            <div class="col-lg-6">
+                <label>To Alias Bank <span class="text-danger">*</span></label>
+                <select class="form-control select2"
+                        id="ddlToAliasBank" name="toBankAliasId" bind-name="toBankAliasId" bind-trigger="change"
+                        descriptor-control="#txtToBankName"></select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>From Alias Bank Information</label>
+                <textarea class="form-control" id="txtFromBankName" rows="3" disabled style="resize:none"></textarea>
+            </div>
+            <div class="col-lg-6">
+                <label>To Alias Bank Information</label>
+                <textarea class="form-control" id="txtToBankName" rows="3" disabled style="resize:none"></textarea>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Bank Payment Type<span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlBankPaymentType" name="bankPaymentType" bind-name="bankPaymentType" bind-trigger="change">
+                    <option value="">&nbsp</option>
+                    @foreach (var item in Enum.GetValues(typeof(BankPaymentType)))
+                    {
+                        @Html.Raw($"<option value=\"{item}\">{((BankPaymentType)item).GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mb-4 border-bottom border-dark"></div>
+
+        <table class="table" id="gridOutgoingPaymentDetail" aria-describedby="Tabel List Customer Consent"></table>
+
+        <div class="row mb-3">
+            <div class="col-lg-6"></div>
+            <div class="col-lg-6">
+                <label>Total Amount</label>
+                <input type="text" class="form-control" id="txtTotalAmount" disabled />
+            </div>
+        </div>
+    </div>
+    @if (Context.Request.Path != Url.Action("Detail", "OutgoingPayment"))
+    {
+        <div class="card-footer">
+            @if (Context.Request.Path == Url.Action("Edit", "OutgoingPayment"))
+            {
+                <button type="button" id="btnDelete" class="btn btn-outline-danger" style="width:150px;">Delete</button>
+            }
+            <button type="button" id="btnSubmit" data-is-submit="true" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
+            <button type="button" id="btnDraft" data-is-submit="false" class="btn btn-outline-secondary float-right" style="width:150px">Save as Draft</button>
+        </div>
+    }
+    else
+    {
+        <div class="card-footer">
+            <button type="button" id="btnCopy" data-is-submit="true" class="btn btn-primary float-right ml-2" style="width:150px">Copy</button>
+        </div>
+
+        @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Components/_HistoryApproval.cshtml")
+    }
+</div>

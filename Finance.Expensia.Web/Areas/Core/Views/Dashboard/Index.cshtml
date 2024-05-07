@@ -1,0 +1,190 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Company</label>
+                <select class="form-control">
+                    <option></option>
+                    <option>PT. Rapid Teknologi Indonesia</option>
+                </select>
+            </div>
+            <div class="col-lg-6">
+                <label>Filter By</label>
+                <select class="form-control">
+                    <option></option>
+                    <option>Status</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-4">
+                <label>StartDate</label>
+                <div style="d-flex flex-column">
+                    <div class="input-group date mb-2">
+                        <input placeholder="Input Date" type="text" class="form-control datepicker" id="txtStartDate" autocomplete="off">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <span class="text-danger d-none" id="sdmessage">Startdate harus diisi</span>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <label>EndDate</label>
+                <div style="d-flex flex-column">
+                    <div class="input-group date mb-2">
+                        <input placeholder="Input Date" type="text" class="form-control datepicker" id="txtEndDate" autocomplete="off">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <span class="text-danger d-none" id="sdmessage">Startdate harus diisi</span>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <label>Search</label>
+                <input type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-right">
+                <button type="submit" class="btn btn-mdl btn-success" id="btnFilter pull-right">Filter + Search</button>
+            </div>
+        </div>
+        
+        <div class="card-title-list mb-2">
+            <div class="title-box">
+                <span class="title-card">List Table</span>
+            </div>
+            @if (User.IsInRole("CUSTOMER CONSENT.Edit"))
+            {
+                <div>
+                    <button style="height:30px;" class="btn btn-outline-dark btn-icon-text" id="btngoAdd">
+                        <i class="fa fa-plus"></i>
+                        Add
+                    </button>
+                </div>
+            }
+        </div>
+
+        <div class="table-responsive">
+            <table class="table" id="tblConsumer" aria-describedby="Tabel List Customer Consent">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                    </tr>
+                </thead>
+
+            </table>
+        </div>
+        <div class="row">
+            <label for="pageJump">Jump to page:</label>
+            <input type="text" id="pageJump">
+            <button id="btnJump">Go</button>
+        </div>
+    </div>
+</div>
+@section Scripts{
+<script>
+    var data = [
+        ["John Smiths", "USA", 32, "Male"],
+        ["Emily Johnson", "Canada", 28, "Female"],
+        ["Michael Brown", "UK", 45, "Male"],
+        ["Maria Garcia", "Spain", 35, "Female"],
+        ["Ahmed Khan", "Pakistan", 30, "Male"],
+        ["Sophie Martin", "France", 40, "Female"],
+        ["Chen Wei", "China", 29, "Male"],
+        ["Elena Petrova", "Russia", 38, "Female"],
+        ["Diego Fernandez", "Argentina", 42, "Male"],
+        ["Anna Müller", "Germany", 36, "Female"]
+    ];
+    $(document).ready(function () {
+        var currentDraw = 0;
+        var retvalData;
+
+        textdate();
+        
+        var table = $('#tblConsumer').DataTable({
+            "searching": false,
+            "ordering": false,
+            data: data,
+            columns: [
+                { title: "Name" },
+                { title: "Country" },
+                { title: "Age" },
+                { title: "Gender" }
+            ]
+        });
+        
+        $('#tblConsumer').Tabledit({
+            url: '@Url.Action("Edit", "Dashboard")',
+            buttons: {
+                edit: {
+                    class: 'btn btn-primary mr-2',
+                    html: '<span class="fa fa-pencil"></span>',
+                    action: 'edit'
+                },
+                delete: {
+                    class: 'btn btn-danger mr-2',
+                    html: '<span class="fa fa-trash"></span>',
+                    action: 'delete'
+                },
+                save: {
+                    class: 'btn btn-sm btn-success mt-2',
+                    html: 'Save'
+                },
+            },
+            columns: {
+                identifier: [0, 'Name'],
+                editable: [[0, 'Name'], [1, 'Country'], [2, 'Age'], [3, 'Gender']]
+            },
+            onSuccess: function (data, textStatus, jqXHR) {
+                if (data.action == 'delete') {
+                    $('#' + data.id).remove();
+                    $('#tblConsumer').DataTable().ajax.reload();
+                }
+            }
+        });
+
+        $('#btnJump').on('click', function () {
+            var pageNumber = parseInt($('#pageJump').val());
+            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= table.page.info().pages) {
+                table.page(pageNumber - 1).draw('page');
+            } else {
+                alert('Invalid page number');
+            }
+        });
+    });
+
+    function textdate() {
+        $("#txtStartDate").datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            orientation: "bottom"
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date.valueOf());
+            $("#txtEndDate").datepicker('setStartDate', minDate);
+        });
+        $("#txtEndDate").datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            orientation: "bottom",
+            minDate: $("#txtStartDate").datepicker("getDate")
+        }).on('changeDate', function (selected) {
+            var minDate = new Date(selected.date.valueOf());
+            $("#txtStartDate").datepicker('setEndDate', minDate);
+        });
+    }
+</script>
+}

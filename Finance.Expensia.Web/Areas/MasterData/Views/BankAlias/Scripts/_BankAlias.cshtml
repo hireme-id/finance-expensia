@@ -1,0 +1,303 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var listBankAliasUrl = Url.Action("GetListBankAlias", "BankAlias");
+    var detailBankAliasUrl = Url.Action("GetDetailBankAlias", "BankAlias");
+    var upsertBankAliasUrl = Url.Action("UpsertBankAlias", "BankAlias");
+    var deleteBankAliasUrl = Url.Action("DeleteBankAlias", "BankAlias");
+    var bankAliasHomeUrl = Url.Action("Index", "BankAlias", new { area = "MasterData" });
+}
+
+<script type="text/javascript">
+    //Variable for control
+    const ddlCompany = $("#ddlCompany");
+    const lblTitle = $("#title-modal");
+    const dvModalBankAlias = $('#dvModalBankAlias');
+    const bankAliasForm = $('#bankAliasForm');
+    const dmInput = $('#dvModalBankAlias input'), dmSelect = $('#dvModalBankAlias select'), dmTextArea = $('#dvModalBankAlias textarea'), dmButton = $('#dvModalBankAlias button');
+    const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit");
+    const gridBankAlias = $("#gridBankAlias");
+    let currentDraw = 0, idBankAlias;
+
+    $(function () {
+        BankAliasManager = new BankAliasManager();
+        BankAliasManager.InitManagement();
+    });
+
+    function BankAliasManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridBankAlias.dataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@listBankAliasUrl",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { title: "Company", data: "companyName" },
+                        { title: "Alias Name", data: "aliasName" },
+                        { title: "Bank Name", data: "bankName" },
+                        { title: "Account No", data: "accountNo" },
+                        { title: "Account Name", data: "accountName" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                var id = row.bankAliasId;
+                                var elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" action="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-danger" data-id="${id}" action="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" action="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+                $(document).on('click', '[action="editbutton"]', function () {
+                    var bankAliasId = $(this).data('id');
+                    fnEditForm(bankAliasId);
+                });
+
+                $(document).on('click', '[action="deletebutton"]', function () {
+                    var bankAliasId = $(this).data('id');
+                    fnDeleteForm(bankAliasId);
+                });
+
+                $(document).on('click', '[action="detailbutton"]', function () {
+                    var bankAliasId = $(this).data('id');
+                    fnDetailForm(bankAliasId);
+                });
+
+                $("#btnCreate").click(function () { 
+                    fnCreateForm();
+                })
+
+                btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let isSubmit = $el.attr('data-is-submit');
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('.card-body :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    bankAliasForm.modal('toggle');
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        formDataObject[field.name] = field.value;
+                    });
+                    
+                    if (isEdit) {
+                        formDataObject.Id = idBankAlias;
+                    }
+                    else {
+                        formDataObject.Id = null;
+                    }
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@upsertBankAliasUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "@bankAliasHomeUrl";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: async function () {
+                await RefreshDdlCompany();
+            }
+        }
+    };
+
+    async function RefreshDdlCompany() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlCompanyUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    function fnCreateForm(){
+        isEdit = false;
+        lblTitle.text("Create Bank Alias");
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
+        dmInput.add(dmSelect).add(dmTextArea).val('');
+        dmButton.show();
+        bankAliasForm.modal('show');
+    }
+
+    function fnEditForm(bankAliasId) {
+        isEdit = true;
+        idBankAlias = bankAliasId;
+        lblTitle.text("Edit Bank Alias");
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
+        dmButton.show();
+        loadDataBankAlias(bankAliasId);
+    }
+
+    function fnDeleteForm(bankAliasId) {
+        Swal.fire({
+            title: 'Delete',
+            html: 'Apakah anda yakin menghapus data ini?',
+            width: '500px',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            confirmButtonColor: "#D92D20",
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2',
+            },
+            icon: "warning",
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax(Object.assign({}, glbBaseRequest, {
+                    method: "POST",
+                    url: "@deleteBankAliasUrl?bankAliasId=" + bankAliasId,
+                    contentType: "application/json"
+                })).done(function (response) {
+                    if (response.succeeded) {
+                        Swal.fire({
+                            title: "Success",
+                            text: response.message,
+                            icon: "success"
+                        }).then(() => {
+                            window.location.href = "@bankAliasHomeUrl";
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message,
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function fnDetailForm(bankAliasId) {
+        lblTitle.text("Detail Bank Alias");
+        dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true);
+        dmButton.hide();
+        loadDataBankAlias(bankAliasId);
+    }
+
+    function loadDataBankAlias(bankAliasId) {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@detailBankAliasUrl" + "?bankAliasId=" + bankAliasId
+        })).done(function (response) {
+            if (response.succeeded) {
+                $.each(response.obj, function (key, value) {
+                    let input = $('[bind-name="' + key + '"]');
+
+                    if (input.length > 0) {
+                        let bindTrigger = input.attr('bind-trigger');
+
+                        input.val(value);
+
+                        if (bindTrigger != undefined) {
+                            input.trigger(bindTrigger);
+                        }
+                    }
+                });
+
+                bankAliasForm.modal('show');
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+</script>

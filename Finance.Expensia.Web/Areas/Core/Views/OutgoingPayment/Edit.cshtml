@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Edit Outgoing Payment";
+    ViewData["Subtitle"] = "Edit Outgoing Payment";
+}
+
+@await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Components/_OutgoingPaymentForm.cshtml")
+
+@section Scripts {
+    @await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_Edit.cshtml")
+}

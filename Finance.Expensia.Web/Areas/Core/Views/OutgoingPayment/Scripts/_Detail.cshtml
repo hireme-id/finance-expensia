@@ -1,0 +1,587 @@
+﻿@using Finance.Expensia.Shared.Enums
+@{
+	var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
+	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+	var ddlBankAliasUrl = Url.Action("RetrieveBankAlias", "BankAlias");
+	var ddlPartnerUrl = Url.Action("RetrievePartner", "Partner");
+	var ddlCoaUrl = Url.Action("RetrieveCoa", "Coa");
+	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
+	var downloadFileUrl = Url.Action("DownloadFile", "Storage");
+	var gridDetailOutgoingPayment = Url.Action("GetDetailOutgoingPayment", "OutgoingPayment");
+	var getHistoryApproval = Url.Action("GetListApprovalHistory", "Mailbox");
+	var createOutgoingPaymentUrl = Url.Action("Create", "OutgoingPayment", new { area = "Core" });
+}
+
+<script type="text/javascript">
+	//Variable for control
+	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
+	const ddlTransactionType = $("#ddlTransactionType"), ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
+	const ddlExpectedTransfer = $("#ddlExpectedTransfer"), txtRequestor = $("#txtRequestor"), txtRemark = $("#txtRemark");
+	const txtTransactionNo = $("#txtTransactionNo");
+	const txtDocumentStatus = $("#txtDocumentStatus"), txtTotalAmount = $("#txtTotalAmount"); txtFromBankName = $("#txtFromBankName");
+	const txtToBankName = $("#txtToBankName");
+	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft"), btnHistory = $("#btnHistory");
+	const divHistory = $("#dvHistoryApproval");
+	const btnCopy = $("#btnCopy");
+
+	let indexRowEdit = -1;
+	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
+	let totalAmount = 0;
+	let transactionNo;
+
+	$(function () {
+		DetailManager = new DetailManager();
+		DetailManager.InitManagement();
+	});
+
+	function DetailManager() {
+		return {
+			InitManagement: function () {
+				this.InitControls();
+				this.InitHandlers();
+				this.InitValidation();
+				this.InitLoad();
+			},
+			InitControls: function () {
+				gridOutgoingPaymentDetail.dataTable({
+					ordering: false,
+					paging: false,
+					searching: false,
+					info: false,
+					scrollX: true,
+					initComplete: function (settings, json) {
+						$('.dt-scroll-head').css({ visibility: 'collapse' });
+					},
+					language: {
+						emptyTable: 'Belum ada data'
+					},
+					columns: [
+						{
+							data: "invoiceDate",
+							title: "Date",
+							type: "date",
+							width: "120px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div class="input-group">
+												<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data + ` disabled>
+												<div class="input-group-append">
+													<span class="input-group-text">
+														<i class="fa fa-calendar"></i>
+													</span>
+												</div>
+											</div>`);
+								}
+
+								return fmtDate4(data);
+							}
+						},
+						{
+							data: "partner",
+							title: "Partner",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+													<select class="form-control" id="ddlPartner" disabled></select>
+											</div>`);
+								}
+
+								return data.partnerName;
+							}
+						},
+						{
+							data: "description",
+							title: "Description",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+												<textarea id="txtDescription" rows="3" class="form-control form-control-area" value="` + data + `" disabled></textarea>
+											</div>`);
+								}
+
+								return data;
+							}
+						},
+						{
+							data: "coa",
+							title: "CoA",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+													<select class="form-control" id="ddlCoa" disabled></select>
+											</div>`);
+								}
+
+								return data.accountCode
+							}
+						},
+						{
+							data: "costCenter",
+							title: "Cost Center",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+													<select class="form-control" id="ddlCostCenter" disabled></select>
+											</div>`);
+								}
+
+								return data.costCenterCode
+							}
+						},
+						{
+							data: "postingAccount",
+							title: "Consumer Account",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<select class="form-control select2" id="ddlPostingAccount"></select>
+										</div>`);
+								}
+
+								return data.postingAccountName;
+							}
+						},
+						{
+							data: "amount",
+							title: "Amount",
+							width: "150px",
+							render: function (data, type, row, meta) {
+
+								if (meta.row == indexRowEdit) {
+									return (
+										`<div>
+											<input type="text" class="form-control" id="txtAmount" value="` + data + `" disabled/>
+										</div>`);
+								}
+
+								return data;
+							}
+						},
+						{
+							data: "attachments",
+							title: "File",
+							width: "200px",
+							render: function (data, type, row, meta) {
+								if (Array.isArray(data)) {
+									let badge = ``;
+
+									data.forEach(function (e, i, a) {
+										badge = badge +
+											`<span class="badge badge-success mr-1 mb-1 p-0">
+													<a class="btn btn-xs text-white">
+														<span
+															class="download-file"
+															data-file-url="` + e.fileUrl + `"
+															data-content-type="` + e.contentType + `"
+															data-file-name="` + e.fileName + `">` +
+											e.fileName +
+											`</span>
+													</a>`;
+
+										badge = badge +
+											`</span>`;
+									});
+
+									return badge + `</div>`;
+								}
+
+								return ``;
+							}
+						},
+						
+					],
+				});
+
+				dtRequestDate.datepicker({
+					dateFormat: "yy-mm-dd",
+					disabled: true
+				});
+
+				dtScheduledDate.datepicker({
+					dateFormat: "yy-mm-dd",
+					minDate: new Date()
+				});
+			},
+			InitHandlers: function () {
+				ddlCompany.on("change", function (e) {
+					RefreshDdlBankAlias(ddlFromAliasBank);
+					LoadDdlPartnerData();
+					LoadDdlCoaData();
+					LoadDdlCostCenterData();
+
+					$(this).attr("disabled", true);
+				});
+
+				ddlFromAliasBank.add(ddlToAliasBank).on("change", function (e) {
+					const ddl = $(this);
+					const descriptorControl = $(ddl.attr("descriptor-control"));
+					const optionSelected = ddl.find(':selected');
+					const bankName = optionSelected.attr("data-bank-name");
+					const accountNo = optionSelected.attr("data-account-no");
+					const accountName = optionSelected.attr("data-account-name");
+
+					descriptorControl.val(
+						`Bank Name : ` + bankName + `
+Account Name : ` + accountName + `
+Account No : ` + accountNo);
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .download-file", function (e) {
+					let $el = $(this);
+
+					let request = JSON.parse(JSON.stringify(glbBaseRequest));
+					request.method = "POST";
+					request.url = "@downloadFileUrl";
+					request.processData = false;
+					request.contentType = false;
+					request.xhrFields = {
+						responseType: 'blob'
+					};
+					request.data = JSON.stringify({
+						fileName: $el.attr('data-file-name'),
+						fileUrl: $el.attr('data-file-url'),
+						contentType: $el.attr('data-content-type')
+					});
+
+					// delete request.headers["Content-Type"];
+
+					$.ajax(request).done(function (data, textStatus, jqXHR) {
+						var filename = $el.attr('data-file-name');
+						var blob = new Blob([data], { type: $el.attr('data-content-type') });
+						var a = document.createElement('a');
+						a.href = window.URL.createObjectURL(blob);
+						a.download = filename;
+						document.body.appendChild(a);
+						a.click();
+						document.body.removeChild(a);
+						window.URL.revokeObjectURL(a.href);
+					});
+				});
+
+				btnHistory.click(function () {
+					let html;
+					let bgstatus;
+					let iconstatus;
+					let remark;
+					let dateHist;
+					var reqBody = {
+						'TransactionNo': transactionNo
+					};
+
+					$.ajax(Object.assign({}, glbBaseRequest, {
+						method: "POST",
+						url: "@getHistoryApproval",
+						data: JSON.stringify(reqBody),
+						contentType: "application/json",
+						beforeSend: function () {
+							html = '<div style="text-align: center;">' +
+								'<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i><span>Loading...</span>' +
+								'</div>';
+							divHistory.html(html);
+						},
+					})).done(function (response) {
+						if (response.succeeded) {
+							if (response.obj.length == 0) {
+								html = '<div class="text-center"><span> Tidak ada history</span></div>';
+								divHistory.html(html);
+							}
+							else {
+								html = `<div class="col-md-12">
+											<div class="timeline">`
+								for (var item of response.obj) {
+									dateHist = fmtDate3(item.created);
+									var objIcon = bgIconHistory.find(function (bgitem) {
+										return bgitem.key === item.approvalStatusText.toLowerCase();
+									});
+
+									bgstatus = objIcon ? objIcon.background : 'bg-grey';
+									iconstatus = objIcon ? objIcon.icon : 'fa-dot-circle';
+
+									if (item.remark != "") {
+										remark = `<br /><i>Remark: </i>${item.remark}`;
+									}
+									else {
+										remark = '';
+									}
+
+									html += `<div>
+												<i class="fa ${iconstatus} ${bgstatus}"></i>
+												<div class="timeline-item">
+													<span class="time">${dateHist}</span>
+													<h3 class="timeline-header font-weight-bold">${item.approvalStatusText}</h3>
+													<div class="timeline-body">
+														By ${item.executorName} (${item.executorRoleDesc}) ${remark}
+													</div>
+												</div>
+											</div>`;
+								}
+								html += `	</div>
+										</div>`;
+								divHistory.html(html);
+							}
+						}
+						else {
+							let errhtml;
+							errhtml = '<div style="text-align: center;">' +
+								'<i class="fa fa-warning"></i><span> Data gagal untuk dimuat</span>' +
+								'</div>';
+							divHistory.html(errhtml);
+						}
+					});
+				});
+
+				btnCopy.on("click", function (e) {
+					var pathArray = window.location.pathname.split('/');
+
+					window.location.href = "@createOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1];
+				});
+			},
+			InitValidation: function () {
+			},
+			InitLoad: async function () {
+				SetFormForView();
+				await RefreshDdlTransactionType();
+				await RefreshDdlCompany();
+				await RefreshDdlBankAlias(ddlToAliasBank);
+				await LoadOutgoingPaymentDetailData();
+			}
+		}
+	};
+
+	function SetFormForView() {
+		btnHistory.prop('disabled', true);
+		$("#btnloader").removeClass("d-none");
+		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
+	}
+
+	async function LoadDdlPartnerData() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlPartnerUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlPartnerDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function LoadDdlCoaData() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCoaUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCoaDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function LoadDdlCostCenterData() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCostCenterDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function RefreshDdlTransactionType() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlTransactionTypeUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlTransactionType.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlTransactionType.append(`<option value="` + data.transactionTypeId + `">` + data.description + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function RefreshDdlCompany() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCompanyUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function RefreshDdlBankAlias(ddlBankAlias) {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlBankAliasUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlBankAlias.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlBankAlias.append(
+						`<option
+							value="` + data.bankAliasId + `"
+							data-bank-name="` + data.bankName + `"
+							data-account-no="` + data.accountNo + `"
+							data-account-name="` + data.accountName + `"
+							>` + data.aliasName +
+						`</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function LoadOutgoingPaymentDetailData() {
+		var pathArray = window.location.pathname.split('/');
+
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "GET",
+			url: "@gridDetailOutgoingPayment" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
+		})).done(function (response) {
+			btnHistory.prop('disabled', false);
+			$("#btnloader").addClass("d-none");
+			if (response.succeeded) {
+				$.each(response.obj, function (key, value) {
+					if (key == 'transactionNo')
+						transactionNo = value;
+
+					let input = $('[bind-name="' + key + '"]');
+
+					if (input.length > 0) {
+						let bindTrigger = input.attr('bind-trigger');
+						let bindType = input.attr('bind-type');
+
+						if (bindType == 'datetime' && value != null) {
+							value = fmtDate4(value);// value.split('T')[0];
+						}
+
+						input.val(value);
+
+						if (bindTrigger != undefined) {
+							input.trigger(bindTrigger);
+						}
+					}
+				});
+
+				setTimeout(() => {
+					ddlFromAliasBank.val(response.obj.fromBankAliasId);
+					ddlFromAliasBank.trigger('change');
+				}, 500);
+
+				$.each(response.obj.outgoingPaymentDetails, function (key, value) {
+					let attachments = [];
+					$.each(value.outgoingPaymentDetailAttachments, function (cKey, cValue) {
+						attachments.push({
+							"fileId": cValue.fileId,
+							"fileName": cValue.fileName,
+							"fileSize": cValue.fileSize,
+							"fileUrl": cValue.fileUrl,
+							"contentType": cValue.contentType
+						});
+					});
+
+					gridOutgoingPaymentDetail.api().row.add({
+						"id": value.id,
+						"invoiceDate": (value.invoiceDate).split('T')[0],
+						"partner": {
+							"partnerId": value.partnerId,
+							"partnerName": value.partnerName
+						},
+						"description": value.description,
+						"coa": {
+							"coaId": value.chartOfAccountId,
+							"accountCode": value.chartOfAccountNo + ' - ' + value.chartOfAccountName
+						},
+						"costCenter": {
+							"costCenterId": value.costCenterId,
+							"costCenterCode": value.costCenterCode + ' - ' + value.costCenterName
+						},
+						"postingAccount": {
+							"postingAccountId": value.postingAccountId,
+							"postingAccountName": value.postingAccountName
+						},
+						"amount": fmtMoney(value.amount),
+						"attachments": attachments
+					});
+					
+					gridOutgoingPaymentDetail.api().draw();
+
+					totalAmount = totalAmount + value.amount;
+				});
+				txtTotalAmount.val(fmtMoney(totalAmount));
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+</script>

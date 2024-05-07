@@ -1,0 +1,29 @@
+﻿html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+#btnlogingoogle {
+    border: 0.2px solid grey;
+}
+
+.bglogin {
+    background: url("/images/bg-login.png");
+    min-height: 640px;
+    background-size: cover;
+}
+
+.bglogo {
+    position: absolute;
+    left: 32px;
+    top: 18px;
+    width: 180px
+}
+
+.btnloader {
+    width: 1rem;
+    height: 1rem;
+    border: 0.15em solid currentColor;
+    border-right-color: transparent !important;
+}

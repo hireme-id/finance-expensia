@@ -1,0 +1,410 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
+    var ddlBankAliasUrl = Url.Action("RetrieveFromBankAlias", "BankAlias");
+    var gridListMailbox = Url.Action("GetListInbox", "Mailbox");
+    var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
+    var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();
+    var doActionWorkflowsUrl = Url.Action("DoActionApprovals", "Mailbox");
+}
+
+<script type="text/javascript">
+    var currentDraw = 0;
+    let totalAmount = 0;
+    let listTransactions = [];
+    
+    //Variable for control
+    const gridMailbox = $('#gridMailbox');
+    const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
+    const ddlCompany = $("#ddlCompany"), ddlTransactionType = $("#ddlTransactionType"), ddlFromBankAlias = $("#ddlFromBankAlias");
+    const txtSearch = $("#txtSearch");
+    const btnFilter = $("#btnFilter");
+
+    $(function () {
+        MailboxManager = new MailboxManager();
+        MailboxManager.InitManagement();
+    });
+
+    function MailboxManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridMailbox.DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridListMailbox",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "companyId": ddlCompany.val() == '' ? null : ddlCompany.val(),
+                                "transactiontypeId": ddlTransactionType.val() == '' ? null : ddlTransactionType.val(),
+                                "fromBankAliasId": ddlFromBankAlias.val() == '' ? null : ddlFromBankAlias.val(),
+                                "startDate": dtStartDate.val() == '' ? null : dtStartDate.val(),
+                                "endDate": dtEndDate.val() == '' ? null : dtEndDate.val(),
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        {
+                            title: '<input id="selectAll" type="checkbox" />', 
+                            render: function (data, type, row, meta) {
+                                let ischecked;
+                                if (Array.isArray(listTransactions)) {
+                                    if (listTransactions.findIndex(d => d.transactionNo == row.transactionNo) != -1) {
+                                        ischecked = 'checked';
+                                    }
+                                }
+
+                                return `<input type="checkbox" class="checkbox-document" data-transactionno="${row.transactionNo}" data-amount="${row.totalAmount}" data-tobankalias="${row.toBankAliasName}" ${ischecked}/>`;
+                            },
+
+                            orderable: false
+                        },
+                        { title: "Transaction Type", data: "transactionTypeDescription" },
+                        {
+                            title: "Transaction Info", 
+                            render: function (data, type, row) {
+                                var reqDate = fmtDate4(row.requestDate);
+                                var elem = `${row.transactionNo} <br /> ${reqDate}`;
+                                return elem;
+                            },
+                        },
+                        { title: "Company", data: "companyName" },
+                        { title: "From Bank Alias", data: "fromBankAliasName" },
+                        { title: "To Bank Alias", data: "toBankAliasName" },
+                        
+                        {
+                            title: "Total Transaction", render: function (data, type, row) {
+                                var totalAmount = fmtMoney(row.totalAmount);
+                                return totalAmount;
+                            },
+                            className: "dt-body-right"
+                        },
+                        { title: "Remark", data: "remark" },
+                        { title: "Requestor", data: "requestor" },
+                        {
+                            title: "", render: function (data, type, row) {
+                                let html = `<a href="../Core/Mailbox/Approval/${row.outgoingPaymentId}" style="color: dimgray; font-size: 17px;"><i class="fas fa-file-alt"></i></a>`;
+
+                                return html;
+                            }
+                        },
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: null,
+                        bottomStart: 'info',
+                        bottom2Start: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let buttons = `<input type="text" class="form-control w-50 mr-2" id="txttotalamount" placeholder="Total Amount" disabled />` +
+                                `<button type="button" id="btnRejectAll" onclick="DoApprovalActions(this, '@WorkflowAction.Reject.GetDescription()')" class="btn btn-sm btn-outline-danger mr-2">Reject All</button>` +
+                                `<button type="button" id="btnApproveAll" onclick="DoApprovalActions(this, '@WorkflowAction.Approve.GetDescription()')" class="btn btn-sm btn-outline-success">Approve All</button>`
+                            toolbar.innerHTML = buttons;
+
+                            return toolbar;
+                        },
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            toolbar.classList.add("mb-4");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+
+                dtStartDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtEndDate.datepicker("option", "minDate", selectedDate);
+                    }
+                });
+
+                dtEndDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtStartDate.datepicker("option", "maxDate", selectedDate);
+                    }
+                });
+            },
+            InitHandlers: function () {
+                var debouncedAjaxRequest;
+                $('#txtJump').on('keyup change', function () {
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridMailbox.DataTable().page.info().pages) {
+                                gridMailbox.DataTable().page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                $('#selectAll').change(function () {
+                    let checkElements = this.checked ? $('.checkbox-document:not(:checked)') : $('.checkbox-document:checked');
+
+                    if (this.checked) {
+                        checkElements.map(function () {
+                            let transactionNo = $(this).data('transactionno');
+                            let amount = parseInt($(this).data('amount'));
+                            let toBankAliasName = $(this).data('tobankalias');
+
+                            totalAmount = totalAmount + amount;
+                            listTransactions.push({
+                                transactionNo,
+                                amount,
+                                toBankAliasName
+                            });
+                        });
+
+                        $('.checkbox-document').prop('checked', true)
+                    }
+                    else {
+                        checkElements.map(function () {
+                            let transactionNo = $(this).data('transactionno');
+                            let amount = parseInt($(this).data('amount'));
+                            let toBankAliasName = $(this).data('tobankalias');
+
+                            totalAmount = totalAmount - amount;
+                            listTransactions.splice(listTransactions.findIndex(d => d.transactionNo == transactionNo), 1);
+                        });
+
+                        $('.checkbox-document').prop('checked', false)
+                    }
+                    $("#txttotalamount").val(fmtMoney(totalAmount));
+                });
+
+                $(document).on('change', '.checkbox-document', function () {
+                    let transactionNo = $(this).data('transactionno');
+                    let amount = parseInt($(this).data('amount'));
+                    let toBankAliasName = $(this).data('tobankalias');
+                    
+                    if ($(this).prop("checked") == true) {
+                        totalAmount = totalAmount + amount;
+                        listTransactions.push({
+                            transactionNo,
+                            amount,
+                            toBankAliasName
+                        });
+                    }
+                    else if ($(this).prop("checked") == false) {
+                        totalAmount = totalAmount - amount;
+                        listTransactions.splice(listTransactions.findIndex(d => d.transactionNo == transactionNo), 1);
+                    }
+                    
+                    $("#txttotalamount").val(fmtMoney(totalAmount));
+                });
+
+                btnFilter.click(function () {
+                    gridMailbox.DataTable().search(txtSearch.val()).draw();
+                })
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                RefreshDdlCompany();
+                RefreshDdlTransactionType();
+                RefreshDdlFromAliasBank();
+            }
+        }
+    };
+
+    async function RefreshDdlCompany() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+            url: "@ddlCompanyUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+                    ddlCompany.append(
+						`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+    }
+
+    async function RefreshDdlTransactionType() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+            url: "@ddlTransactionTypeUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+                ddlTransactionType.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+                    ddlTransactionType.append(
+                        `<option value="` + data.transactionTypeId + `">` + data.description + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+    }
+
+    async function RefreshDdlFromAliasBank() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlBankAliasUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlFromBankAlias.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlFromBankAlias.append(
+                        `<option
+                                value="` + data.bankAliasId + `"
+                                data-bank-name="` + data.bankName + `"
+                                data-account-no="` + data.accountNo + `"
+                                data-account-name="` + data.accountName + `"
+                                >` + data.aliasName +
+                        `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    function DoApprovalActions(btnAction, action) {
+        if (listTransactions.length == 0) {
+            Swal.fire({
+                title: "Error",
+                text: "Tidak ada data yang dipilih",
+                icon: "error"
+            });
+            return;
+        }
+
+        let title = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
+        let confirmButtonText = action == '@WorkflowAction.Approve.GetDescription()' ? 'Approve All' : "Reject All";
+        let html = action == '@WorkflowAction.Approve.GetDescription()' ? "Apakah anda yakin untuk menyetujui dokumen-dokumen ini?<br>" : "Apakah anda yakin untuk tidak menyetujui dokumen-dokumen ini?<br>";
+        $.each(listTransactions, function (key, value) {
+            html = html + `<br>` + value.transactionNo + ` untuk ` + value.toBankAliasName + ` (` + fmtMoney(value.amount) + `)`
+        });
+        if (action != '@WorkflowAction.Approve.GetDescription()') {
+            html = html + `<br><br>Jika iya harap isi keterangan di bawah ini`
+        }
+
+        Swal.fire({
+            title: title,
+            html: html,
+            width: '800px',
+            input: "textarea",
+            inputAttributes: {
+                autocapitalize: "off"
+            },
+            showCancelButton: true,
+            confirmButtonText: confirmButtonText,
+            confirmButtonColor: "#D92D20",
+            customClass: {
+                actions: 'my-actions',
+                cancelButton: 'order-1 right-gap',
+                confirmButton: 'order-2',
+            },
+            icon: "warning",
+            preConfirm: async (remark) => {
+                if (remark == "" && title == "Reject All") {
+                    Swal.showValidationMessage(`Keterangan harus diisi`);
+                }
+                else {
+                    return remark;
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let payload = [];
+                $.each(listTransactions, function (key, value) {
+                    payload.push({
+                        "transactionNo": value.transactionNo,
+                        "workflowAction": action,
+                        "remark": result.value
+                    })
+                });
+
+                $.ajax(Object.assign({}, glbBaseRequest, {
+                    method: "POST",
+                    url: "@doActionWorkflowsUrl",
+                    data: JSON.stringify(payload),
+                    contentType: "application/json"
+                })).done(function (response) {
+                    if (response.succeeded) {
+                        Swal.fire({
+                            title: "Success",
+                            text: response.message,
+                            icon: "success"
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message,
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>

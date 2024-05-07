@@ -1,0 +1,43 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Login Expensia</title>
+    <link href="~/lib/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="~/css/adminlte.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Finance.Expensia.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+        <div class="loader-section"></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-5 px-0 d-none d-sm-block bglogin">
+            <img src="@Url.Content("~/images/expensia-full.png")" class="bglogo">
+        </div>
+        <div class="col-sm-7">
+            <div style="padding:7rem 6rem 7rem 6rem !important;">
+                <div class="text-center">
+                    <h1 class="h4 text-gray-900 mb-4"><b>Login</b></h1>
+                </div>
+                <button id="btnlogingoogle" class="btn btn-default btn-block">
+                    <i class="fab fa-google"></i> Login with Google
+                    <div id="btnloader" class="spinner-border ml-2 d-none btnloader" role="status"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/sweetalert/sweetalert2.all.min.js"></script>
+    @await Html.PartialAsync("~/Areas/Account/Views/Login/Scripts/_LoginGoogle.cshtml")
+</body>
+</html>

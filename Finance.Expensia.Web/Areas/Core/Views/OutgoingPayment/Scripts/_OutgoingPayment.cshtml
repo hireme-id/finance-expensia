@@ -1,0 +1,211 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
+    var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
+    var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();
+    var createOutgoingPaymentUrl = Url.Action("Create", "OutgoingPayment", new { area = "Core" });
+}
+
+<script type="text/javascript">
+    var gridOutgoingPayment;
+    var currentDraw = 0;
+    //Variable for control
+    const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+    const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
+    const ddlCompany = $("#ddlCompany"), ddlApprovalStatus = $('#ddlApprovalStatus');
+    const txtSearch = $("#txtSearch");
+    const btnFilter = $("#btnFilter"), btnCreate = $('#btnCreate');
+
+    $(function () {
+        OutgoingPaymentManager = new OutgoingPaymentManager();
+        OutgoingPaymentManager.InitManagement();
+    });
+
+    function OutgoingPaymentManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridOutgoingPayment = $('#gridOutgoingPayment').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridListOutgoingPayment",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "companyId": ddlCompany.val() == '' ? null : ddlCompany.val(),
+                                "startDate": dtStartDate.val() == '' ? null : dtStartDate.val(),
+                                "endDate": dtEndDate.val() == '' ? null : dtEndDate.val(),
+                                "approvalStatus": ddlApprovalStatus.val() == '' ? null : ddlApprovalStatus.val(),
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        {
+                            title: "Transaction Info", 
+                            render: function (data, type, row) {
+                                var reqDate = fmtDate4(row.requestDate);
+                                var elem = `${row.transactionNo} <br /> ${reqDate}`;
+                                return elem;
+                            },
+                        },
+                        { title: "Company", data: "companyName" },
+                        { title: "Requestor", data: "requestor"},
+                        { title: "From Bank Alias", data: "fromBankAlias" },
+                        { title: "To Bank Alias", data: "toBankAlias" },
+                        { 
+                            title: "Total Transaction", render: function (data, type, row) {
+                                var totalAmount = fmtMoney(row.totalAmount);
+                                return totalAmount;
+                            },
+                            className: "dt-body-right"
+                        },
+                        { title: "Remark", data: "remark"},
+                        {
+                            title: "Status", 
+                            render: function (data, type, row) {
+                                var statusList = @Html.Raw(Json.Serialize(statusList));
+                                var status = statusList[row.approvalStatus];
+                                var badgeType = badgeStatus[row.approvalStatus];
+                                var bgstatus = `<span class="badge ${badgeType}">${status}</span>`;
+                                return bgstatus;
+                            }
+                        },
+                        {
+                            title: "", width: '6.5%',
+                            render: function (data, type, row) {
+                                let isdisabled = '';
+                                let linkedit = '';
+                                linkedit = `../Core/OutgoingPayment/Edit/${row.outgoingPaymentId}`;
+                                if (row.approvalStatus > 0){
+                                    isdisabled = 'adisabled';
+                                    linkedit = '#';
+                                }
+                                let html = `<a href="${linkedit}" class="${isdisabled}" style="color: dimgray; font-size: 17px;"><i class="fas fa-pencil-alt mr-3 ${isdisabled}"></i></a>` +
+                                    `<a href="../Core/OutgoingPayment/Detail/${row.outgoingPaymentId}" style="color: dimgray; font-size: 17px;"><i class="fas fa-file-alt"></i></a>`;
+
+                                return html;
+                            }
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: null,
+                        bottomStart: 'info',
+                        bottom2Start: function () {
+                            let toolbar = document.createElement('div');
+                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2">Download Summary</button>' +
+                                '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>'
+                            toolbar.innerHTML = buttons;
+
+                            return toolbar;
+                        },
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+
+                dtStartDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtEndDate.datepicker("option", "minDate", selectedDate);
+                    }
+                });
+
+                dtEndDate.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onSelect: function (selectedDate) {
+                        dtStartDate.datepicker("option", "maxDate", selectedDate);
+                    }
+                });
+            },
+            InitHandlers: function () {
+                var debouncedAjaxRequest;
+                $('#txtJump').on('keyup change', function () {
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridOutgoingPayment.page.info().pages) {
+                                gridOutgoingPayment.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                btnFilter.click(function () {
+                    gridOutgoingPayment.search(txtSearch.val()).draw();
+                })
+
+                btnCreate.click(function () {
+                    window.location.href = '@createOutgoingPaymentUrl';
+                })
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                RefreshDdlCompany()
+            }
+        }
+    };
+    
+    function RefreshDdlCompany() {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlCompanyUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+</script>

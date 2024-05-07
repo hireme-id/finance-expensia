@@ -1,0 +1,288 @@
+﻿<script>
+    var newdata = [
+        ["John Smiths", "USA", 32, "Male", "'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
+        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
+        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
+        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
+        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
+        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
+        ["John Smiths", "USA", 32, "Male", "'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
+        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
+        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
+        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
+        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
+        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
+        ["John Smiths", "USA", 32, "Male", "'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
+        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
+        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
+        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
+        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
+        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
+        ["John Smiths", "USA", 32, "Male", "'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Emily Johnson", "Canada", 28, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'melon', 'durian', 'kelapa'"],
+        ["Michael Brown", "UK", 45, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Maria Garcia", "Spain", 35, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'kelapa'"],
+        ["Ahmed Khan", "Pakistan", 30, "Male", "'pisang', 'nanas', 'apel', 'mangga'"],
+        ["Sophie Martin", "France", 40, "Female", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Chen Wei", "China", 29, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'kelapa'"],
+        ["Elena Petrova", "Russia", 38, "Female", "'pisang', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'"],
+        ["Diego Fernandez", "Argentina", 42, "Male", "'pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'kelapa'"],
+        ["Anna Müller", "Germany", 36, "Female", "'pisang', 'nanas', 'apel','melon', 'durian', 'kelapa'"],
+    ];
+    var listdata = ['pisang', 'nanas', 'apel', 'mangga', 'jeruk', 'anggur', 'pepaya', 'melon', 'durian', 'kelapa'];
+
+    $(document).ready(function () {
+        $('#gridOutgoingPaymentDetail').DataTable({
+            data: newdata,
+            ordering: false,
+            columns: [
+                { title: "Name" },
+                { title: "Country" },
+                { title: "Age" },
+                { title: "Gender" },
+                {
+                    title: "ListFile", width: "35%",
+                    render: function (data, type, row) {
+                        let listhtml = '';
+                        var datacell = data.replace(/'/g, '').split(', ');
+
+                        datacell.forEach(function (item, index) {
+                            var badgeElement = document.createElement('span');
+                            badgeElement.textContent = item + ', ';
+                            badgeElement.classList.add('badge', 'm-2');
+
+                            // Mengatur warna badge sesuai dengan indeks item yang berulang setiap 4 item
+                            switch (index % 4) {
+                                case 0:
+                                    badgeElement.classList.add('badge-primary');
+                                    break;
+                                case 1:
+                                    badgeElement.classList.add('badge-success');
+                                    break;
+                                case 2:
+                                    badgeElement.classList.add('badge-danger');
+                                    break;
+                                case 3:
+                                    badgeElement.classList.add('badge-warning');
+                                    break;
+                            }
+                            /*const spanclose = document.createElement("span");
+                            spanclose.innerHTML = 'x';
+                            spanclose.classList.add('pl-2');
+                            badgeElement.append(spanclose);*/
+                            listhtml += badgeElement.outerHTML;
+                        });
+                        return listhtml;
+                    }
+                },
+                { title: "Action" }
+            ],
+            columnDefs: [{
+                targets: -1,
+                orderable: false,
+                className: 'dt-body-center',
+                render: function (data, type, full, meta) {
+                    return '<button class="edit-btn btn btn-primary mr-2"><span class="fa fa-pencil"></span></button>' +
+                        '<button class="delete-btn btn btn-danger mr-2"><span class="fa fa-trash"></span></button>';
+                }
+            }],
+            layout: {
+                bottomStart: function () {
+                    let toolbar = document.createElement('div');
+                    toolbar.classList.add("row");
+                    let buttons = '<button class="btn btn-sm btn-outline-primary mr-2 ml-2">Download Summary</button>' +
+                        '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>' +
+                        '<button type="button"  class="btn btn-sm btn-primary" data-toggle="modal" data-target="#filterModal">Create</button>'
+                    toolbar.innerHTML = buttons;
+
+                    return toolbar;
+                },
+                bottomEnd: 'paging',
+                bottom2Start: 'info',
+                bottom2End: function () {
+                    let toolbar = document.createElement('div');
+                    toolbar.classList.add("row");
+                    toolbar.classList.add("col-md-10");
+                    toolbar.classList.add("pull-right");
+                    let elem = '<label>Jump to page:</label>' +
+                        '<input type="text" id="txtJump" class="form-control d-inline form-control-sm w-50 pull-right ml-2">';
+                    toolbar.innerHTML = elem;
+
+                    return toolbar;
+                }
+            }
+        });
+
+        var badgeListElement = document.getElementById('badgeList');
+
+        textdate();
+
+        listdata.forEach(function (item, index) {
+            var badgeElement = document.createElement('span');
+            badgeElement.textContent = item;
+            badgeElement.classList.add('badge', 'm-2');
+
+            // Mengatur warna badge sesuai dengan indeks item yang berulang setiap 4 item
+            switch (index % 4) {
+                case 0:
+                    badgeElement.classList.add('badge-primary');
+                    break;
+                case 1:
+                    badgeElement.classList.add('badge-success');
+                    break;
+                case 2:
+                    badgeElement.classList.add('badge-danger');
+                    break;
+                case 3:
+                    badgeElement.classList.add('badge-warning');
+                    break;
+            }
+            const spanclose = document.createElement("span");
+            spanclose.innerHTML = 'x';
+            spanclose.classList.add('pl-2');
+            badgeElement.append(spanclose);
+            badgeListElement.appendChild(badgeElement);
+        });
+
+        $('#tblConsumer').on('click', '.edit-btn', function () {
+            var row = $(this).closest('tr');
+            var rowData = table.row(row).data();
+            // Hide the current row data
+            row.find('td').not(':last-child').each(function () {
+                var cellIndex = $(this).index();
+                var cellValue = $(this).text();
+                console.log('val ' + cellValue);
+                if (cellIndex === 3) { // Check if the cell is "Gender"
+                    var genderSelect = $('<select class="edit-input"><option value="Male">Male</option><option value="Female">Female</option></select>');
+                    genderSelect.val(cellValue);
+                    $(this).html(genderSelect);
+                } else if (cellIndex === 4) { // Check if the cell is "Gender"
+                    var val = cellValue.replace(/'/g, '').split(', ');
+                    var inhtml = '';
+                    // Melakukan loop pada array buah menggunakan forEach
+                    val.forEach(function (item, index) {
+                        console.log(item);
+                        if (item != '') {
+                            var badgeElement = document.createElement('span');
+                            badgeElement.textContent = item;
+                            badgeElement.classList.add('badge', 'm-2');
+
+                            // Mengatur warna badge sesuai dengan indeks item yang berulang setiap 4 item
+                            switch (index % 4) {
+                                case 0:
+                                    badgeElement.classList.add('badge-primary');
+                                    break;
+                                case 1:
+                                    badgeElement.classList.add('badge-success');
+                                    break;
+                                case 2:
+                                    badgeElement.classList.add('badge-danger');
+                                    break;
+                                case 3:
+                                    badgeElement.classList.add('badge-warning');
+                                    break;
+                            }
+                            const spanclose = document.createElement("span");
+                            spanclose.innerHTML = 'x';
+                            spanclose.classList.add('pl-2', 'delete-file');
+                            badgeElement.append(spanclose);
+                            inhtml += badgeElement.outerHTML;
+                        }
+
+                    });
+
+                    var btnadd = document.createElement('span');
+                    btnadd.textContent = 'add';
+                    btnadd.classList.add('badge', 'm-2');
+                    btnadd.classList.add('badge-secondary', 'add-file');
+
+                    inhtml += btnadd.outerHTML;
+                    $(this).html(inhtml);
+                }
+                else {
+                    $(this).html('<input type="text" class="edit-input" value="' + cellValue + '">');
+                }
+            });
+
+            // Show save button and hide edit button
+            row.find('.edit-btn').text('Save').removeClass('edit-btn').addClass('save-btn');
+        });
+
+        $('#tblConsumer').on('click', '.delete-file', function () {
+            $(this).parent().remove();
+            console.log('delete');
+        });
+
+        $('#tblConsumer').on('click', '.add-file', function () {
+            var newItem = $('<span class="badge badge-info">halo</span>');
+            $("#myList").append(newItem);
+            newItem.find(".hapusBtn").click(function () {
+                $(this).parent().remove();
+            });
+            console.log('add');
+        });
+
+        $('#tblConsumer').on('click', '.delete-btn', function () {
+            var row = $(this).closest('tr');
+            table.row(row).remove().draw(false);
+        });
+
+        $('#tblConsumer').on('click', '.save-btn', function () {
+            console.log('savee');
+            var row = $(this).closest('tr');
+            var rowData = table.row(row).data();
+
+            // Update row data
+            var inputs = row.find('.edit-input');
+            inputs.each(function (index) {
+                rowData[index] = $(this).val();
+                $(this).parent().text($(this).val());
+            });
+
+            // Revert button and show edit button
+            row.find('.save-btn').removeClass('save-btn').addClass('edit-btn');
+
+            // Revert inputs back to labels
+            row.find('td').not(':last-child').each(function () {
+                var inputVal = $(this).find('input').val();
+                $(this).text(inputVal);
+            });
+        });
+
+        var debouncedAjaxRequest;
+        $('#txtJump').on('keyup change', function () {
+            if (debouncedAjaxRequest) {
+                clearTimeout(debouncedAjaxRequest);
+            }
+
+            debouncedAjaxRequest = setTimeout(function () {
+                if ($('#txtJump').val() != '') {
+                    var pageNumber = parseInt($('#txtJump').val());
+                    if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= table.page.info().pages) {
+                        table.page(pageNumber - 1).draw('page');
+                    } else {
+                        alert('Invalid page number');
+                    }
+                }
+            }, 1200);
+        });
+    });
+
+    function textdate() {
+        
+
+        
+    }
+</script>
