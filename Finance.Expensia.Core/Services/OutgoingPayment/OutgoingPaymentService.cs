@@ -38,7 +38,29 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             return await Task.FromResult(retVal);
         }
 
-		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid outgoingPaymentId)
+        public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPaymentMyDocument(ListOutgoingPaymentFilterInput input, CurrentUserAccessor currentUserAccessor)
+        {
+            var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
+
+            var dataOutgoingPayments = _dbContext.OutgoingPayments
+                .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
+                .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
+                .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
+                .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
+                .Where(d =>
+                    EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
+                    || EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
+                    || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%"))
+				.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"))
+                .OrderByDescending(d => d.Modified ?? d.Created)
+                .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
+
+            retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
+
+            return await Task.FromResult(retVal);
+        }
+
+        public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid outgoingPaymentId)
 		{
 			var result = new ResponseObject<OutgoingPaymentDto>();
 			var dataOutgoingPay = await _dbContext.OutgoingPayments
@@ -412,6 +434,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				ApprovalLevel = 2,
 				ApprovalRoleCode = firstRoleApprover.RoleCode,
 				ApprovalStatus = ApprovalStatus.WaitingApproval,
+				TransactionTypeCode = input.TransactionTypeCode,
 				TransactionNo = input.TransactionNo,
 				MinAmount = workflowRule.MinAmount,
 				MaxAmount = workflowRule.MaxAmount

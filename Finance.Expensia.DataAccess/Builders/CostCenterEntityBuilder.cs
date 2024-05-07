@@ -1,6 +1,5 @@
 ﻿using Finance.Expensia.DataAccess.Bases;
 using Finance.Expensia.DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Finance.Expensia.DataAccess.Builders
