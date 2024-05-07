@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Finance.Expensia.Shared.Constants;
+@{
     var loginPage = Url.Action("Index", "Login", new { area = "Account" } );
     var homePage = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
     var mailbox = Url.Action("Index", "Mailbox", new { area = "Core" });
@@ -6,6 +7,7 @@
     var masterBankAlias = Url.Action("Index", "BankAlias", new { area = "MasterData" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
+    var myPermissionUrl = Url.Action("GetMyPermission", "Login");
 }
 
 <!DOCTYPE html>
@@ -60,7 +62,7 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
-                        <li class="nav-item">
+                        <li id="menuMaster" class="nav-item" style="display:none">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-database"></i>
                                 <p>
@@ -69,13 +71,13 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview pl-2">
-                                <li class="nav-item">
+                                <li id="menuPartner" class="nav-item" style="display:none">
                                     <a href="@masterPartner" class="nav-link">
                                         <i class="far fa-handshake nav-icon"></i>
                                         <p>Partner</p>
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li id="menuBankAlias" class="nav-item" style="display:none">
                                     <a href="@masterBankAlias" class="nav-link">
                                         <i class="fas fa-piggy-bank nav-icon"></i>
                                         <p>Bank Alias</p>
@@ -83,7 +85,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item">
+                        <li id="menuOutgoingPayment" class="nav-item" style="display:none">
                             <a href="@homePage" class="nav-link">
                                 <i class="nav-icon fas fa-edit"></i>
                                 <p>
@@ -91,7 +93,7 @@
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li id="menuInbox" class="nav-item" style="display:none">
                             <a href="@mailbox" class="nav-link">
                                 <i class="nav-icon far fa-envelope"></i>
                                 <p>
@@ -153,11 +155,48 @@
         <!-- /.control-sidebar -->
     </div>
     <!-- ./wrapper -->
-
+    
     <partial name="_Scripts" />
     @await RenderSectionAsync("Scripts", required: false)
 
     <script type="text/javascript">
+        var myPermission = {
+            "url": "@myPermissionUrl",
+            "method": "POST",
+            "timeout": 0,
+            "headers": {
+                "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+                "Content-Type": "application/json"
+            },
+        };
+        $.ajax(myPermission)
+            .done(function (response) {
+                if (response.succeeded) {
+                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.Partner.PartnerUpsert")) {
+                        $('#menuMaster').show();
+                        $('#menuPartner').show();
+                    }
+
+                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.BankAlias.BankAliasUpsert")) {
+                        $('#menuMaster').show();
+                        $('#menuBankAlias').show();
+                    }
+
+                    if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")
+                        || response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentView")) {
+                        $('#menuOutgoingPayment').show();
+                    }
+
+                    if (response.obj.permissions.includes("@PermissionConstants.ApprovalInbox.ApprovalInboxView")) {
+                        $('#menuInbox').show();
+                    }
+                }
+            })
+            .fail(function (xhr, status, error) {
+                alert("Anda tidak diizinkan untuk mengakses halaman ini. Hubungi administrator anda!");
+                RedirectToLogin();
+            });
+
         var glbBaseRequest = {
             "timeout": 0,
             "headers": {

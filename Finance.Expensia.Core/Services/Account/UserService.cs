@@ -7,6 +7,7 @@ using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Data;
 
 namespace Finance.Expensia.Core.Services.Account
 {
@@ -63,18 +64,16 @@ namespace Finance.Expensia.Core.Services.Account
             var myPermission = new MyPermissionDto();
 
             var data = await _dbContext.Users
-                .Include(u => u.UserRoles).ThenInclude(ur => ur.Role).ThenInclude(r => r.RolePermissions).ThenInclude(rp => rp.Permission)
-                .FirstOrDefaultAsync(d => d.Id.Equals(userId));
+                                       .Include(u => u.UserRoles)
+                                        .ThenInclude(ur => ur.Role)
+                                            .ThenInclude(r => r.RolePermissions)
+                                                .ThenInclude(rp => rp.Permission)
+                                       .FirstOrDefaultAsync(d => d.Id.Equals(userId));
 
             if (data != null)
             {
-                var dataRole = data.UserRoles.FirstOrDefault();
-
-                if (dataRole != null)
-                {
-                    myPermission.RoleCode = dataRole.Role.RoleCode;
-                    myPermission.Permissions = dataRole.Role.RolePermissions.Select(d => d.Permission.PermissionCode).ToList();
-                }
+                myPermission.RoleCode = string.Join(",", data.UserRoles.Select(d => d.Role.RoleCode));
+                myPermission.Permissions = data.UserRoles.SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().ToList();
             }
 
             return new ResponseObject<MyPermissionDto>(responseCode: ResponseCode.Ok)

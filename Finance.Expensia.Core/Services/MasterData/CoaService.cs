@@ -14,7 +14,7 @@ namespace Finance.Expensia.Core.Services.MasterData
         public async Task<ResponseObject<List<CoaDto>>> RetrieveCoa(Guid companyId)
         {
             var dataCoas = await _dbContext.ChartOfAccounts
-                                           .Where(d => d.CompanyId.Equals(companyId))
+                                           .Where(d => d.CompanyId.Equals(companyId) && d.IsActive)
                                            .OrderBy(d => d.AccountCode)
                                            .Select(d => _mapper.Map<CoaDto>(d))
                                            .ToListAsync();

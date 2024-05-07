@@ -10,6 +10,7 @@ using Finance.Expensia.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Finance.Expensia.Core.Services.MasterData.Inputs;
+using static Finance.Expensia.Shared.Constants.PermissionConstants.MasterData;
 
 namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 {
@@ -24,20 +25,20 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 		}
 
 		[HttpPost("ddlpartner")]
-        [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
+        [AppAuthorize(Partner.PartnerView)]
         public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner()
         {
             return await _partnerService.RetrievePartner();
         }
 
         [HttpPost("partner/list")]
-        [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
+        [AppAuthorize(Partner.PartnerView)]
         public async Task<ResponsePaging<PartnerDto>> GetListPartner([FromBody] ListPartnerInput input)
         {
             return await _partnerService.GetListPartner(input);
         }
 
-        [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
+        [AppAuthorize(Partner.PartnerView)]
         [HttpPost("partner/detail")]
 		public async Task<ResponseObject<PartnerDto>> GetDetailPartner([FromQuery] Guid partnertId)
 		{
@@ -45,7 +46,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 		}
 
         [Mutation]
-        [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
+        [AppAuthorize(Partner.PartnerUpsert)]
         [HttpPost("partner/upsert")]
         public async Task<ResponseBase> UpsertPartner([FromBody] UpsertPartnerInput input)
         {
@@ -53,7 +54,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         }
 
         [Mutation]
-        [AppAuthorize(PermissionConstants.MasterData.PartnerView)]
+        [AppAuthorize(Partner.PartnerDelete)]
         [HttpPost("partner/delete")]
         public async Task<ResponseBase> DeletePartner([FromQuery] Guid partnerId)
         {

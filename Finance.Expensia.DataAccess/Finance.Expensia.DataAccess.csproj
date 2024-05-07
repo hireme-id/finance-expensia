@@ -14,8 +14,4 @@
     <ProjectReference Include="..\Finance.Expensia.Shared\Finance.Expensia.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>

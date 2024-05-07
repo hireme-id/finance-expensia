@@ -54,12 +54,15 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 			return await _outgoingPaymentService.CreateOutgoingPayment(input, _currentUserAccessor);
 		}
 
-		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentView)]
+		[AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
 		[HttpPost("outgoingpayment/getlist")]
 		public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOutgoingPayment([FromBody] ListOutgoingPaymentFilterInput input)
 		{
-			return await _outgoingPaymentService.GetListOfOutgoingPayment(input);
-		}
+			if (_currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
+				return await _outgoingPaymentService.GetListOfOutgoingPayment(input);
+			else
+                return await _outgoingPaymentService.GetListOfOutgoingPaymentMyDocument(input, _currentUserAccessor);
+        }
 
         [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentView)]
         [HttpGet("outgoingpayment/detail")]

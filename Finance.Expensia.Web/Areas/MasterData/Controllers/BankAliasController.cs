@@ -10,6 +10,7 @@ using Finance.Expensia.Web.Areas.MasterData.Validators;
 using Finance.Expensia.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Finance.Expensia.Shared.Constants.PermissionConstants.MasterData;
 
 namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 {
@@ -24,27 +25,27 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         }
 
         [HttpPost("ddlbankaliases")]
-        [AppAuthorize(PermissionConstants.MasterData.BankAliasView)]
+        [AppAuthorize(BankAlias.BankAliasView)]
         public async Task<ResponseObject<List<BankAliasDto>>> RetrieveBankAlias(Guid? companyId)
         {
             return await _bankAliasService.RetrieveBankAlias(companyId);
         }
 
         [HttpPost("ddlfrombankaliases")]
-        [AppAuthorize(PermissionConstants.MasterData.BankAliasView)]
+        [AppAuthorize(BankAlias.BankAliasView)]
         public async Task<ResponseObject<List<BankAliasDto>>> RetrieveFromBankAlias(Guid? companyId)
         {
             return await _bankAliasService.RetrieveFromBankAlias(companyId);
         }
 
         [HttpPost("bankalias/list")]
-        [AppAuthorize(PermissionConstants.MasterData.BankAliasView)]
+        [AppAuthorize(BankAlias.BankAliasView)]
         public async Task<ResponsePaging<BankAliasDto>> GetListBankAlias([FromBody] PagingSearchInputBase input)
         {
             return await _bankAliasService.GetListBankAlias(input);
         }
 
-        [AppAuthorize(PermissionConstants.MasterData.BankAliasView)]
+        [AppAuthorize(BankAlias.BankAliasView)]
         [HttpPost("bankalias/detail")]
         public async Task<ResponseObject<BankAliasDto>> GetDetailBankAlias([FromQuery] Guid bankAliasId)
         {
@@ -52,7 +53,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         }
 
         [Mutation]
-        [AppAuthorize(PermissionConstants.MasterData.BankAliasView)]
+        [AppAuthorize(BankAlias.BankAliasUpsert)]
         [HttpPost("bankalias/upsert")]
         public async Task<ResponseBase> UpsertBankAlias([FromBody] UpsertBankAliasInput input)
         {
@@ -64,7 +65,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         }
 
         [Mutation]
-        [AppAuthorize(PermissionConstants.MasterData.BankAliasView)]
+        [AppAuthorize(BankAlias.BankAliasDelete)]
         [HttpPost("bankalias/delete")]
         public async Task<ResponseBase> DeleteBankAlias([FromQuery] Guid bankAliasId)
         {

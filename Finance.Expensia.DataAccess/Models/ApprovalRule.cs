@@ -4,6 +4,7 @@ namespace Finance.Expensia.DataAccess.Models
 {
     public class ApprovalRule : EntityBase
     {
+        public string TransactionTypeCode { get; set; } = string.Empty;
         public decimal MinAmount { get; set; }
         public decimal MaxAmount { get; set; }
         public int Level { get; set; }

@@ -1,8 +1,13 @@
-﻿namespace Finance.Expensia.Shared.Enums
+﻿using System.ComponentModel;
+
+namespace Finance.Expensia.Shared.Enums
 {
 	public enum BankPaymentType
     {
-        Reimbursement,
-        Payment
+        [Description("Manual Transfer")]
+        ManualTransfer,
+        [Description("MAT Payroll")]
+        MATPayroll,
+        Pembayaran
     }
 }
