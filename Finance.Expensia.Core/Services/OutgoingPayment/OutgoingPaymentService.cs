@@ -156,9 +156,6 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				if (dataCoa == null)
 					return new ResponseBase("Data chart of account tidak valid", ResponseCode.NotFound);
 
-				if (dataCostCenter == null)
-					return new ResponseBase("Data cost center tidak valid", ResponseCode.NotFound);
-
 				if (dataPostingAccount == null)
 					return new ResponseBase("Data posting account tidak valid", ResponseCode.NotFound);
 
@@ -167,8 +164,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
 				dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
                 dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
-                dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
-				dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
+                dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
+				dataOutgoingPaymentDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
 				dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;
 				dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
 
@@ -292,9 +289,6 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                 if (dataCoa == null)
                     return new ResponseBase("Data chart of account tidak valid", ResponseCode.NotFound);
 
-                if (dataCostCenter == null)
-                    return new ResponseBase("Data cost center tidak valid", ResponseCode.NotFound);
-
 				if (dataPostingAccount == null)
 					return new ResponseBase("Data posting account tidak valid", ResponseCode.NotFound);
 
@@ -306,12 +300,12 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					existOutgoingDetail.Description = outgoingPaymentDetailInput.Description;
 					existOutgoingDetail.PartnerId = outgoingPaymentDetailInput.PartnerId;
 					existOutgoingDetail.PartnerName = dataPartner.PartnerName;
-					existOutgoingDetail.ChartOfAccountId = outgoingPaymentDetailInput.ChartOfAccountId;
+					existOutgoingDetail.ChartOfAccountId = outgoingPaymentDetailInput.ChartOfAccountId ?? Guid.Empty;
                     existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
                     existOutgoingDetail.ChartOfAccountName = dataCoa.AccountName;
 					existOutgoingDetail.CostCenterId = outgoingPaymentDetailInput.CostCenterId;
-					existOutgoingDetail.CostCenterCode = dataCostCenter.CostCenterCode;
-                    existOutgoingDetail.CostCenterName = dataCostCenter.CostCenterName;
+					existOutgoingDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
+                    existOutgoingDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
 					existOutgoingDetail.PostingAccountId = outgoingPaymentDetailInput.PostingAccountId;
 					existOutgoingDetail.PostingAccountName = dataPostingAccount.CompanyName;
 					existOutgoingDetail.Amount = outgoingPaymentDetailInput.Amount;
@@ -350,8 +344,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
                     dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
                     dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
-                    dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter.CostCenterCode;
-                    dataOutgoingPaymentDetail.CostCenterName = dataCostCenter.CostCenterName;
+                    dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
+                    dataOutgoingPaymentDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
 					dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;
                     dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
 

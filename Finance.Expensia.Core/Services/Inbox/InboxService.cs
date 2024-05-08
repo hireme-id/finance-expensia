@@ -38,6 +38,7 @@ namespace Finance.Expensia.Core.Services.Inbox
                                 && (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
                                 && (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
                                 && (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
+								&& ibx.ApprovalStatus == ApprovalStatus.WaitingApproval
                             orderby otp.TotalAmount descending
                             select new ListInboxDto
                             {

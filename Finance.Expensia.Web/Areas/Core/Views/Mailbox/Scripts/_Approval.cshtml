@@ -81,7 +81,7 @@
 						},
 						{
 							data: "partner",
-							title: "Partner",
+							title: "Tenant",
 							width: "200px",
 							render: function (data, type, row, meta) {
 								if (meta.row == indexRowEdit) {
@@ -126,7 +126,7 @@
 						},
 						{
 							data: "costCenter",
-							title: "Cost Center",
+							title: "Customer",
 							width: "200px",
 							render: function (data, type, row, meta) {
 								if (meta.row == indexRowEdit) {
@@ -168,7 +168,7 @@
 											</div>`);
 								}
 
-								return data;
+								return fmtMoney(data);
 							}
 						},
 						{
@@ -613,7 +613,7 @@ Account No : ` + accountNo);
 						"description": value.description,
 						"coa": {
 							"coaId": value.chartOfAccountId,
-							"accountCode": value.chartOfAccountNo
+							"accountCode": value.chartOfAccountNo + ' - ' + value.chartOfAccountName
 						},
 						"costCenter": {
 							"costCenterId": value.costCenterId,

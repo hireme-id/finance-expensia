@@ -87,7 +87,7 @@
 						},
 						{
 							data: "partner",
-							title: "Partner",
+							title: "Tenant",
 							width: "200px",
 							render: function (data, type, row, meta) {
 								if (meta.row == indexRowEdit) {
@@ -132,7 +132,7 @@
 						},
 						{
 							data: "costCenter",
-							title: "Cost Center",
+							title: "Customer",
 							width: "200px",
 							render: function (data, type, row, meta) {
 								if (meta.row == indexRowEdit) {
@@ -252,7 +252,22 @@
 
 				dtScheduledDate.datepicker({
 					dateFormat: "yy-mm-dd",
-					minDate: new Date(),
+					beforeShowDay: function (date) {
+						let effectiveDate = new Date();
+						let deltaEffectiveDate = 2
+
+						if (effectiveDate.getDay() >= 3 && effectiveDate.getDay() <= 5)
+							deltaEffectiveDate += 2
+						else if (effectiveDate.getDay() == 6)
+							deltaEffectiveDate += 1
+
+						effectiveDate.setDate(effectiveDate.getDate() + deltaEffectiveDate)
+
+						if (date < effectiveDate)
+							return [false, '']
+						else
+							return [true, '']
+					},
 					disabled: true
 				});
 			},
@@ -515,7 +530,7 @@ Account No : ` + accountNo);
 								partnerId: v.partner.partnerId,
 								description: v.description,
 								chartOfAccountId: v.coa.coaId,
-								costCenterId: v.costCenter.costCenterId,
+								costCenterId: v.costCenter.costCenterId == "" ? "00000000-0000-0000-0000-000000000000" : v.costCenter.costCenterId,
 								postingAccountId: v.postingAccount.postingAccountId,
 								amount: parseInt(v.amount),
 								outgoingPaymentDetailAttachments: v.attachments
@@ -830,7 +845,7 @@ Account No : ` + accountNo);
 						"description": value.description,
 						"coa": {
 							"coaId": value.chartOfAccountId,
-							"accountCode": value.chartOfAccountNo
+							"accountCode": value.chartOfAccountNo + ' - ' + value.chartOfAccountName
 						},
 						"costCenter": {
 							"costCenterId": value.costCenterId,
