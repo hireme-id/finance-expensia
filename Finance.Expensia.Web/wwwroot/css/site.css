@@ -118,6 +118,6 @@ label{
 }
 
 [class*="sidebar-light-"] .nav-treeview > .nav-item > .nav-link.active, [class*="sidebar-light-"] .nav-treeview > .nav-item > .nav-link.active:hover {
-    background-color: transparent;
-    color: #007bff;
+    background-color: lightcyan;
+    color: #777;
 }

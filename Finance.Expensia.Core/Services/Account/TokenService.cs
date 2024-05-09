@@ -77,14 +77,5 @@ namespace Finance.Expensia.Core.Services.Account
                 SessionExpiredAt = refreshTokenExpireAt
             });
         }
-
-        public static string? GetUserIdFromToken(string jwtToken)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenReadResult = tokenHandler.ReadJwtToken(jwtToken);
-            var userId = tokenReadResult.Claims.FirstOrDefault(x => x.Type == "sid")?.Value;
-
-            return userId;
-        }
     }
 }

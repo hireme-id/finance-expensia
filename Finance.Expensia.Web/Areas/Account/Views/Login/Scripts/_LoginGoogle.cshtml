@@ -6,6 +6,7 @@
 }
 <script type="text/javascript">
     const bodyElement = document.body;
+
     $(function () {
         LoginGoogle = new LoginGoogle();
         LoginGoogle.InitManagement();
@@ -98,12 +99,7 @@
     };
 
     function UserSessionAvailable() {
-        if (localStorage.getItem("accessToken") == null ||
-            localStorage.getItem("expiredAt") == null ||
-            localStorage.getItem("refreshToken") == null ||
-            localStorage.getItem("sessionExpiredAt") == null ||
-            localStorage.getItem("displayName") == null ||
-            localStorage.getItem("photoUrl") == null) {
+        if (IsTokenNotExist()) {
             return false;
         }
         
@@ -111,12 +107,7 @@
         const sessionExpiredAt = new Date(localStorage.getItem("sessionExpiredAt"));
 
         if (new Date() >= sessionExpiredAt) {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("expiredAt");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("sessionExpiredAt");
-            localStorage.removeItem("displayName");
-            localStorage.removeItem("photoUrl");
+            localStorage.clear();
 
             return false;
         }
@@ -124,28 +115,28 @@
         if (new Date() < expiredAt) {
             return true;
         }
-        
-        var refreshToken = {
-            "url": "@refreshTokenUrl",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-                "Authorization": "Bearer " + localStorage.getItem("refreshToken"),
-                "Content-Type": "application/json"
-            },
-        };
-        $.ajax(refreshToken).done(function (response) {
-            if (response.succeeded) {
-                localStorage.setItem("accessToken", response.obj.accessToken);
-                localStorage.setItem("expiredAt", response.obj.expiredAt);
-                localStorage.setItem("refreshToken", response.obj.refreshToken);
-                localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
 
-                window.location.reload();
-            }
-            else {
-                return false;
-            }
-        });
+		$.ajax({
+			"url": "@refreshTokenUrl",
+			"method": "POST",
+			"timeout": 0,
+			"headers": {
+				"Authorization": "Bearer " + localStorage.getItem("refreshToken"),
+				"Content-Type": "application/json"
+			},
+		})
+			.done(function (response) {
+				if (response.succeeded) {
+					localStorage.setItem("accessToken", response.obj.accessToken);
+					localStorage.setItem("expiredAt", response.obj.expiredAt);
+					localStorage.setItem("refreshToken", response.obj.refreshToken);
+					localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
+
+					window.location.reload();
+				}
+				else {
+					return false;
+				}
+			});
     }
 </script>

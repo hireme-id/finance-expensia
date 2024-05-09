@@ -16,18 +16,17 @@ namespace Finance.Expensia.Core.Services.Account
     {
         private readonly TokenService _tokenService = tokenService;
 
-        #region public method
         public async Task<ResponseObject<LoginDto>> Login(LoginInput input)
         {
-            var dataUser = await _dbContext.Users
-                                       .FirstOrDefaultAsync(d => d.Username.Equals(input.Username));
+            var dataUser = await _dbContext.Users.FirstOrDefaultAsync(d => d.Username.Equals(input.Username)) ?? await AddNewUser(input);
 
-            if (dataUser == null)
-            {
-                dataUser = await AddNewUser(input);
-            }
+            dataUser.FullName = input.FullName;
+            dataUser.PhotoProfileUrl = input.PhotoUrl;
 
-            var token = await GenerateAccessToken(dataUser);
+            _dbContext.Update(dataUser);
+            await _dbContext.SaveChangesAsync();
+
+			var token = await GenerateAccessToken(dataUser);
 
             return new ResponseObject<LoginDto>(responseCode: ResponseCode.Ok)
             {
@@ -48,16 +47,14 @@ namespace Finance.Expensia.Core.Services.Account
             var dataUser = await _dbContext.Users
                                        .FirstOrDefaultAsync(d => d.Id.Equals(userId));
 
-            if (dataUser != null)
-            {
-                return new ResponseObject<TokenDto>(responseCode: ResponseCode.Ok)
-                {
-                    Obj = await GenerateAccessToken(dataUser)
-                };
-            }
+            if (dataUser == null)
+				return new ResponseObject<TokenDto>($"Gagal memperbaharui akses token", ResponseCode.Forbidden);
 
-            return new ResponseObject<TokenDto>($"Failed to get new token");
-        }
+			return new ResponseObject<TokenDto>(responseCode: ResponseCode.Ok)
+			{
+				Obj = await GenerateAccessToken(dataUser)
+			};
+		}
 
         public async Task<ResponseObject<MyPermissionDto>> GetMyPermission(Guid userId)
         {
@@ -70,29 +67,25 @@ namespace Finance.Expensia.Core.Services.Account
                                                 .ThenInclude(rp => rp.Permission)
                                        .FirstOrDefaultAsync(d => d.Id.Equals(userId));
 
-            if (data != null)
-            {
-                myPermission.RoleCode = string.Join(",", data.UserRoles.Select(d => d.Role.RoleCode));
-                myPermission.Permissions = data.UserRoles.SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().ToList();
-            }
+            if (data == null)
+                return new ResponseObject<MyPermissionDto>("Data user tidak valid", ResponseCode.NotFound);
 
-            return new ResponseObject<MyPermissionDto>(responseCode: ResponseCode.Ok)
+			myPermission.RoleCode = string.Join(",", data.UserRoles.Select(d => d.Role.RoleCode));
+			myPermission.Permissions = data.UserRoles.SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().ToList();
+
+			return new ResponseObject<MyPermissionDto>(responseCode: ResponseCode.Ok)
             {
                 Obj = myPermission
             };
         }
-        #endregion
-
-        #region private method
+        
         private async Task<User> AddNewUser(LoginInput input)
         {
             var newUser = new User
             {
                 Username = input.Username,
                 Email = input.Username,
-                Description = string.Empty,
-                FullName = input.FullName,
-                PhotoProfileUrl = input.PhotoUrl
+                Description = string.Empty
             };
 
             await _dbContext.Users.AddAsync(newUser);
@@ -113,6 +106,5 @@ namespace Finance.Expensia.Core.Services.Account
 
             return await _tokenService.GenerateToken(dataUser.Username, dataUser.Id, dataUser.FullName, dataPermissions);
         }
-        #endregion
     }
 }
