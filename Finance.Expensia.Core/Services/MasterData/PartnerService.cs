@@ -4,6 +4,7 @@ using Finance.Expensia.Core.Services.MasterData.Inputs;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects.Dtos;
+using Finance.Expensia.Shared.Objects.Inputs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +13,6 @@ namespace Finance.Expensia.Core.Services.MasterData
     public class PartnerService(ApplicationDbContext dbContext, IMapper mapper, ILogger<PartnerService> logger)
         : BaseService<PartnerService>(dbContext, mapper, logger)
     {
-        #region Query
         public async Task<ResponseObject<List<PartnerDto>>> RetrievePartner()
         {
             var dataPartners = await _dbContext.Partners
@@ -26,15 +26,15 @@ namespace Finance.Expensia.Core.Services.MasterData
             };
         }
 
-        public async Task<ResponsePaging<PartnerDto>> GetListPartner(ListPartnerInput input)
+        public async Task<ResponsePaging<PartnerDto>> GetListPartner(PagingSearchInputBase input)
         {
             var retVal = new ResponsePaging<PartnerDto>();
             var dataPartners = _dbContext.Partners
-                                               .OrderBy(d => d.PartnerName)
-                                               .Where(d =>
-                                                EF.Functions.Like(d.PartnerName, $"%{input.SearchKey}%")
-                                                || EF.Functions.Like(d.Description, $"%{input.SearchKey}%"))
-                                               .Select(d => _mapper.Map<PartnerDto>(d));
+                                         .OrderBy(d => d.PartnerName)
+                                         .Where(d =>
+                                            EF.Functions.Like(d.PartnerName, $"%{input.SearchKey}%")
+                                            || EF.Functions.Like(d.Description, $"%{input.SearchKey}%"))
+                                         .Select(d => _mapper.Map<PartnerDto>(d));
 
             retVal.ApplyPagination(input.Page, input.PageSize, dataPartners);
 
@@ -46,21 +46,16 @@ namespace Finance.Expensia.Core.Services.MasterData
 			var dataPartners = await _dbContext.Partners
 											   .FirstOrDefaultAsync(x => x.Id == partnerId);
 
-            if (dataPartners != null)
+            if (dataPartners == null)
+                return await Task.FromResult(new ResponseObject<PartnerDto>("Data partner tidak ditemukan", ResponseCode.NotFound));
+
+            var dataPartnersDto = _mapper.Map<PartnerDto>(dataPartners);
+            return await Task.FromResult(new ResponseObject<PartnerDto>(responseCode: ResponseCode.Ok)
             {
-                var dataPartnersDto = _mapper.Map<PartnerDto>(dataPartners);
-                return await Task.FromResult(new ResponseObject<PartnerDto>(responseCode: ResponseCode.Ok)
-                {
-                    Obj = dataPartnersDto,
-                });
-
-            }
-
-            return await Task.FromResult(new ResponseObject<PartnerDto>("Data partner tidak ditemukan", ResponseCode.NotFound));
+                Obj = dataPartnersDto,
+            });
         }
-        #endregion
 
-        #region Mutation
         public async Task<ResponseBase> UpsertPartner(UpsertPartnerInput input)
         {
             if (input.Id.Equals(null))
@@ -94,6 +89,5 @@ namespace Finance.Expensia.Core.Services.MasterData
 
             return new ResponseBase("Data partner berasil dihapus", ResponseCode.Ok);
         }
-        #endregion
     }
 }

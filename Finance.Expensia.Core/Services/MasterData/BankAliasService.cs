@@ -14,28 +14,24 @@ namespace Finance.Expensia.Core.Services.MasterData
     public class BankAliasService(ApplicationDbContext dbContext, IMapper mapper, ILogger<BankAliasService> logger)
         : BaseService<BankAliasService>(dbContext, mapper, logger)
     {
-        public async Task<ResponseObject<List<BankAliasDto>>> RetrieveBankAlias(Guid? companyId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="companyId"></param>
+        /// <param name="mode">0 => Retrieve for From Bank Alias | Other value / null => Retrieve for general Bank Alias
+        /// </param>
+        /// <returns></returns>
+        public async Task<ResponseObject<List<BankAliasDto>>> RetrieveBankAlias(Guid? companyId, int? mode = null)
         {
-            var dataBankAliases = await _dbContext.BankAliases
-                                                  .Where(d => companyId == null || d.CompanyId.Equals(companyId.Value))
-                                                  .OrderBy(d => d.AliasName)
-                                                  .Select(d => _mapper.Map<BankAliasDto>(d))
-                                                  .ToListAsync();
+            var dataBankAliasesWhere = _dbContext.BankAliases
+                                                 .Where(d => companyId == null || d.CompanyId.Equals(companyId.Value));
 
-            return new ResponseObject<List<BankAliasDto>>(responseCode: ResponseCode.Ok)
-            {
-                Obj = dataBankAliases
-            };
-        }
+            if (mode == 0)
+                dataBankAliasesWhere = dataBankAliasesWhere.Where(d => d.CompanyId.HasValue);
 
-        public async Task<ResponseObject<List<BankAliasDto>>> RetrieveFromBankAlias(Guid? companyId)
-        {
-            var dataBankAliases = await _dbContext.BankAliases
-                                                  .Where(d => companyId == null || d.CompanyId.Equals(companyId.Value))
-                                                  .Where(d => d.CompanyId.HasValue)
-                                                  .OrderBy(d => d.AliasName)
-                                                  .Select(d => _mapper.Map<BankAliasDto>(d))
-                                                  .ToListAsync();
+            var dataBankAliases = await dataBankAliasesWhere.OrderBy(d => d.AliasName)
+                                                            .Select(d => _mapper.Map<BankAliasDto>(d))
+                                                            .ToListAsync();
 
             return new ResponseObject<List<BankAliasDto>>(responseCode: ResponseCode.Ok)
             {

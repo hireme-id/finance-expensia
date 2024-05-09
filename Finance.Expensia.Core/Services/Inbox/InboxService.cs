@@ -2,7 +2,6 @@
 using Finance.Expensia.Core.Services.Inbox.Dtos;
 using Finance.Expensia.Core.Services.Inbox.Inputs;
 using Finance.Expensia.Core.Services.OutgoingPayment;
-using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
@@ -18,22 +17,16 @@ namespace Finance.Expensia.Core.Services.Inbox
     {
         private readonly OutgoingPaymentService _outgoingPaymentService = outgoingPaymentService;
 
-        #region Query
         public async Task<ResponsePaging<ListInboxDto>> GetListOfActiveInbox(ListInboxFilterInput input, Guid userId)
         {
             var retVal = new ResponsePaging<ListInboxDto>();
 
-            var role = await _dbContext.UserRoles.Include(x => x.Role).Where(x => x.UserId == userId).ToListAsync();
-
-            if (role == null)
-                return new ResponsePaging<ListInboxDto>("Data user tidak memiliki role yang tepat", ResponseCode.NotFound);
-
             var dataInbox = from ibx in _dbContext.ApprovalInboxes
+							join ur in _dbContext.UserRoles.Where(d => d.UserId.Equals(userId)) on ibx.ApprovalRoleCode equals ur.Role.RoleCode
                             join otp in _dbContext.OutgoingPayments on ibx.TransactionNo equals otp.TransactionNo
 							join tt in _dbContext.TransactionTypes on otp.TransactionTypeId equals tt.Id
                             where
-								role.Select(d => d.Role.RoleCode).Contains(ibx.ApprovalRoleCode)
-                                && (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
+                                (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
                                 && (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
                                 && (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
                                 && (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
@@ -63,20 +56,17 @@ namespace Finance.Expensia.Core.Services.Inbox
 
 		public async Task<ResponseObject<List<ListApprovalHistoryDto>>> GetHistoryApproval(ListApprovalHistoryFilterInput request)
 		{
-			var retVal = new ResponseObject<List<ListApprovalHistoryDto>>();
+			var dataApprovalHistory = await _dbContext.ApprovalHistories
+													  .Where(x => x.TransactionNo == request.TransactionNo)
+													  .OrderByDescending(x => x.Created)
+													  .Select(x => _mapper.Map<ListApprovalHistoryDto>(x))
+													  .ToListAsync();
 
-            var dataApprovalHistory = await _dbContext.ApprovalHistories
-				.Where(x => x.TransactionNo == request.TransactionNo)
-				.OrderByDescending(x => x.Created)
-                .Select(x => _mapper.Map<ListApprovalHistoryDto>(x))
-				.ToListAsync();
-
-			retVal.OK("");
-			retVal.Obj = dataApprovalHistory;
-
-            return retVal;
+			return new ResponseObject<List<ListApprovalHistoryDto>>(responseCode: ResponseCode.Ok)
+			{
+				Obj = dataApprovalHistory
+			};
         }
-        #endregion
 
         public async Task<ResponseBase> DoActionWorkflow(DoActionWorkflowInput input, CurrentUserAccessor currentUserAccessor)
         {
@@ -86,16 +76,19 @@ namespace Finance.Expensia.Core.Services.Inbox
 				return new ResponseBase("Gagal melanjutkan proses, karena data tidak ditemukan", ResponseCode.NotFound);
 
 			var dataRoles = await _dbContext.UserRoles
-												.Include(ur => ur.Role)
-												.Where(d => d.UserId.Equals(currentUserAccessor.Id)).ToListAsync();
+											.Include(ur => ur.Role)
+											.Where(d => d.UserId.Equals(currentUserAccessor.Id))
+											.ToListAsync();
+
 			if (!dataRoles.Any(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode, StringComparison.OrdinalIgnoreCase)))
 				return new ResponseBase("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
 
-			var nextApprover = await _dbContext.ApprovalRules.FirstOrDefaultAsync(x =>
-															   x.TransactionTypeCode == approvalDocument.TransactionTypeCode
-															   && x.MinAmount == approvalDocument.MinAmount
-															   && x.MaxAmount == approvalDocument.MaxAmount
-															   && x.Level == approvalDocument.ApprovalLevel + 1);
+			var nextApprover = await _dbContext.ApprovalRules
+											   .FirstOrDefaultAsync(x =>
+													x.TransactionTypeCode == approvalDocument.TransactionTypeCode
+													&& x.MinAmount == approvalDocument.MinAmount
+													&& x.MaxAmount == approvalDocument.MaxAmount
+													&& x.Level == approvalDocument.ApprovalLevel + 1);
 
 			var statusApprove = input.WorkflowAction == WorkflowAction.Approve ? ApprovalStatus.Approved : ApprovalStatus.Reject;
 
@@ -116,8 +109,8 @@ namespace Finance.Expensia.Core.Services.Inbox
 
 			var approvalStatusForApprove = nextApprover == null ? ApprovalStatus.Approved : ApprovalStatus.WaitingApproval;
 			approvalDocument.ApprovalStatus = input.WorkflowAction == WorkflowAction.Reject ? ApprovalStatus.Reject : approvalStatusForApprove;
-			approvalDocument.ApprovalRoleCode = nextApprover == null ? string.Empty : nextApprover.RoleCode;
-			approvalDocument.ApprovalLevel = nextApprover == null ? 0 : nextApprover.Level;
+			approvalDocument.ApprovalRoleCode = nextApprover?.RoleCode ?? string.Empty;
+			approvalDocument.ApprovalLevel = nextApprover?.Level ?? 0;
 			_dbContext.Update(approvalDocument);
 
 			if (approvalDocument.ApprovalStatus != ApprovalStatus.WaitingApproval)
