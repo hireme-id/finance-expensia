@@ -50,7 +50,6 @@ namespace Finance.Expensia.Core.Services.Account
             };
         }
 
-        #region Private Methods
         private async Task<GoogleUserAccessToken?> GetUserAccessToken(string host, string authCode)
         {
             var requestBody = new
@@ -96,6 +95,5 @@ namespace Finance.Expensia.Core.Services.Account
             var responseBody = await response.Content.ReadAsStringAsync();
             return JsonHelper.DeserializeObject<GoogleUserProfile>(responseBody);
         }
-        #endregion
     }
 }

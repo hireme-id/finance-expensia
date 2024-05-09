@@ -160,148 +160,7 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script type="text/javascript">
-        $.fn.dataTable.ext.errMode = 'none';
-
-        var myPermission = {
-            "url": "@myPermissionUrl",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-                "Authorization": "Bearer " + localStorage.getItem("accessToken"),
-                "Content-Type": "application/json"
-            },
-        };
-        $.ajax(myPermission)
-            .done(function (response) {
-                if (response.succeeded) {
-                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.Partner.PartnerUpsert")) {
-                        $('#menuMaster').show();
-                        $('#menuPartner').show();
-                    }
-
-                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.BankAlias.BankAliasUpsert")) {
-                        $('#menuMaster').show();
-                        $('#menuBankAlias').show();
-                    }
-
-                    if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")
-                        || response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentView")) {
-                        $('#menuOutgoingPayment').show();
-                    }
-
-                    if (response.obj.permissions.includes("@PermissionConstants.ApprovalInbox.ApprovalInboxView")) {
-                        $('#menuInbox').show();
-                    }
-                }
-            })
-            .fail(function (xhr, status, error) {
-                alert("Anda tidak diizinkan untuk mengakses halaman ini. Hubungi administrator anda!");
-                RedirectToLogin();
-            });
-
-        var glbBaseRequest = {
-            "timeout": 0,
-            "headers": {
-                "Authorization": "Bearer " + localStorage.getItem("accessToken"),
-                "Content-Type": "application/json"
-            },
-        };
-
-        var badgeStatus = ['badge-secondary', 'badge-warning', 'badge-success', 'badge-danger'];
-
-        var bgIconHistory = [
-            { key: "approved", background: "bg-green", icon: "fa-check-circle" },
-            { key: "waiting approval", background: "bg-yellow", icon: "fa-hourglass-start" },
-            { key: "reject", background: "bg-red", icon: "fa-ban" }
-        ];
-
-        window.onload = function () {
-            var bodyElement = document.body;
-
-            bodyElement.classList.add('loaded');
-            var label = document.querySelector('label[for="dt-length-0"]');
-            if (label) {
-                label.style.display = "none";
-            }
-        };
-
-        $(".select2").select2();
-
-        var url = window.location;
-
-        $('ul.nav-sidebar a').each(function () {
-            var href = $(this).attr('href');
-            if ((url.pathname).startsWith(href)) {
-                $(this).addClass('active');
-                return false; // Keluar dari loop setelah menemukan yang cocok
-            }
-        });
-
-        $('ul.nav-treeview a').filter(function () {
-            return this.href == url;
-        }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
-
-        function fmtMoney(angka) {
-            return new Number(angka).toLocaleString('id-ID', {
-                style: 'decimal',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            });
-        }
-
-        function fmtDate(originalDate) {
-            var date = new Date(originalDate);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-
-            const newdate = `${day}/${month}/${year}`;
-
-            return newdate;
-        }
-
-        function fmtDate2(originalDate) {
-            var date = new Date(originalDate);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-
-            const newdate = `${year}-${month}-${day}`;
-
-            return newdate;
-        }
-
-        function fmtDate3(originalDate) {
-            var date = new Date(originalDate);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            const hour = date.getHours().toString().padStart(2, '0');
-            const minute = date.getMinutes().toString().padStart(2, '0');
-
-            const newdate = `${day}/${month}/${year} ${hour}:${minute}`;
-
-            return newdate;
-        }
-
-        function fmtDate4(originalDate) {
-            let listMonth = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            var date = new Date(originalDate);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = listMonth[date.getMonth()];
-            const year = date.getFullYear();
-
-            const newdate = `${day} ${month} ${year}`;
-
-            return newdate;
-        }
-
-        if (localStorage.getItem("accessToken") == null ||
-            localStorage.getItem("expiredAt") == null ||
-            localStorage.getItem("refreshToken") == null ||
-            localStorage.getItem("sessionExpiredAt") == null ||
-            localStorage.getItem("displayName") == null ||
-            localStorage.getItem("photoUrl") == null) {
+        if (IsTokenNotExist()) {
             RedirectToLogin();
         }
 
@@ -314,7 +173,7 @@
 
         let dt = new Date((new Date()).getTime() + 10 * 60000);
         if (dt >= expiredAt) {
-            var refreshToken = {
+            $.ajax({
                 "url": "@refreshTokenUrl",
                 "method": "POST",
                 "timeout": 0,
@@ -322,139 +181,57 @@
                     "Authorization": "Bearer " + localStorage.getItem("refreshToken"),
                     "Content-Type": "application/json"
                 },
-            };
-            $.ajax(refreshToken).done(function (response) {
-                if (response.succeeded) {
-                    localStorage.setItem("accessToken", response.obj.accessToken);
-                    localStorage.setItem("expiredAt", response.obj.expiredAt);
-                    localStorage.setItem("refreshToken", response.obj.refreshToken);
-                    localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
+            })
+                .done(function (response) {
+                    if (response.succeeded) {
+                        localStorage.setItem("accessToken", response.obj.accessToken);
+                        localStorage.setItem("expiredAt", response.obj.expiredAt);
+                        localStorage.setItem("refreshToken", response.obj.refreshToken);
+                        localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
 
-                    window.location.reload();
-                }
-                else {
-                    RedirectToLogin();
-                }
-            });
-        }
-
-        function RedirectToLogin() {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("expiredAt");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("sessionExpiredAt");
-            localStorage.removeItem("displayName");
-            localStorage.removeItem("photoUrl");
-
-            window.location.href = '@loginPage';
-        }
-
-        function Logout() {
-            Swal.fire({
-                title: "Keluar dari aplikasi",
-                html: "Apakah anda yakin ingin keluar dari aplikasi?",
-                showCancelButton: true,
-                confirmButtonText: "Keluar",
-                confirmButtonColor: "#D92D20",
-                customClass: {
-                    actions: 'my-actions',
-                    cancelButton: 'order-1 right-gap',
-                    confirmButton: 'order-2',
-                },
-                icon: "warning"
-            }).then((result) => {
-                if (result.isConfirmed)
-                    RedirectToLogin();
-            });
-        }
-
-        function tandaPemisahTitik(b) {
-            var _minus = false;
-            if (b < 0) _minus = true;
-            b = b.toString();
-            b = b.replace(".", "");
-            b = b.replace("-", "");
-            c = "";
-            panjang = b.length;
-            j = 0;
-            for (i = panjang; i > 0; i--) {
-                j = j + 1;
-                if (((j % 3) == 1) && (j != 1)) {
-                    c = b.substr(i - 1, 1) + "." + c;
-                } else {
-                    c = b.substr(i - 1, 1) + c;
-                }
-            }
-            if (_minus) c = "-" + c;
-            return c;
-        }
-
-        function numbersonly(ini, e) {
-            if (e.keyCode >= 49) {
-                if (e.keyCode <= 57) {
-                    a = ini.value.toString().replace(".", "");
-                    b = a.replace(/[^\d]/g, "");
-                    b = (b == "0") ? String.fromCharCode(e.keyCode) : b + String.fromCharCode(e.keyCode);
-                    ini.value = tandaPemisahTitik(b);
-                    return false;
-                }
-                else if (e.keyCode <= 105) {
-                    if (e.keyCode >= 96) {
-                        //e.keycode = e.keycode - 47;
-                        a = ini.value.toString().replace(".", "");
-                        b = a.replace(/[^\d]/g, "");
-                        b = (b == "0") ? String.fromCharCode(e.keyCode - 48) : b + String.fromCharCode(e.keyCode - 48);
-                        ini.value = tandaPemisahTitik(b);
-                        //alert(e.keycode);
-                        return false;
+                        window.location.reload();
                     }
-                    else { return false; }
-                }
-                else {
-                    return false;
-                }
-            } else if (e.keyCode == 48) {
-                a = ini.value.replace(".", "") + String.fromCharCode(e.keyCode);
-                b = a.replace(/[^\d]/g, "");
-                if (parseFloat(b) != 0) {
-                    ini.value = tandaPemisahTitik(b);
-                    return false;
-                } else {
-                    return false;
-                }
-            } else if (e.keyCode == 95) {
-                a = ini.value.replace(".", "") + String.fromCharCode(e.keyCode - 48);
-                b = a.replace(/[^\d]/g, "");
-                if (parseFloat(b) != 0) {
-                    ini.value = tandaPemisahTitik(b);
-                    return false;
-                } else {
-                    return false;
-                }
-            } else if (e.keyCode == 8 || e.keycode == 46) {
-                a = ini.value.replace(".", "");
-                b = a.replace(/[^\d]/g, "");
-                b = b.substr(0, b.length - 1);
-                if (tandaPemisahTitik(b) != "") {
-                    ini.value = tandaPemisahTitik(b);
-                } else {
-                    ini.value = "";
-                }
-
-                return false;
-            } else if (e.keyCode == 9) {
-                return true;
-            } else if (e.keyCode == 17) {
-                return true;
-            } else {
-                //alert (e.keyCode);
-                return false;
-            }
-
+                    else {
+                        RedirectToLogin();
+                    }
+                });
         }
 
-        $("#displayName").html(localStorage.getItem("displayName"));
-        $("#photoUser").attr("src", localStorage.getItem("photoUrl"));
+		$.ajax({
+			"url": "@myPermissionUrl",
+			"method": "POST",
+			"timeout": 0,
+			"headers": {
+				"Authorization": "Bearer " + localStorage.getItem("accessToken"),
+				"Content-Type": "application/json"
+			},
+		})
+			.done(function (response) {
+				if (response.succeeded) {
+					if (response.obj.permissions.includes("@PermissionConstants.MasterData.Partner.PartnerUpsert")) {
+						$('#menuMaster').show();
+						$('#menuPartner').show();
+					}
+
+					if (response.obj.permissions.includes("@PermissionConstants.MasterData.BankAlias.BankAliasUpsert")) {
+						$('#menuMaster').show();
+						$('#menuBankAlias').show();
+					}
+
+					if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")
+						|| response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentView")) {
+						$('#menuOutgoingPayment').show();
+					}
+
+					if (response.obj.permissions.includes("@PermissionConstants.ApprovalInbox.ApprovalInboxView")) {
+						$('#menuInbox').show();
+					}
+				}
+			})
+			.fail(function (xhr, status, error) {
+				alert("Anda tidak diizinkan untuk mengakses halaman ini. Hubungi administrator anda!");
+				RedirectToLogin();
+			});
     </script>
 </body>
 </html>
