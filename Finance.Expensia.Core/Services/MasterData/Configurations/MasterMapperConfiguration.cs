@@ -23,13 +23,10 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
             CreateMap<TransactionType, TransactionTypeDto>()
                 .ForMember(dest => dest.TransactionTypeId, opt => opt.MapFrom(src => src.Id));
 
-            #region mutation
             CreateMap<UpsertPartnerInput, Partner>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
-
             CreateMap<UpsertBankAliasInput, BankAlias>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
-            #endregion
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Finance.Expensia.Core.Services.Inbox.Dtos
         public string ExecutorName { get; set; } = string.Empty;
         public int ApprovalLevel { get; set; }
         public string Remark { get; set; } = string.Empty;
-        public string ApprovalStatusText {  get; set; } = string.Empty;
-		public DateTime Created { get; set; }
+        public string ApprovalStatusText => ApprovalStatus.GetDescription();
+        public DateTime Created { get; set; }
 	}
 }

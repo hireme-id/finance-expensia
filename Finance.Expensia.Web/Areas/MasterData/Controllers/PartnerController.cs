@@ -1,16 +1,13 @@
 ﻿using Finance.Expensia.Core.Services.MasterData;
 using Finance.Expensia.Core.Services.MasterData.Dtos;
-using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
-using Finance.Expensia.Core.Services.OutgoingPayment;
 using Finance.Expensia.Shared.Attributes;
-using Finance.Expensia.Shared.Constants;
-using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Finance.Expensia.Core.Services.MasterData.Inputs;
 using static Finance.Expensia.Shared.Constants.PermissionConstants.MasterData;
+using Finance.Expensia.Shared.Objects.Inputs;
 
 namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 {
@@ -33,7 +30,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 
         [HttpPost("partner/list")]
         [AppAuthorize(Partner.PartnerView)]
-        public async Task<ResponsePaging<PartnerDto>> GetListPartner([FromBody] ListPartnerInput input)
+        public async Task<ResponsePaging<PartnerDto>> GetListPartner([FromBody] PagingSearchInputBase input)
         {
             return await _partnerService.GetListPartner(input);
         }

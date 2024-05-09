@@ -14,9 +14,9 @@ namespace Finance.Expensia.Core.Services.MasterData
         public async Task<ResponseObject<List<TransactionTypeDto>>> RetrieveTransactionTypeDatas()
         {
             var dataTransactionTypes = await _dbContext.TransactionTypes
-                                                .OrderBy(d => d.TransactionTypeCode)
-                                                .Select(d => _mapper.Map<TransactionTypeDto>(d))
-                                                .ToListAsync();
+                                                       .OrderBy(d => d.TransactionTypeCode)
+                                                       .Select(d => _mapper.Map<TransactionTypeDto>(d))
+                                                       .ToListAsync();
 
             return new ResponseObject<List<TransactionTypeDto>>(responseCode: ResponseCode.Ok)
             {
