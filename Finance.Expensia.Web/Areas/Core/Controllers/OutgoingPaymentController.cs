@@ -64,7 +64,7 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
                 return await _outgoingPaymentService.GetListOfOutgoingPaymentMyDocument(input, _currentUserAccessor);
         }
 
-        [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentView)]
+        [AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
         [HttpGet("outgoingpayment/detail")]
 		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment([FromQuery] Guid outgoingPaymentId)
 		{
