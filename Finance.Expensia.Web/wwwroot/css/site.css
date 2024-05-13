@@ -121,3 +121,10 @@ label{
     background-color: lightcyan;
     color: #777;
 }
+
+.title-back {
+    height: 32px;
+    padding-top: 3px;
+    margin-top: 2px;
+    width: 35px;
+}

@@ -114,7 +114,11 @@
             <section class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
-                        <div class="col-sm-6">
+                        <div class=" col-sm-6 d-inline-flex">
+                            @if (ViewData["isSecondPage"] != null)
+                            {
+                                <a href="javascript:history.back()" class="btn btn-primary mr-2 title-back"><i class="right fas fa-angle-left"></i></a>
+                            }
                             <h1>@ViewData["Subtitle"]</h1>
                         </div>
                     </div>
