@@ -80,6 +80,12 @@
     }
 }
 
+@media (min-width: 576px) {
+    .md-large {
+        max-width: 850px !important;
+    }
+}
+
 .dt-search > .form-control {
     display: initial;
     width: auto;
