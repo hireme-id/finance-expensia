@@ -343,7 +343,7 @@ Account No : ` + accountNo);
 					if (ValidateAllowModifyDetail()) {
 						indexRowEdit = parseInt($(this).attr('data-row-index'));
 						let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
-						
+
 						gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 						gridOutgoingPaymentDetail.api().draw();
 						AfterEditDetail(data);
@@ -898,10 +898,11 @@ Account No : ` + accountNo);
 	}
 
 	function AfterEditDetail(data) {
+		let invoicedate = (data.invoiceDate).split('T')[0];
 		$('#dtInvoiceDate').datepicker({
 			dateFormat: "yy-mm-dd"
 		});
-		$('#dtInvoiceDate').datepicker("setDate", data.invoiceDate);
+		$('#dtInvoiceDate').datepicker("setDate", invoicedate);
 		RefreshDdlPartner(data.partner.partnerId);
 		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);
