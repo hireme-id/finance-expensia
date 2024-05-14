@@ -32,10 +32,17 @@ namespace Finance.Expensia.Core.Services.Inbox
                                 && (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
                                 && (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
                                 && (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
-								&& (string.IsNullOrEmpty(searchKey) || tt.Description.ToLower().Contains(searchKey) || ibx.TransactionNo.ToLower().Contains(searchKey)
-                                || otp.CompanyName.ToLower().Contains(searchKey) || otp.FromBankAliasName.ToLower().Contains(searchKey)
-                                || otp.ToBankAliasName.ToLower().Contains(searchKey) || otp.TotalAmount.ToString().Contains(searchKey)
-                                || otp.Remark.ToLower().Contains(searchKey) || otp.Requestor.ToLower().Contains(searchKey))
+								&& (
+									string.IsNullOrEmpty(searchKey) 
+									|| tt.Description.ToLower().Contains(searchKey) 
+									|| ibx.TransactionNo.ToLower().Contains(searchKey)
+									|| otp.CompanyName.ToLower().Contains(searchKey) 
+									|| otp.FromBankAliasName.ToLower().Contains(searchKey)
+									|| otp.ToBankAliasName.ToLower().Contains(searchKey) 
+									|| otp.TotalAmount.ToString().Contains(searchKey)
+									|| otp.Remark.ToLower().Contains(searchKey) 
+									|| otp.Requestor.ToLower().Contains(searchKey)
+								)
 								&& ibx.ApprovalStatus == ApprovalStatus.WaitingApproval
                             orderby otp.TotalAmount descending
                             select new ListInboxDto
