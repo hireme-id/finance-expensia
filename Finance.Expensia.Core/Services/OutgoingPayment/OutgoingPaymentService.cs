@@ -60,7 +60,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             return await Task.FromResult(retVal);
         }
 
-        public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid outgoingPaymentId)
+        public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid outgoingPaymentId, CurrentUserAccessor currentUserAccessor)
 		{
 			var result = new ResponseObject<OutgoingPaymentDto>();
 			var dataOutgoingPay = await _dbContext.OutgoingPayments
@@ -71,6 +71,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			if (dataOutgoingPay != null)
 			{
 				var dataOutgoingPayDto = _mapper.Map<OutgoingPaymentDto>(dataOutgoingPay);
+				if (dataOutgoingPayDto.CreatedBy != currentUserAccessor.Id.ToString())
+					dataOutgoingPayDto.IsBtnCancelHidden = true;
+
                 return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>(responseCode: ResponseCode.Ok)
                 {
                     Obj = dataOutgoingPayDto,
@@ -384,6 +387,25 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
 		}
+
+		public async Task<ResponseBase> CancelOutgoingPaymen(Guid outgoingPaymentId, CurrentUserAccessor currentUserAccessor)
+		{
+            var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentId));
+            if (outgoingPayment == null)
+                return new ResponseBase("Gagal membatalkan data, karena data tidak ditemukan", ResponseCode.NotFound);
+
+            if (outgoingPayment.ApprovalStatus != ApprovalStatus.WaitingApproval)
+                return new ResponseBase("Gagal membatalkan data, dokumen yang dapat dibatalkan hanya dokumen berstatus waiting approval", ResponseCode.Error);
+
+			if (outgoingPayment.CreatedBy != currentUserAccessor.Id.ToString())
+                return new ResponseBase("Gagal membatalkan data, dokumen yang dapat dibatalkan hanya bisa dibatalkan oleh requestor", ResponseCode.Error);
+
+            outgoingPayment.ApprovalStatus = ApprovalStatus.Canceled;
+            _dbContext.Update(outgoingPayment);
+            await _dbContext.SaveChangesAsync();
+
+            return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
+        }
 		#endregion
 
 		public async Task<bool> UpdateApprovalStatusOutgoingPayment(string transactionNo, ApprovalStatus approvalStatus)
