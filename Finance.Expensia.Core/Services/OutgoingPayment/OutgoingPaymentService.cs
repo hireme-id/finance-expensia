@@ -392,19 +392,19 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 		{
             var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentId));
             if (outgoingPayment == null)
-                return new ResponseBase("Gagal membatalkan data, karena data tidak ditemukan", ResponseCode.NotFound);
+                return new ResponseBase("Gagal membatalkan dokumen, karena dokumen tidak ditemukan", ResponseCode.NotFound);
 
             if (outgoingPayment.ApprovalStatus != ApprovalStatus.WaitingApproval)
-                return new ResponseBase("Gagal membatalkan data, dokumen yang dapat dibatalkan hanya dokumen berstatus waiting approval", ResponseCode.Error);
+                return new ResponseBase("Gagal membatalkan dokumen, dokumen yang dapat dibatalkan hanya dokumen berstatus waiting approval", ResponseCode.Error);
 
 			if (outgoingPayment.CreatedBy != currentUserAccessor.Id.ToString())
-                return new ResponseBase("Gagal membatalkan data, dokumen yang dapat dibatalkan hanya bisa dibatalkan oleh requestor", ResponseCode.Error);
+                return new ResponseBase("Gagal membatalkan dokumen, dokumen yang dapat dibatalkan hanya bisa dibatalkan oleh requestor", ResponseCode.Error);
 
-            outgoingPayment.ApprovalStatus = ApprovalStatus.Canceled;
+            outgoingPayment.ApprovalStatus = ApprovalStatus.Cancelled;
             _dbContext.Update(outgoingPayment);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
+            return new ResponseBase("Berhasil membatalkan dokumen", ResponseCode.Ok);
         }
 		#endregion
 

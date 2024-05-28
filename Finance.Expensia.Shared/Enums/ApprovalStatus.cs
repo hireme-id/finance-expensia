@@ -10,6 +10,6 @@ namespace Finance.Expensia.Shared.Enums
         Approved,
         Reject,
         Submitted,
-        Canceled
+        Cancelled
     }
 }
