@@ -68,7 +68,7 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
         [HttpGet("outgoingpayment/detail")]
 		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment([FromQuery] Guid outgoingPaymentId)
 		{
-            return await _outgoingPaymentService.GetDetailOutgoingPayment(outgoingPaymentId);
+            return await _outgoingPaymentService.GetDetailOutgoingPayment(outgoingPaymentId, _currentUserAccessor);
         }
 
         [Mutation]
@@ -86,5 +86,13 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		{
 			return await _outgoingPaymentService.DeleteOutgoingPayment(outgoingPaymentId);
 		}
-	}
+
+        [Mutation]
+        [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
+        [HttpPost("outgoingpayment/cancel")]
+        public async Task<ResponseBase> CancelOutgoingPayment([FromQuery] Guid outgoingPaymentId)
+        {
+            return await _outgoingPaymentService.CancelOutgoingPaymen(outgoingPaymentId, _currentUserAccessor);
+        }
+    }
 }
