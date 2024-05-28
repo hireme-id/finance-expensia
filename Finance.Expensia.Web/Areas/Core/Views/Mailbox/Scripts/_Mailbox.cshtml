@@ -110,7 +110,7 @@
                                 if (row.scheduledDate != null) {
                                     console.log(row.scheduledDate);
                                     schDate = fmtDate4(row.scheduledDate);
-                                    elem = `${schDate} <br /> ${row.remark}`;
+                                    elem = `<b class="text-nowrap">Scheduled - ${schDate} </b> <br /> ${row.remark}`;
                                 }
                                 else {
                                     elem = row.remark;
