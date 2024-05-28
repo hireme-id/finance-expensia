@@ -82,7 +82,23 @@
                             },
                             className: "dt-body-right"
                         },
-                        { title: "Remark", data: "remark"},
+                        { 
+                            title: "Remark",
+                            render: function (data, type, row) {
+                                var schDate = '';
+                                var elem;
+                                if (row.scheduledDate != null) {
+                                    console.log(row.scheduledDate);
+                                    schDate = fmtDate4(row.scheduledDate);
+                                    elem = `${schDate} <br /> ${row.remark}`;
+                                }
+                                else {
+                                    elem = row.remark;
+                                }
+
+                                return elem;
+                            },
+                        },
                         {
                             title: "Status", 
                             render: function (data, type, row) {
