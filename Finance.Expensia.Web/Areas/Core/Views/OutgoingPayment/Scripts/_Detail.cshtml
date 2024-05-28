@@ -445,14 +445,28 @@ Account No : ` + accountNo);
 				await RefreshDdlCompany();
 				await RefreshDdlBankAlias(ddlToAliasBank);
 				await LoadOutgoingPaymentDetailData();
+				SetFormAfterView();
 			}
 		}
 	};
 
 	function SetFormForView() {
 		btnHistory.prop('disabled', true);
+		$('select').removeClass('select2');
 		$("#btnloader").removeClass("d-none");
 		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
+		$('input, textarea, select').addClass('shimmerBGDetail form-detail');
+		$('.input-group-append').hide();
+	}
+
+	function SetFormAfterView() {
+		$('input, textarea, select').each(function () {
+			if ($(this).val() === '') {
+				$(this).val('-');
+			}
+		});
+
+		$('input, textarea, select').removeClass('shimmerBGDetail');
 	}
 
 	async function LoadDdlPartnerData() {
