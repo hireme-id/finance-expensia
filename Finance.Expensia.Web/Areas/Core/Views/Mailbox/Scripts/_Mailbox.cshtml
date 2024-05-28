@@ -14,13 +14,13 @@
     var currentDraw = 0;
     let totalAmount = 0;
     let listTransactions = [];
+    var gridMailbox;
     
     //Variable for control
-    const gridMailbox = $('#gridMailbox');
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
     const ddlCompany = $("#ddlCompany"), ddlTransactionType = $("#ddlTransactionType"), ddlFromBankAlias = $("#ddlFromBankAlias");
     const txtSearch = $("#txtSearch");
-    const btnFilter = $("#btnFilter");
+    const btnFilter = $("#btnFilter"), btnReset = $("#btnReset");
 
     $(function () {
         MailboxManager = new MailboxManager();
@@ -36,7 +36,7 @@
                 this.InitLoad();
             },
             InitControls: function () {
-                gridMailbox.DataTable({
+                gridMailbox = $('#gridMailbox').DataTable({
                     paging: true,
                     pagingType: "first_last_numbers",
                     ordering: false,
@@ -184,8 +184,8 @@
                     debouncedAjaxRequest = setTimeout(function () {
                         if ($('#txtJump').val() != '') {
                             var pageNumber = parseInt($('#txtJump').val());
-                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridMailbox.DataTable().page.info().pages) {
-                                gridMailbox.DataTable().page(pageNumber - 1).draw('page');
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridMailbox.page.info().pages) {
+                                gridMailbox.page(pageNumber - 1).draw('page');
                             } else {
                                 alert('Invalid page number');
                             }
@@ -249,7 +249,19 @@
                 });
 
                 btnFilter.click(function () {
-                    gridMailbox.DataTable().search(txtSearch.val()).draw();
+                    gridMailbox.search(txtSearch.val()).draw();
+                })
+
+                btnReset.click(async function () {
+                    await RefreshDdlCompany();
+                    await RefreshDdlTransactionType();
+                    await RefreshDdlFromAliasBank();
+                    txtSearch.val('');
+                    dtStartDate.val('');
+                    dtStartDate.datepicker("option", "maxDate", null);
+                    dtEndDate.val('');
+                    dtEndDate.datepicker("option", "minDate", null);
+                    gridMailbox.search(txtSearch.val()).draw();
                 })
             },
             InitValidation: function () {

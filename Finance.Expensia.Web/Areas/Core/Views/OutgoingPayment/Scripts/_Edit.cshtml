@@ -68,18 +68,18 @@
 							type: "date",
 							width: "140px",
 							render: function (data, type, row, meta) {
-								var value = data.split('T')[0];
+								var value = new Date(data).toISOString().split('T')[0];
 
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div class="input-group">
-														<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + value + `>
-													<div class="input-group-append">
-														<span class="input-group-text">
-															<i class="fa fa-calendar"></i>
-														</span>
-													</div>
-												</div>`);
+													<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + value + `>
+												<div class="input-group-append">
+													<span class="input-group-text">
+														<i class="fa fa-calendar"></i>
+													</span>
+												</div>
+											</div>`);
 								}
 
 								return value;
@@ -859,7 +859,7 @@ Account No : ` + accountNo);
 		for (let i = 0; i < ddlCoaDatas.length; i++) {
 			const data = ddlCoaDatas[i];
 			const isSelected = coaId.toLowerCase() == data.coaId.toLowerCase() ? ` selected` : ``;
-			ddlCoa.append(`<option value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + `</option>`);
+			ddlCoa.append(`<option value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + ` - ` + data.accountName + `</option>`);
 		}
 	}
 
@@ -932,7 +932,7 @@ Account No : ` + accountNo);
 					});
 					gridOutgoingPaymentDetail.api().row.add({
 						"id": value.id,
-						"invoiceDate": value.invoiceDate,
+						"invoiceDate": value.invoiceDate.split('T')[0],
 						"partner": {
 							"partnerId": value.partnerId,
 							"partnerName": value.partnerName
@@ -1003,6 +1003,7 @@ Account No : ` + accountNo);
 			dateFormat: "yy-mm-dd"
 		});
 		$('#dtInvoiceDate').datepicker("setDate", dateOnly);
+
 		RefreshDdlPartner(data.partner.partnerId);
 		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);
