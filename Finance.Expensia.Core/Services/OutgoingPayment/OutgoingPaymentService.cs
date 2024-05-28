@@ -402,6 +402,12 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             outgoingPayment.ApprovalStatus = ApprovalStatus.Cancelled;
             _dbContext.Update(outgoingPayment);
+
+			var cancelApproval = await CancelInboxApproval(outgoingPayment, currentUserAccessor);
+
+			if (!cancelApproval)
+				return new ResponseBase("Gagal membatalkan approval untuk dokumen ini");
+
             await _dbContext.SaveChangesAsync();
 
             return new ResponseBase("Berhasil membatalkan dokumen", ResponseCode.Ok);
@@ -516,6 +522,42 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             return docNumberConfig;
         }
+
+		private async Task<bool> CancelInboxApproval(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
+		{
+			var dataInbox = await _dbContext.ApprovalInboxes.FirstOrDefaultAsync(x => x.TransactionNo == input.TransactionNo);
+
+			if (dataInbox == null)
+				return false;
+
+			var dataRole = await _dbContext.UserRoles.Include(x => x.Role).AsNoTracking().FirstOrDefaultAsync(x => x.UserId == currentUserAccessor.Id);
+
+			if (dataRole == null)
+				return false;
+
+			dataInbox.ApprovalStatus = ApprovalStatus.Cancelled;
+			dataInbox.ApprovalRoleCode = string.Empty;
+
+			_dbContext.Update(dataInbox);
+
+
+			var dataHistory = new ApprovalHistory
+			{
+				ApprovalLevel = dataInbox.ApprovalLevel,
+				ExecutorName = input.Requestor,
+				ExecutorRoleCode = dataRole.Role.RoleCode,
+				ExecutorRoleDesc = dataRole.Role.RoleDescription,
+				ApprovalStatus = ApprovalStatus.Cancelled,
+				ApprovalUserId = currentUserAccessor.Id,
+				TransactionNo = input.TransactionNo,
+				MinAmount = dataInbox.MinAmount,
+				MaxAmount = dataInbox.MaxAmount
+			};
+
+			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
+
+			return true;
+		}
         #endregion
     }
 }
