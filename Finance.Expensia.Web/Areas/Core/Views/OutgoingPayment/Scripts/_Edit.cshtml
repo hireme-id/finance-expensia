@@ -993,10 +993,17 @@ Account No : ` + accountNo);
 	}
 
 	function AfterEditDetail(data) {
+		var invoiceDate = data.invoiceDate;
+		var dateObject = new Date(invoiceDate);
+		var year = dateObject.getFullYear();
+		var month = String(dateObject.getMonth() + 1).padStart(2, '0');
+		var day = String(dateObject.getDate()).padStart(2, '0');
+		var dateOnly = `${year}-${month}-${day}`;
 		$('#dtInvoiceDate').datepicker({
 			dateFormat: "yy-mm-dd"
 		});
-		$('#dtInvoiceDate').datepicker("setDate", new Date(data.invoiceDate).toISOString().split('T')[0]);
+		$('#dtInvoiceDate').datepicker("setDate", dateOnly);
+
 		RefreshDdlPartner(data.partner.partnerId);
 		$('#txtDescription').val(data.description);
 		RefreshDdlCoa(data.coa.coaId);
