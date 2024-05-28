@@ -178,7 +178,7 @@
     function fnCreateForm(){
         isEdit = false;
         lblTitle.text("Create Partner");
-        dmInput.add(dmSelect).prop('disabled', false);
+        dmInput.add(dmSelect).prop('disabled', false).removeClass('form-detail');
         dmInput.add(dmSelect).val('');
         dmButton.show();
         mdPartner.modal('show');
@@ -188,7 +188,7 @@
         isEdit = true;
         idPartner = partnerId;
         lblTitle.text("Edit Partner");
-        dmInput.add(dmSelect).prop('disabled', false);
+        dmInput.add(dmSelect).prop('disabled', false).removeClass('form-detail');
         dmButton.show();
         loadDataPartner(partnerId);
     }
@@ -236,42 +236,51 @@
         });
     }
 
-    function fnDetailForm(partnerId) {
+    async function fnDetailForm(partnerId) {
         lblTitle.text("Detail Partner");
-        dmInput.add(dmSelect).attr('disabled', true);
+        dmInput.add(dmSelect).attr('disabled', true).addClass('form-detail');
         dmButton.hide();
-        loadDataPartner(partnerId);
+        await loadDataPartner(partnerId);
+        dmInput.add(dmSelect).each(function () {
+            console.log($(this).val());
+            if ($(this).val() === '') {
+                $(this).val('-');
+            }
+        });
     }
 
     function loadDataPartner(partnerId) {
-        $.ajax(Object.assign({}, glbBaseRequest, {
-            method: "POST",
-            url: "@getDetailPartner" + "?partnertId=" + partnerId
-        })).done(function (response) {
-            if (response.succeeded) {
-                $.each(response.obj, function (key, value) {
-                    let input = $('[bind-name="' + key + '"]');
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getDetailPartner" + "?partnertId=" + partnerId
+            })).done(function (response) {
+                if (response.succeeded) {
+                    $.each(response.obj, function (key, value) {
+                        let input = $('[bind-name="' + key + '"]');
 
-                    if (input.length > 0) {
-                        let bindTrigger = input.attr('bind-trigger');
+                        if (input.length > 0) {
+                            let bindTrigger = input.attr('bind-trigger');
 
-                        input.val(value);
+                            input.val(value);
 
-                        if (bindTrigger != undefined) {
-                            input.trigger(bindTrigger);
+                            if (bindTrigger != undefined) {
+                                input.trigger(bindTrigger);
+                            }
                         }
-                    }
-                });
+                    });
 
-                mdPartner.modal('show');
-            }
-            else {
-                Swal.fire({
-                    title: "Error",
-                    text: response.message,
-                    icon: "error"
-                });
-            }
+                    mdPartner.modal('show');
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
         });
     }
 </script>

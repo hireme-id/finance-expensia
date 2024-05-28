@@ -693,13 +693,23 @@ Account No : ` + accountNo);
 			InitValidation: function () {
 			},
 			InitLoad: async function () {
+				SetFormForView();
 				await RefreshDdlTransactionType();
 				await RefreshDdlCompany();
 				await RefreshDdlBankAlias(ddlToAliasBank);
 				await LoadOutgoingPaymentDetailData();
+				SetFormAfterView();
 			}
 		}
 	};
+
+	function SetFormForView() {
+		$('input, textarea, select').addClass('shimmerBG');
+	}
+
+	function SetFormAfterView() {
+		$('input, textarea, select').removeClass('shimmerBG');
+	}
 
 	async function LoadDdlPartnerData() {
 		await $.ajax(Object.assign({}, glbBaseRequest, {
