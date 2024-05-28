@@ -10,6 +10,8 @@
 	var gridDetailOutgoingPayment = Url.Action("GetDetailOutgoingPayment", "OutgoingPayment");
 	var getHistoryApproval = Url.Action("GetListApprovalHistory", "Mailbox");
 	var createOutgoingPaymentUrl = Url.Action("Create", "OutgoingPayment", new { area = "Core" });
+	var cancelOutgoingPaymentUrl = Url.Action("CancelOutgoingPayment", "OutgoingPayment");
+	var outgoingPaymentHomeUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
 }
 
 <script type="text/javascript">
@@ -21,7 +23,7 @@
 	const txtTransactionNo = $("#txtTransactionNo");
 	const txtDocumentStatus = $("#txtDocumentStatus"), txtTotalAmount = $("#txtTotalAmount"); txtFromBankName = $("#txtFromBankName");
 	const txtToBankName = $("#txtToBankName");
-	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft"), btnHistory = $("#btnHistory");
+	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft"), btnHistory = $("#btnHistory"), btnCancel = $("#btnCancel");
 	const divHistory = $("#dvHistoryApproval");
 	const btnCopy = $("#btnCopy");
 
@@ -436,6 +438,48 @@ Account No : ` + accountNo);
 
 					window.location.href = "@createOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1];
 				});
+
+				btnCancel.on('click', function (e) {
+					Swal.fire({
+						title: "Pembatalan Dokumen",
+						html: "Apakah anda yakin ingin membatalkan dokumen ini?",
+						showCancelButton: true,
+						confirmButtonText: "Iya",
+						confirmButtonColor: "#D92D20",
+						customClass: {
+							actions: 'my-actions',
+							cancelButton: 'order-1 right-gap',
+							confirmButton: 'order-2',
+						},
+						icon: "warning"
+					}).then(async (result) => {
+						if (result.isConfirmed) {
+							var pathArray = window.location.pathname.split('/');
+
+							await $.ajax(Object.assign({}, glbBaseRequest, {
+								method: "POST",
+								url: "@cancelOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
+							})).done(function (response) {
+								if (response.succeeded) {
+									Swal.fire({
+										title: "Success",
+										text: response.message,
+										icon: "success"
+									}).then(() => {
+										window.location.href = "@outgoingPaymentHomeUrl";
+									});
+								}
+								else {
+									Swal.fire({
+										title: "Error",
+										text: response.message,
+										icon: "error"
+									});
+								}
+							});
+						}
+					});
+				});
 			},
 			InitValidation: function () {
 			},
@@ -610,6 +654,15 @@ Account No : ` + accountNo);
 			$("#btnloader").addClass("d-none");
 			if (response.succeeded) {
 				$.each(response.obj, function (key, value) {
+					if (key == 'isBtnCancelHidden') {
+						if (value) {
+							btnCancel.hide();
+						}
+					}
+
+					if (key == 'isCancelAble')
+						btnCancel.prop('disabled', value);
+
 					if (key == 'transactionNo')
 						transactionNo = value;
 

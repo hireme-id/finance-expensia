@@ -9,6 +9,7 @@ namespace Finance.Expensia.Shared.Enums
         WaitingApproval,
         Approved,
         Reject,
-        Submitted
+        Submitted,
+        Cancelled
     }
 }
