@@ -204,7 +204,9 @@
     function fnCreateForm(){
         isEdit = false;
         lblTitle.text("Create Bank Alias");
-        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
+        dmSelect.addClass('select2 select2-hidden-accessible');
+        $('span.select2').add($('small')).show();
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false).removeClass('form-detail');
         dmInput.add(dmSelect).add(dmTextArea).val('');
         dmButton.show();
         bankAliasForm.modal('show');
@@ -214,7 +216,9 @@
         isEdit = true;
         idBankAlias = bankAliasId;
         lblTitle.text("Edit Bank Alias");
-        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
+        dmSelect.addClass('select2 select2-hidden-accessible');
+        $('span.select2').add($('small')).show();
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false).removeClass('form-detail');
         dmButton.show();
         loadDataBankAlias(bankAliasId);
     }
@@ -262,42 +266,52 @@
         });
     }
 
-    function fnDetailForm(bankAliasId) {
+    async function fnDetailForm(bankAliasId) {
         lblTitle.text("Detail Bank Alias");
-        dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true);
+        dmSelect.removeClass('select2 select2-hidden-accessible');
+        $('span.select2').add($('small')).hide();
+        dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true).addClass('form-detail');
         dmButton.hide();
-        loadDataBankAlias(bankAliasId);
+        await loadDataBankAlias(bankAliasId);
+        dmInput.add(dmSelect).add(dmTextArea).each(function () {
+            if ($(this).val() === '') {
+                $(this).val('-');
+            }
+        });
     }
 
     function loadDataBankAlias(bankAliasId) {
-        $.ajax(Object.assign({}, glbBaseRequest, {
-            method: "POST",
-            url: "@detailBankAliasUrl" + "?bankAliasId=" + bankAliasId
-        })).done(function (response) {
-            if (response.succeeded) {
-                $.each(response.obj, function (key, value) {
-                    let input = $('[bind-name="' + key + '"]');
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@detailBankAliasUrl" + "?bankAliasId=" + bankAliasId
+            })).done(function (response) {
+                if (response.succeeded) {
+                    $.each(response.obj, function (key, value) {
+                        let input = $('[bind-name="' + key + '"]');
 
-                    if (input.length > 0) {
-                        let bindTrigger = input.attr('bind-trigger');
+                        if (input.length > 0) {
+                            let bindTrigger = input.attr('bind-trigger');
 
-                        input.val(value);
+                            input.val(value);
 
-                        if (bindTrigger != undefined) {
-                            input.trigger(bindTrigger);
+                            if (bindTrigger != undefined) {
+                                input.trigger(bindTrigger);
+                            }
                         }
-                    }
-                });
+                    });
 
-                bankAliasForm.modal('show');
-            }
-            else {
-                Swal.fire({
-                    title: "Error",
-                    text: response.message,
-                    icon: "error"
-                });
-            }
+                    bankAliasForm.modal('show');
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
         });
     }
 </script>

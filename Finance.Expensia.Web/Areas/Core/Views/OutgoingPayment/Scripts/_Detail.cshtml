@@ -189,7 +189,15 @@
 															data-file-name="` + e.fileName + `">` +
 											e.fileName +
 											`</span>
-													</a>`;
+											</a>`;
+
+										badge = badge +
+											`<a class="btn btn-xs text-white border-left pl-1">
+												<i class="fas fa-eye" data-file-url="` + e.fileUrl + `"
+													data-content-type="` + e.contentType + `"
+													data-file-name="` + e.fileName + `">` +
+											`</i>
+										</a>`;
 
 										badge = badge +
 											`</span>`;
@@ -268,6 +276,88 @@ Account No : ` + accountNo);
 						a.click();
 						document.body.removeChild(a);
 						window.URL.revokeObjectURL(a.href);
+					})
+					.fail(function (jqXHR, textStatus, errorThrown) {
+						Swal.fire({
+							title: "Error",
+							text: `Data tidak ditemukan`,
+							icon: "error"
+						});
+					});
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-eye", function (e) {
+					let $el = $(this);
+					let filename = $el.attr('data-file-name');
+					let request = JSON.parse(JSON.stringify(glbBaseRequest));
+					const notformats = ['xlsx', 'docx', 'pptx'];
+
+					const divView = document.getElementById("divAttachment");
+
+					request.method = "POST";
+					request.url = "@downloadFileUrl";
+					request.processData = false;
+					request.contentType = false;
+					request.xhrFields = {
+						responseType: 'blob'
+					};
+					request.data = JSON.stringify({
+						fileName: $el.attr('data-file-name'),
+						fileUrl: $el.attr('data-file-url'),
+						contentType: $el.attr('data-content-type')
+					});
+
+					$.ajax(request).done(function (data, textStatus, jqXHR) {
+						var filename = $el.attr('data-file-name');
+						var blob = new Blob([data], { type: $el.attr('data-content-type') });
+						const file = new File([blob], 'attach.pdf', { type: blob.type });
+						let isFile = file;
+						const reader = new FileReader();
+						let parts = filename.split('.');
+						let format = parts[parts.length - 1];
+						if (format.toLowerCase() == 'pdf') {
+							$('#mdViewAttachment').modal('show');
+							$("#modalTitle").text('PDF Viewer');
+							reader.onload = function (event) {
+								const base64PDF = event.target.result.split(',')[1];
+								const embedElement = document.createElement("embed");
+								embedElement.setAttribute("src", "data:application/pdf;base64," + base64PDF);
+								embedElement.setAttribute("type", "application/pdf");
+								embedElement.setAttribute("width", "100%");
+								embedElement.setAttribute("height", "600");
+								divView.innerHTML = "";
+								divView.appendChild(embedElement);
+							};
+						}
+						else if (notformats.includes(format.toLowerCase())) {
+							Swal.fire({
+								title: "Error",
+								text: `format ${format} tidak dapat di lihat langsung, silahkan untuk mendownload file tersebut`,
+								icon: "error"
+							});
+						}
+						else {
+							$('#mdViewAttachment').modal('show');
+							$("#modalTitle").text('Image Viewer');
+							reader.onload = function (event) {
+								const base64Image = event.target.result;
+
+								const imgElement = document.createElement("img");
+								imgElement.setAttribute("src", base64Image);
+								imgElement.setAttribute("width", "100%");
+
+								divView.innerHTML = ""; // Bersihkan isi div sebelum menambahkan elemen gambar
+								divView.appendChild(imgElement);
+							};
+						}
+						reader.readAsDataURL(isFile);
+					})
+					.fail(function (jqXHR, textStatus, errorThrown) {
+						Swal.fire({
+							title: "Error",
+							text: `Data tidak ditemukan`,
+							icon: "error"
+						});
 					});
 				});
 
@@ -399,14 +489,28 @@ Account No : ` + accountNo);
 				await RefreshDdlCompany();
 				await RefreshDdlBankAlias(ddlToAliasBank);
 				await LoadOutgoingPaymentDetailData();
+				SetFormAfterView();
 			}
 		}
 	};
 
 	function SetFormForView() {
 		btnHistory.prop('disabled', true);
+		$('select').removeClass('select2');
 		$("#btnloader").removeClass("d-none");
 		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
+		$('input, textarea, select').addClass('shimmerBGDetail form-detail');
+		$('.input-group-append').hide();
+	}
+
+	function SetFormAfterView() {
+		$('input, textarea, select').each(function () {
+			if ($(this).val() === '') {
+				$(this).val('-');
+			}
+		});
+
+		$('input, textarea, select').removeClass('shimmerBGDetail');
 	}
 
 	async function LoadDdlPartnerData() {

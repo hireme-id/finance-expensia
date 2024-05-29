@@ -82,7 +82,23 @@
                             },
                             className: "dt-body-right"
                         },
-                        { title: "Remark", data: "remark"},
+                        { 
+                            title: "Remark",
+                            render: function (data, type, row) {
+                                var schDate = '';
+                                var elem;
+                                if (row.scheduledDate != null) {
+                                    console.log(row.scheduledDate);
+                                    schDate = fmtDate4(row.scheduledDate);
+                                    elem = `<b class="text-nowrap">Scheduled - ${schDate} </b> <br /> ${row.remark}`;
+                                }
+                                else {
+                                    elem = row.remark;
+                                }
+
+                                return elem;
+                            },
+                        },
                         {
                             title: "Status", 
                             render: function (data, type, row) {
@@ -94,7 +110,7 @@
                             }
                         },
                         {
-                            title: "", width: '6.5%',
+                            title: "", class: 'text-nowrap',
                             render: function (data, type, row) {
                                 let isdisabled = '';
                                 let linkedit = '';

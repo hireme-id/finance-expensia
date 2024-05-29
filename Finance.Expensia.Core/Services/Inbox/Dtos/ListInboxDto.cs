@@ -9,6 +9,7 @@ namespace Finance.Expensia.Core.Services.Inbox.Dtos
         public string TransactionNo { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
         public DateTime RequestDate { get; set; }
+        public DateTime? ScheduledDate { get; set; }
         public string Requestor { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public string Remark { get; set; } = string.Empty;

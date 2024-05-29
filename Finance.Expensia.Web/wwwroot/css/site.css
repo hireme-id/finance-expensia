@@ -80,6 +80,30 @@
     }
 }
 
+@media (min-width: 576px ) and (max-width: 1200px) {
+    .md-large {
+        max-width: 850px !important;
+    }
+}
+
+@media (min-width: 1200px ) and (max-width: 1500px) {
+    .md-large {
+        max-width: 1050px !important;
+    }
+}
+
+@media (min-width: 1500px ) and (max-width: 1700px) {
+    .md-large {
+        max-width: 1250px !important;
+    }
+}
+
+@media (min-width: 1700px ) {
+    .md-large {
+        max-width: 1550px !important;
+    }
+}
+
 .dt-search > .form-control {
     display: initial;
     width: auto;
@@ -127,4 +151,85 @@ label{
     padding-top: 3px;
     margin-top: 2px;
     width: 35px;
+}
+
+.ui-autocomplete {
+    z-index: 1050;
+}
+
+.badge-outlined-primary {
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.badge-outlined-success {
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.badge-outlined-warning {
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.badge-outlined-danger {
+    color: red;
+    border: 1px solid red;
+}
+
+.badge-outlined-secondary {
+    color: #777;
+    border: 1px solid grey;
+    font-weight: 500;
+}
+
+.form-detail {
+    background-color: transparent !important;
+    border: none;
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.shimmerBG {
+    animation-duration: 2.5s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #e9ecef 8%, #dfe2e5 18%, #e9ecef 53%);
+    background-size: 1200px 100%;
+}
+
+.shimmerBGDetail {
+    animation-duration: 2.5s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: #ddd;
+    background: linear-gradient(to right, #f9f9f9 8%, #ffffff 18%, #f9f9f9 53%);
+    background-size: 1200px 100%;
+}
+
+@-webkit-keyframes shimmer {
+    0% {
+        background-position: -100% 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1200px 0;
+    }
+
+    100% {
+        background-position: 1200px 0;
+    }
 }
