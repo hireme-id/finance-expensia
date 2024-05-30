@@ -134,6 +134,18 @@ namespace Finance.Expensia.Core.Services.Inbox
 			}
 
 			await _dbContext.SaveChangesAsync();
+
+			if (nextApprover != null && input.WorkflowAction == WorkflowAction.Approve)
+			{
+				var dataSendEmail = new SendEmailDto
+				{
+					ExecutorName = currentUserAccessor.FullName,
+					TransactionNo = outgoingPayment.TransactionNo,
+					RoleCodeReceiver = nextApprover.RoleCode
+				};
+
+				await _outgoingPaymentService.SendEmailToApprover(dataSendEmail, ApprovalStatus.Approved);
+			}
 			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
 		}
 
