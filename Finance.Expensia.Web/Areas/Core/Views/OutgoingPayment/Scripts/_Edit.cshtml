@@ -6,6 +6,7 @@
 	var ddlPartnerUrl = Url.Action("RetrievePartner", "Partner");
 	var ddlCoaUrl = Url.Action("RetrieveCoa", "Coa");
 	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
+	var ddlOutgoingPaymentTagging = Url.Action("RetrieveOutgoingPaymentTagging", "OutgoingPayment");
 	var editOutgoingPaymentUrl = Url.Action("EditOutgoingPayment", "OutgoingPayment");
 	var deleteOutgoingPaymentUrl = Url.Action("DeleteOutgoingPayment", "OutgoingPayment");
 	var uploadFileUrl = Url.Action("UploadFile", "Storage");
@@ -604,6 +605,7 @@ Account No : ` + accountNo);
 					});
 					formDataObject.isSubmit = isSubmit == 'true' ? true : false;
 					formDataObject.outgoingPaymentDetails = [];
+					formDataObject.outgoingPaymentTaggings = [];
 					
 					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
 
@@ -623,6 +625,12 @@ Account No : ` + accountNo);
 						});
 					}
 
+					$('[name="tagSpan"]').each(function () {
+						formDataObject.outgoingPaymentTaggings.push({
+							tagValue: $(this).data('value'),
+						});
+					});
+					console.log(formDataObject);
 					$.ajax(Object.assign({}, glbBaseRequest, {
 						method: "POST",
 						url: "@editOutgoingPaymentUrl",
@@ -688,6 +696,60 @@ Account No : ` + accountNo);
 							});
 						}
 					});
+				});
+
+
+				$("#txtTagging").autocomplete({
+					source: function (request, response) {
+						$.ajax(Object.assign({}, glbBaseRequest, {
+							method: "POST",
+							url: "@ddlOutgoingPaymentTagging",
+							data: JSON.stringify({
+									"page": 1,
+									"pageSize": 10,
+									"searchKey": $("#txtTagging").val()
+								  })
+
+						})).done(function (data) {
+							if (data.succeeded) {
+								const suggestions = data.obj.map(item => item.tagValue);
+								response(suggestions);
+							}
+							else {
+								response([]);
+							}
+						});
+					},
+					minLength: 2,
+					select: function (event, ui) {
+						const divTag = $('#dvListTag');
+						var inputValue = ui.item.value;
+						let listhtml = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;" data-value="${inputValue}">${inputValue}
+												<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
+													<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
+												</a></span>`;
+						divTag.append($(listhtml));
+						setTimeout(() => {
+							$(this).val('');
+						}, 100);
+					}
+				});
+
+				$("#txtTagging").keypress(function (event) {
+					const divTag = $('#dvListTag');
+					var inputValue = $("#txtTagging").val();
+					if (event.which === 13) {
+						let listhtml = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;"  data-value="${inputValue}">${inputValue}
+												<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
+													<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
+												</a></span>`;
+						divTag.append($(listhtml));
+						$("#txtTagging").val('');
+					}
+				});
+
+				$(document).on('click', '[name="deleteSpan"]', function () {
+					$(this).closest('span').remove();
 				});
 			},
 			InitValidation: function () {
@@ -888,7 +950,7 @@ Account No : ` + accountNo);
 
 	async function LoadOutgoingPaymentDetailData() {
 		var pathArray = window.location.pathname.split('/');
-
+		const divTag = $('#dvListTag');
 		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "GET",
 			url: "@gridDetailOutgoingPayment" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
@@ -917,6 +979,15 @@ Account No : ` + accountNo);
 					ddlFromAliasBank.val(response.obj.fromBankAliasId);
 					ddlFromAliasBank.trigger('change');
 				}, 500);
+
+				$.each(response.obj.outgoingPaymentTaggings, function (key, value) {
+					var tagValue = value.tagValue;
+					let listTagging = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;"  data-value="${tagValue}">${tagValue}
+													<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
+														<i class="fas fa-times" name="deleteSpan" data-value="${tagValue}"></i>
+													</a></span>`;
+					divTag.append($(listTagging));
+				});
 
 				$.each(response.obj.outgoingPaymentDetails, function (key, value) {
 					let attachments = [];

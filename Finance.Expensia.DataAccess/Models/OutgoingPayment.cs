@@ -30,6 +30,7 @@ namespace Finance.Expensia.DataAccess.Models
         public decimal TotalAmount { get; set; }
 
         public virtual List<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; } = [];
+        public virtual List<OutgoingPaymentTagging> OutgoingPaymentTaggings { get; set; } = [];
         public virtual TransactionType TransactionType { get; set; } = null!;
     }
 }

@@ -1,4 +1,6 @@
-﻿using Finance.Expensia.Core.Services.OutgoingPayment;
+﻿using Finance.Expensia.Core.Services.MasterData.Dtos;
+using Finance.Expensia.Core.Services.MasterData;
+using Finance.Expensia.Core.Services.OutgoingPayment;
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.Shared.Attributes;
@@ -8,6 +10,7 @@ using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Finance.Expensia.Shared.Objects.Inputs;
 
 namespace Finance.Expensia.Web.Areas.Core.Controllers
 {
@@ -71,7 +74,14 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
             return await _outgoingPaymentService.GetDetailOutgoingPayment(outgoingPaymentId, _currentUserAccessor);
         }
 
-        [Mutation]
+		[AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
+		[HttpPost("outgoingpayment/getoutgoingtagging")]
+		public async Task<ResponseObject<List<OutgoingPaymentTaggingDto>>> RetrieveOutgoingPaymentTagging([FromBody] PagingSearchInputBase input)
+		{
+			return await _outgoingPaymentService.RetrieveOutgoingPaymentTagging(input);
+		}
+
+		[Mutation]
         [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
         [HttpPost("outgoingpayment/edit")]
         public async Task<ResponseBase> EditOutgoingPayment([FromBody] EditOutgoingPaymentInput input)

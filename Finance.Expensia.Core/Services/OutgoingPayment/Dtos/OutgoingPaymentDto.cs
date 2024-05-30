@@ -33,6 +33,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public bool IsBtnCancelHidden { get; set; } = false;
 
         public List<OutgoingPaymentDetailDto> OutgoingPaymentDetails { get; set; } = [];
+        public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
     }
 
     public class OutgoingPaymentDetailDto
@@ -65,5 +66,11 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public long FileSize { get; set; }
         public string FileUrl { get; set; } = string.Empty;
         public string ContentType { get; set; } = string.Empty;
+    }
+
+    public class OutgoingPaymentTaggingDto
+	{
+        public Guid Id { get; set; }
+        public string TagValue { get; set; } = string.Empty;
     }
 }
