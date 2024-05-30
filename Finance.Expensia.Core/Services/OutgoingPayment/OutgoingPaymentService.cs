@@ -5,6 +5,7 @@ using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
+using Finance.Expensia.Shared.Helpers;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.EntityFrameworkCore;
@@ -178,9 +179,11 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			await _dbContext.AddAsync(dataOutgoingPayment);
 
+			string roleCode = string.Empty;
+
             if (input.IsSubmit)
             {
-                var isSuccessWorkflow = await CreateApprovalWorkflow(dataOutgoingPayment, currentUserAccessor);
+                (var isSuccessWorkflow, roleCode) = await CreateApprovalWorkflow(dataOutgoingPayment, currentUserAccessor);
 
                 if (!isSuccessWorkflow)
                     return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
@@ -189,6 +192,18 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             await _dbContext.SaveChangesAsync();
 
             _ = await UpdateRunningNumber(runningNumberConfig.Id);
+
+			if (input.IsSubmit)
+			{
+				var dataSendEmail = new SendEmailDto
+				{
+					ExecutorName = dataOutgoingPayment.Requestor,
+					TransactionNo = dataOutgoingPayment.TransactionNo,
+					RoleCodeReceiver = roleCode
+				};
+
+				await SendEmailToApprover(dataSendEmail, ApprovalStatus.Submitted);
+			}
 
             return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
 		}
@@ -359,9 +374,11 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			_dbContext.OutgoingPayments.Update(existOutgoing);
 
+			string roleCode = string.Empty;
+
 			if (input.IsSubmit)
 			{
-                var isSuccessWorkflow = await CreateApprovalWorkflow(existOutgoing, currentUserAccessor);
+                (var isSuccessWorkflow, roleCode) = await CreateApprovalWorkflow(existOutgoing, currentUserAccessor);
 
                 if (!isSuccessWorkflow)
                     return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
@@ -369,7 +386,19 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
+			if (input.IsSubmit)
+			{
+				var dataSendEmail = new SendEmailDto
+				{
+					ExecutorName = existOutgoing.Requestor,
+					TransactionNo = existOutgoing.TransactionNo,
+					RoleCodeReceiver = roleCode
+				};
+
+				await SendEmailToApprover(dataSendEmail, ApprovalStatus.Submitted);
+			}
+
+			return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
         }
 
 		public async Task<ResponseBase> DeleteOutgoingPayment(Guid outgoingPaymentId)
@@ -412,6 +441,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             return new ResponseBase("Berhasil membatalkan dokumen", ResponseCode.Ok);
         }
+
 		#endregion
 
 		public async Task<bool> UpdateApprovalStatusOutgoingPayment(string transactionNo, ApprovalStatus approvalStatus)
@@ -425,9 +455,56 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			return true;
 		}
+		public async Task SendEmailToApprover(SendEmailDto input, ApprovalStatus status)
+		{
+			var dataUsers = await _dbContext.UserRoles.Include(x => x.User).Include(x => x.Role).AsNoTracking()
+				.Where(x => x.Role.RoleCode == input.RoleCodeReceiver).ToListAsync();
+
+			if (dataUsers != null)
+			{
+				var dataEmailConfigs = _dbContext.AppConfigs.AsNoTracking()
+					.Where(x => x.StartDate <= DateTime.Today)
+					.AsEnumerable()
+					.GroupBy(x => x.Key)
+					.SelectMany(g => g
+						.OrderByDescending(x => x.StartDate)
+						.Take(1))
+					.ToList();
+
+				if (dataEmailConfigs != null)
+				{
+					var fromEmail = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("FromEmail"))!.Value;
+					var fromEmailDisplay = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("FromEmailDisplay"))!.Value;
+					var emailPass = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("FromEmailPassword"))!.Value;
+					var templateBody = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("BodyTemplate"))!.Value;
+
+					foreach (var user in dataUsers)
+					{
+						var body = templateBody
+							.Replace("{{toName}}", user.User.FullName)
+							.Replace("{{documentNo}}", input.TransactionNo)
+							.Replace("{{action}}", status.ToString())
+							.Replace("{{executorName}}", input.ExecutorName);
+
+						var emailDataInput = new EmailData
+						{
+							BodyEmail = body,
+							FromDisplayName = fromEmailDisplay,
+							FromEmail = fromEmail,
+							PasswordEmail = emailPass,
+							SubjectEmail = "Outgoing Payment Notification",
+							ToEmail = user.User.Email,
+							ToDisplayName = user.User.FullName
+						};
+
+						EmailHelper.SendEmail(emailDataInput);
+					}
+				}
+			}
+		}
 
         #region private service
-        private async Task<bool> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
+        private async Task<(bool, string)> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
 		{
 			var dataRoleCodes = await _dbContext.UserRoles.Include(ur => ur.Role).Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.Role.RoleCode).ToListAsync();
 			var workflowRule = await _dbContext.ApprovalRules.AsNoTracking()
@@ -437,13 +514,13 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					&& x.Level == 1);
 
 			if (workflowRule == null)
-				return false;
+				return (false, string.Empty);
 
 			var firstRoleApprover = await _dbContext.ApprovalRules.AsNoTracking()
 				.FirstOrDefaultAsync(x => x.TransactionTypeCode == input.TransactionTypeCode && x.MinAmount == workflowRule.MinAmount && x.MaxAmount == workflowRule.MaxAmount && x.Level == 2);
 
 			if (firstRoleApprover == null)
-				return false;
+				return (false, string.Empty);
 
 			var dataInbox = new ApprovalInbox
 			{
@@ -473,7 +550,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
 
-			return true;
+			return (true, firstRoleApprover.RoleCode);
 		}
 
 		private async Task<DocNumberConfig> GetRunningNumberDocument(string transactionTypeCode, string companyCode, DateTime date)
