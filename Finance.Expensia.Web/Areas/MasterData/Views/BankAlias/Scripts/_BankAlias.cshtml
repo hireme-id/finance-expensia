@@ -206,7 +206,7 @@
         lblTitle.text("Create Bank Alias");
         dmSelect.addClass('select2 select2-hidden-accessible');
         $('span.select2').add($('small')).show();
-        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false).removeClass('form-detail');
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
         dmInput.add(dmSelect).add(dmTextArea).val('');
         dmButton.show();
         bankAliasForm.modal('show');
@@ -218,7 +218,7 @@
         lblTitle.text("Edit Bank Alias");
         dmSelect.addClass('select2 select2-hidden-accessible');
         $('span.select2').add($('small')).show();
-        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false).removeClass('form-detail');
+        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
         dmButton.show();
         loadDataBankAlias(bankAliasId);
     }
@@ -270,7 +270,7 @@
         lblTitle.text("Detail Bank Alias");
         dmSelect.removeClass('select2 select2-hidden-accessible');
         $('span.select2').add($('small')).hide();
-        dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true).addClass('form-detail');
+        dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true);
         dmButton.hide();
         await loadDataBankAlias(bankAliasId);
         dmInput.add(dmSelect).add(dmTextArea).each(function () {

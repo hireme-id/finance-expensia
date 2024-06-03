@@ -21,6 +21,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
                 .ForMember(dest => dest.IsCancelAble, opt => opt.MapFrom(src => src.ApprovalStatus != Shared.Enums.ApprovalStatus.WaitingApproval))
                 .ForMember(dest => dest.IsBtnCancelHidden, opt => opt.MapFrom(src => false));
             CreateMap<OutgoingPaymentDetail, OutgoingPaymentDetailDto>();
+            CreateMap<OutgoingPaymentTagging, OutgoingPaymentTaggingDto>();
             CreateMap<OutgoingPaymentDetailAttachment, OutgoingPaymentDetailAttachmentDto>();
             #endregion
 
@@ -35,7 +36,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
 			CreateMap<CreateOutgoingPaymentDetailAttachmentInput, OutgoingPaymentDetailAttachment>()
                 .ForMember(dest => dest.OutgoingPaymentDetail, opt => opt.Ignore());
 
-            CreateMap<EditOutgoingPaymentInput, DataAccess.Models.OutgoingPayment>()
+			CreateMap<CreateOutgoingPaymentTaggingInput, OutgoingPaymentTagging>()
+				.ForMember(dest => dest.OutgoingPayment, opt => opt.Ignore());
+
+			CreateMap<EditOutgoingPaymentInput, DataAccess.Models.OutgoingPayment>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.TransactionNo, opt => opt.Ignore())
                 .ForMember(dest => dest.Requestor, opt => opt.Ignore())
@@ -53,7 +57,12 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
                 .ForMember(dest => dest.OutgoingPaymentDetailId, opt => opt.Ignore())
                 .ForMember(dest => dest.OutgoingPaymentDetail, opt => opt.Ignore());
 
-            #endregion
-        }
+			CreateMap<EditOutgoingPaymentDetailTaggingInput, OutgoingPaymentTagging>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.OutgoingPaymentId, opt => opt.Ignore())
+				.ForMember(dest => dest.OutgoingPayment, opt => opt.Ignore());
+
+			#endregion
+		}
     }
 }

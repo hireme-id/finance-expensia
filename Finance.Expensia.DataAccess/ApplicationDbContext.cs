@@ -29,6 +29,7 @@ namespace Finance.Expensia.DataAccess
         #region Transaction
         public virtual DbSet<OutgoingPayment> OutgoingPayments { get; set; }
         public virtual DbSet<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; }
+        public virtual DbSet<OutgoingPaymentTagging> OutgoingPaymentTaggings { get; set; }
         public virtual DbSet<OutgoingPaymentDetailAttachment> OutgoingPaymentDetailAttachments { get; set; }
         #endregion
 
@@ -62,6 +63,7 @@ namespace Finance.Expensia.DataAccess
             #region Transaction
             new OutgoingPaymentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPayment>());
             new OutgoingPaymentDetailEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetail>());
+            new OutgoingPaymentTaggingEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentTagging>());
             new OutgoingPaymentDetailAttachmentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetailAttachment>());
             #endregion
 

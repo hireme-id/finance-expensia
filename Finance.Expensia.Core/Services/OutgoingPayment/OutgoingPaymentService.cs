@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Finance.Expensia.Core.Services.Inbox;
+using Finance.Expensia.Core.Services.MasterData.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
+using Finance.Expensia.Shared.Helpers;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
+using Finance.Expensia.Shared.Objects.Inputs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Xml.Linq;
@@ -64,6 +67,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 		{
 			var result = new ResponseObject<OutgoingPaymentDto>();
 			var dataOutgoingPay = await _dbContext.OutgoingPayments
+												  .Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
 												  .Include(x => x.OutgoingPaymentDetails.OrderBy(d => d.Created))
 												  .ThenInclude(x => x.OutgoingPaymentDetailAttachments)
 												  .FirstOrDefaultAsync(x => x.Id == outgoingPaymentId);
@@ -83,10 +87,31 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>("Data outgoing payment tidak ditemukan", ResponseCode.NotFound));
         }
-        #endregion
 
-        #region Mutation
-        public async Task<ResponseBase> CreateOutgoingPayment(CreateOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
+		public async Task<ResponseObject<List<OutgoingPaymentTaggingDto>>> RetrieveOutgoingPaymentTagging(PagingSearchInputBase input)
+		{
+			var dataOutgoingPayments = await _dbContext.OutgoingPaymentTaggings
+				.Where(d => EF.Functions.Like(d.TagValue, $"%{input.SearchKey}%"))
+				.GroupBy(opt => opt.TagValue)
+				.Select(g => g.Key)
+				.OrderBy(tagValue => tagValue)
+				.Skip((input.Page - 1) * input.PageSize)
+				.Take(input.PageSize)
+				.ToListAsync();
+
+			var dataOutgoingPaymentsDto = dataOutgoingPayments
+				.Select(tagValue => _mapper.Map<OutgoingPaymentTaggingDto>(new OutgoingPaymentTagging { TagValue = tagValue }))
+				.ToList();
+
+			return new ResponseObject<List<OutgoingPaymentTaggingDto>>(responseCode: ResponseCode.Ok)
+			{
+				Obj = dataOutgoingPaymentsDto
+			};
+		}
+		#endregion
+
+		#region Mutation
+		public async Task<ResponseBase> CreateOutgoingPayment(CreateOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
         {
 			if (input == null)
 				return new ResponseBase("Tolong lengkapi informasi yang mandatory", ResponseCode.NotFound);
@@ -355,9 +380,41 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					await _dbContext.AddAsync(dataOutgoingPaymentDetail);
                 }
 			}
+
+			//delete outgoing tagging
+			var deleteOutgoingTaggings = await _dbContext.OutgoingPaymentTaggings
+														.Where(x =>
+															x.OutgoingPaymentId == input.Id
+															&& !input.OutgoingPaymentTaggings.Select(d => d.Id).Contains(x.Id))
+														.ToListAsync();
+
+			if (deleteOutgoingTaggings.Count != 0)
+			{
+				foreach (var deleteOutgoingTagging in deleteOutgoingTaggings)
+				{
+					deleteOutgoingTagging.RowStatus = 1;
+					_dbContext.Update(deleteOutgoingTagging);
+				}
+			}
+
+			// add outgoing tagging
+			foreach (var outgoingPaymentTaggingInput in input.OutgoingPaymentTaggings)
+			{
+				var existOutgoingTagging = existOutgoing.OutgoingPaymentTaggings.FirstOrDefault(x => x.Id == outgoingPaymentTaggingInput.Id);
+				if (existOutgoingTagging == null)
+				{
+					//Add data baru
+					var dataOutgoingPaymentTagging = _mapper.Map<OutgoingPaymentTagging>(outgoingPaymentTaggingInput);
+
+					dataOutgoingPaymentTagging.OutgoingPaymentId = existOutgoing.Id;
+					dataOutgoingPaymentTagging.TagValue = outgoingPaymentTaggingInput.TagValue;
+
+					await _dbContext.AddAsync(dataOutgoingPaymentTagging);
+				}
+			}
 			#endregion
 
-			_dbContext.OutgoingPayments.Update(existOutgoing);
+				_dbContext.OutgoingPayments.Update(existOutgoing);
 
 			if (input.IsSubmit)
 			{

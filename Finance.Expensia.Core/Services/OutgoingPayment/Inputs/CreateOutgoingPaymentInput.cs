@@ -30,9 +30,15 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Inputs
 		public decimal Amount { get; set; }
 	}
 
+	public class CreateOutgoingPaymentTaggingInput
+	{
+		public string TagValue { get; set; } = string.Empty;
+	}
+
 	public class CreateOutgoingPaymentInput : BaseOutgoingPaymentInput
 	{
 		public List<CreateOutgoingPaymentDetailInput> OutgoingPaymentDetails { get; set; } = [];
+		public List<CreateOutgoingPaymentTaggingInput> OutgoingPaymentTaggings { get; set; } = [];
 	}
 
 	public class CreateOutgoingPaymentDetailInput : BaseOutgoingPaymentDetailInput

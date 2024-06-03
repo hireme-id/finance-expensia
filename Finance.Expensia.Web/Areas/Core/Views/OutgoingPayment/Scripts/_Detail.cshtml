@@ -498,9 +498,10 @@ Account No : ` + accountNo);
 		btnHistory.prop('disabled', true);
 		$('select').removeClass('select2');
 		$("#btnloader").removeClass("d-none");
+		$("#dvListTag").removeClass("mt-3");
 		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
-		$('input, textarea, select').addClass('shimmerBGDetail form-detail');
-		$('.input-group-append').hide();
+		$('input, textarea, select').addClass('shimmerBG');
+		$('#txtTagging').hide();
 	}
 
 	function SetFormAfterView() {
@@ -510,7 +511,7 @@ Account No : ` + accountNo);
 			}
 		});
 
-		$('input, textarea, select').removeClass('shimmerBGDetail');
+		$('input, textarea, select').removeClass('shimmerBG');
 	}
 
 	async function LoadDdlPartnerData() {
@@ -645,7 +646,7 @@ Account No : ` + accountNo);
 
 	async function LoadOutgoingPaymentDetailData() {
 		var pathArray = window.location.pathname.split('/');
-
+		const divTag = $('#dvListTag');
 		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "GET",
 			url: "@gridDetailOutgoingPayment" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
@@ -688,6 +689,17 @@ Account No : ` + accountNo);
 					ddlFromAliasBank.val(response.obj.fromBankAliasId);
 					ddlFromAliasBank.trigger('change');
 				}, 500);
+
+				if (response.obj.outgoingPaymentTaggings.length == 0) {
+					divTag.append('-');
+				}
+
+				$.each(response.obj.outgoingPaymentTaggings, function (key, value) {
+					var tagValue = value.tagValue;
+					let listTagging = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mt-2" style="padding: 0.25em 0.75em;"  data-value="${tagValue}">${tagValue}
+														</span>`;
+					divTag.append($(listTagging));
+				});
 
 				$.each(response.obj.outgoingPaymentDetails, function (key, value) {
 					let attachments = [];
