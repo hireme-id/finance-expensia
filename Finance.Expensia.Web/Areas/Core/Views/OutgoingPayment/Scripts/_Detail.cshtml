@@ -500,8 +500,8 @@ Account No : ` + accountNo);
 		$("#btnloader").removeClass("d-none");
 		$("#dvListTag").removeClass("mt-3");
 		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
-		$('input, textarea, select').addClass('shimmerBGDetail form-detail');
-		$('.input-group-append, #txtTagging').hide();
+		$('input, textarea, select').addClass('shimmerBG');
+		$('#txtTagging').hide();
 	}
 
 	function SetFormAfterView() {
@@ -511,7 +511,7 @@ Account No : ` + accountNo);
 			}
 		});
 
-		$('input, textarea, select').removeClass('shimmerBGDetail');
+		$('input, textarea, select').removeClass('shimmerBG');
 	}
 
 	async function LoadDdlPartnerData() {

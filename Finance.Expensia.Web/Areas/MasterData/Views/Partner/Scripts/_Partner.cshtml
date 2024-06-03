@@ -178,7 +178,7 @@
     function fnCreateForm(){
         isEdit = false;
         lblTitle.text("Create Partner");
-        dmInput.add(dmSelect).prop('disabled', false).removeClass('form-detail');
+        dmInput.add(dmSelect).prop('disabled', false);
         dmInput.add(dmSelect).val('');
         dmButton.show();
         mdPartner.modal('show');
@@ -188,7 +188,7 @@
         isEdit = true;
         idPartner = partnerId;
         lblTitle.text("Edit Partner");
-        dmInput.add(dmSelect).prop('disabled', false).removeClass('form-detail');
+        dmInput.add(dmSelect).prop('disabled', false);
         dmButton.show();
         loadDataPartner(partnerId);
     }
@@ -238,7 +238,7 @@
 
     async function fnDetailForm(partnerId) {
         lblTitle.text("Detail Partner");
-        dmInput.add(dmSelect).attr('disabled', true).addClass('form-detail');
+        dmInput.add(dmSelect).attr('disabled', true);
         dmButton.hide();
         await loadDataPartner(partnerId);
         dmInput.add(dmSelect).each(function () {

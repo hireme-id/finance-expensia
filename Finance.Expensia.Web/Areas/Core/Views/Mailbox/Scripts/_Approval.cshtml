@@ -513,8 +513,7 @@ Account No : ` + accountNo);
 		btnHistory.prop('disabled', true);
 		$('select').removeClass('select2');
 		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
-		$('input, textarea, select').addClass('shimmerBGDetail form-detail');
-		$('.input-group-append').hide();
+		$('input, textarea, select').addClass('shimmerBG');
 	}
 
 	function SetFormAfterView() {
@@ -524,7 +523,7 @@ Account No : ` + accountNo);
 			}
 		});
 
-		$('input, textarea, select').removeClass('shimmerBGDetail');
+		$('input, textarea, select').removeClass('shimmerBG');
 	}
 
 	async function LoadDdlPartnerData() {
