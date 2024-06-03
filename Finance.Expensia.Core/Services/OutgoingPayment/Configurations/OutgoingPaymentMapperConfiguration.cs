@@ -20,7 +20,11 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
                 .ForMember(dest => dest.ExpectedTransfer, opt => opt.MapFrom(src => src.ExpectedTransfer.ToString()))
                 .ForMember(dest => dest.IsCancelAble, opt => opt.MapFrom(src => src.ApprovalStatus != Shared.Enums.ApprovalStatus.WaitingApproval))
                 .ForMember(dest => dest.IsBtnCancelHidden, opt => opt.MapFrom(src => false));
-            CreateMap<OutgoingPaymentDetail, OutgoingPaymentDetailDto>();
+			CreateMap<DataAccess.Models.OutgoingPayment, DownloadOutgoingPaymentDto>()
+				.ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id));
+
+			CreateMap<OutgoingPaymentDetail, OutgoingPaymentDetailDto>();
+			CreateMap<OutgoingPaymentDetail, DownloadOutgoingPaymentDetailDto>();
             CreateMap<OutgoingPaymentTagging, OutgoingPaymentTaggingDto>();
             CreateMap<OutgoingPaymentDetailAttachment, OutgoingPaymentDetailAttachmentDto>();
             #endregion

@@ -191,6 +191,10 @@ label{
     -moz-appearance: none;
 }
 
+.error-input {
+    border: 1px solid red;
+}
+
 .shimmerBG {
     animation-duration: 2.5s;
     animation-fill-mode: forwards;
