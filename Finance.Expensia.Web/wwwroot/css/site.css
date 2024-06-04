@@ -191,6 +191,18 @@ label{
     -moz-appearance: none;
 }
 
+.small-width {
+    width: 7% !important;
+}
+
+.large-width {
+    width: 13% !important;
+}
+
+.table td.large-width{
+    padding-right: 0px !important;
+}
+
 .shimmerBG {
     animation-duration: 2.5s;
     animation-fill-mode: forwards;

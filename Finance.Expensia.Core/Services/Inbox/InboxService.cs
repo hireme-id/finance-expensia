@@ -2,6 +2,7 @@
 using Finance.Expensia.Core.Services.Inbox.Dtos;
 using Finance.Expensia.Core.Services.Inbox.Inputs;
 using Finance.Expensia.Core.Services.OutgoingPayment;
+using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
@@ -22,43 +23,48 @@ namespace Finance.Expensia.Core.Services.Inbox
             var retVal = new ResponsePaging<ListInboxDto>();
 			var searchKey = string.IsNullOrEmpty(input.SearchKey) ? string.Empty : input.SearchKey.ToLower();
 
-            var dataInbox = from ibx in _dbContext.ApprovalInboxes
+			var dataInbox = from ibx in _dbContext.ApprovalInboxes
 							join ur in _dbContext.UserRoles.Where(d => d.UserId.Equals(userId)) on ibx.ApprovalRoleCode equals ur.Role.RoleCode
-                            join otp in _dbContext.OutgoingPayments on ibx.TransactionNo equals otp.TransactionNo
+							join otp in _dbContext.OutgoingPayments on ibx.TransactionNo equals otp.TransactionNo
 							join tt in _dbContext.TransactionTypes on otp.TransactionTypeId equals tt.Id
-                            where
-                                (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
-                                && (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
-                                && (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
-                                && (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
-                                && (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
+							where
+								(!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
+								&& (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
+								&& (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
+								&& (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
+								&& (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
 								&& (
-									string.IsNullOrEmpty(searchKey) 
-									|| tt.Description.ToLower().Contains(searchKey) 
+									string.IsNullOrEmpty(searchKey)
+									|| tt.Description.ToLower().Contains(searchKey)
 									|| ibx.TransactionNo.ToLower().Contains(searchKey)
-									|| otp.CompanyName.ToLower().Contains(searchKey) 
+									|| otp.CompanyName.ToLower().Contains(searchKey)
 									|| otp.FromBankAliasName.ToLower().Contains(searchKey)
-									|| otp.ToBankAliasName.ToLower().Contains(searchKey) 
+									|| otp.ToBankAliasName.ToLower().Contains(searchKey)
 									|| otp.TotalAmount.ToString().Contains(searchKey)
-									|| otp.Remark.ToLower().Contains(searchKey) 
+									|| otp.Remark.ToLower().Contains(searchKey)
 									|| otp.Requestor.ToLower().Contains(searchKey)
 								)
 								&& ibx.ApprovalStatus == ApprovalStatus.WaitingApproval
+                                && (
+									string.IsNullOrEmpty(input.Taggings)
+                                    || otp.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.Taggings}%"))
+								)
                             orderby otp.TotalAmount descending
-                            select new ListInboxDto
-                            {
+							select new ListInboxDto
+							{
 								TransactionTypeDescription = tt.Description,
-                                OutgoingPaymentId = otp.Id,
-                                TransactionNo = ibx.TransactionNo,
-                                CompanyName = otp.CompanyName,
-                                RequestDate = otp.RequestDate,
-                                Requestor = otp.Requestor,
-                                TotalAmount = otp.TotalAmount,
-                                Remark = otp.Remark,
-                                BankPaymentType = string.Empty,
-                                FromBankAliasName = otp.FromBankAliasName,
-                                ToBankAliasName = otp.ToBankAliasName,
-                                ApprovalStatus = otp.ApprovalStatus
+								OutgoingPaymentId = otp.Id,
+								TransactionNo = ibx.TransactionNo,
+								CompanyName = otp.CompanyName,
+								RequestDate = otp.RequestDate,
+								Requestor = otp.Requestor,
+								TotalAmount = otp.TotalAmount,
+								Remark = otp.Remark,
+								BankPaymentType = string.Empty,
+								FromBankAliasName = otp.FromBankAliasName,
+								ToBankAliasName = otp.ToBankAliasName,
+								ApprovalStatus = otp.ApprovalStatus,
+								OutgoingPaymentTaggings = _mapper.Map<List<OutgoingPaymentTaggingDto>>(otp.OutgoingPaymentTaggings.OrderBy(d => d.Created))
                             };
 
             retVal.ApplyPagination(input.Page, input.PageSize, dataInbox);
