@@ -38,6 +38,7 @@ namespace Finance.Expensia.DataAccess
         public virtual DbSet<ApprovalRule> ApprovalRules { get; set; }
         public virtual DbSet<ApprovalInbox> ApprovalInboxes { get; set; }
         public virtual DbSet<ApprovalHistory> ApprovalHistories { get; set; }
+        public virtual DbSet<EmailHistory> EmailHistories { get; set; }
         #endregion
 
 
@@ -73,6 +74,7 @@ namespace Finance.Expensia.DataAccess
             new ApprovalRuleEntityBuilder().Configure(modelBuilder.Entity<ApprovalRule>());
             new ApprovalInboxEntityBuilder().Configure(modelBuilder.Entity<ApprovalInbox>());
             new ApprovalHistoryEntityBuilder().Configure(modelBuilder.Entity<ApprovalHistory>());
+            new EmailHistoryEntityBuilder().Configure(modelBuilder.Entity<EmailHistory>());
             #endregion
         }
     }

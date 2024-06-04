@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240604015721_AddTableEmailHistory")]
+    partial class AddTableEmailHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -808,43 +811,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.HasIndex("OutgoingPaymentDetailId");
 
                     b.ToTable("OutgoingPaymentDetailAttachments");
-                });
-
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentTagging", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("OutgoingPaymentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("RowStatus")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TagValue")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OutgoingPaymentId");
-
-                    b.ToTable("OutgoingPaymentTaggings");
                 });
 
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.Partner", b =>
@@ -2455,17 +2421,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.Navigation("OutgoingPaymentDetail");
                 });
 
-            modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentTagging", b =>
-                {
-                    b.HasOne("Finance.Expensia.DataAccess.Models.OutgoingPayment", "OutgoingPayment")
-                        .WithMany("OutgoingPaymentTaggings")
-                        .HasForeignKey("OutgoingPaymentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("OutgoingPayment");
-                });
-
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.RolePermission", b =>
                 {
                     b.HasOne("Finance.Expensia.DataAccess.Models.Permission", "Permission")
@@ -2518,8 +2473,6 @@ namespace Finance.Expensia.DataAccess.Migrations
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPayment", b =>
                 {
                     b.Navigation("OutgoingPaymentDetails");
-
-                    b.Navigation("OutgoingPaymentTaggings");
                 });
 
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.OutgoingPaymentDetail", b =>

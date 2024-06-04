@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Reflection;
+using System.Net.Mail;
 using System.Xml.Linq;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
@@ -707,26 +708,54 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					var emailPass = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("FromEmailPassword"))!.Value;
 					var templateBody = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("BodyTemplate"))!.Value;
 
-					foreach (var user in dataUsers)
-					{
-						var body = templateBody
-							.Replace("{{toName}}", user.User.FullName)
+					var roleDesc = dataUsers.FirstOrDefault()!.Role.RoleDescription;
+
+					var body = templateBody
+							.Replace("{{toName}}", roleDesc)
 							.Replace("{{documentNo}}", input.TransactionNo)
 							.Replace("{{action}}", status.ToString())
 							.Replace("{{executorName}}", input.ExecutorName);
 
-						var emailDataInput = new EmailData
-						{
-							BodyEmail = body,
-							FromDisplayName = fromEmailDisplay,
-							FromEmail = fromEmail,
-							PasswordEmail = emailPass,
-							SubjectEmail = "Outgoing Payment Notification",
-							ToEmail = user.User.Email,
-							ToDisplayName = user.User.FullName
-						};
+					var emailDataInput = new EmailData
+					{
+						BodyEmail = body,
+						FromDisplayName = fromEmailDisplay,
+						FromEmail = fromEmail,
+						PasswordEmail = emailPass,
+						SubjectEmail = "Outgoing Payment Notification",
+						MultiRecievers = new List<MailAddress>()
+					};
 
-						EmailHelper.SendEmail(emailDataInput);
+					foreach (var user in dataUsers)
+					{
+						emailDataInput.MultiRecievers.Add(new MailAddress(user.User.Email, user.User.FullName));
+					}
+						
+					try
+					{
+						EmailHelper.SendEmailMultiReceiver(emailDataInput);
+
+						await _dbContext.EmailHistories.AddAsync(new EmailHistory
+						{
+							Sender = emailDataInput.FromEmail,
+							Receiver = string.Join("; ", emailDataInput.MultiRecievers.Select(x => x.Address)),
+							Subject = emailDataInput.SubjectEmail,
+							Content = emailDataInput.BodyEmail,
+							Error = string.Empty,
+							Status = EmailStatus.Sended
+						});
+					}
+					catch (Exception ex)
+					{
+						await _dbContext.EmailHistories.AddAsync(new EmailHistory
+						{
+							Sender = emailDataInput.FromEmail,
+							Receiver = string.Join("; ", emailDataInput.MultiRecievers.Select(x => x.Address)),
+							Subject = emailDataInput.SubjectEmail,
+							Content = emailDataInput.BodyEmail,
+							Error = ex.Message,
+							Status = EmailStatus.Failed
+						});
 					}
 				}
 			}
