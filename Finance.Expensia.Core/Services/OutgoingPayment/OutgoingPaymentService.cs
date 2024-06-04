@@ -757,6 +757,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 							Status = EmailStatus.Failed
 						});
 					}
+					finally
+					{
+						await _dbContext.SaveChangesAsync();
+					}
 				}
 			}
 		}
