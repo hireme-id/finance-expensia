@@ -36,7 +36,6 @@
                             </span>
                         </div>
                     </div>
-                    <span class="text-danger d-none" id="sdmessage">Start date harus diisi</span>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -50,7 +49,6 @@
                             </span>
                         </div>
                     </div>
-                    <span class="text-danger d-none" id="sdmessage">End date harus diisi</span>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -71,7 +69,52 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="mdDownloadDetail">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h4 class="modal-title" id="modalTitle">Download Detail</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Date</label>
+                <div class="d-inline-flex w-100">
+                    <div class="d-flex flex-column w-100">
+                        <div class="input-group mb-2">
+                            <input placeholder="Start Date" type="text" class="form-control datepicker" id="dtsdDownload" autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <span class="text-danger" style="display: none" id="sdmessage">Start date harus diisi</span>
+                    </div>
+                    <span class="p-1">to</span>
+                    <div class="d-flex flex-column w-100">
+                        <div class="input-group mb-2">
+                            <input placeholder="End Date" type="text" class="form-control datepicker" id="dtedDownload" autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <span class="text-danger" style="display: none" id="edmessage">End date harus diisi</span>
+                    </div>
+                </div>
+                <div class="form-group justify-content-between mt-2">
+                    <button type="button" class="btn btn-primary float-right ml-2" id="btnDownload">Download
+                        <div id="btnloader" class="spinner-border ml-2 d-none btnloader" role="status"></div>
+                    </button>
+                    <button type="submit" class="btn btn-default close-button float-right" id="btnCancel" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts {
 	@await Html.PartialAsync("~/Areas/Core/Views/OutgoingPayment/Scripts/_OutgoingPayment.cshtml")
 }

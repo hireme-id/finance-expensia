@@ -191,6 +191,11 @@ label{
     -moz-appearance: none;
 }
 
+
+.error-input {
+    border: 1px solid red;
+}
+
 .small-width {
     width: 7% !important;
 }

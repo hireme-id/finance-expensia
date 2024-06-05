@@ -6,6 +6,7 @@
     var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
     var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();
     var createOutgoingPaymentUrl = Url.Action("Create", "OutgoingPayment", new { area = "Core" });
+    var getDownloadList = Url.Action("GetDownloadOutgoingPayment", "OutgoingPayment");
 }
 
 <script type="text/javascript">
@@ -14,9 +15,13 @@
     //Variable for control
     const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
+    const dtsdDownload = $("#dtsdDownload"), dtedDownload = $("#dtedDownload");
     const ddlCompany = $("#ddlCompany"), ddlApprovalStatus = $('#ddlApprovalStatus');
     const txtSearch = $("#txtSearch");
+    const vdStartDateDownload = $("#sdmessage"), vdEndDateDownload = $("#edmessage");
     const btnFilter = $("#btnFilter"), btnCreate = $('#btnCreate'), btnReset = $("#btnReset");
+    const btnDownload = $("#btnDownload"), btnCancel = $('#btnCancel'), btnloader = $('#btnloader');
+    const mdDownloadDetail = $("#mdDownloadDetail");
 
     const badgeStatus = ['badge-secondary', 'badge-warning', 'badge-success', 'badge-danger', 'badge-light', 'badge-outlined-danger'];
 
@@ -149,8 +154,7 @@
                         bottomStart: 'info',
                         bottom2Start: function () {
                             let toolbar = document.createElement('div');
-                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2">Download Summary</button>' +
-                                '<button class="btn btn-sm btn-outline-primary mr-2">Download Detail</button>'
+                            let buttons = '<button class="btn btn-sm btn-outline-primary mr-2" data-toggle="modal" data-target="#mdDownloadDetail">Download Detail</button>'
                             toolbar.innerHTML = buttons;
 
                             return toolbar;
@@ -179,6 +183,54 @@
                     dateFormat: 'yy-mm-dd',
                     onSelect: function (selectedDate) {
                         dtStartDate.datepicker("option", "maxDate", selectedDate);
+                    }
+                });
+
+                dtsdDownload.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    beforeShow: function (input, inst) {
+                        var modal = $(input).closest(".modal");
+                        var datepicker = inst.dpDiv;
+
+                        setTimeout(function () {
+                            var offset = $(input).offset();
+                            var modalTop = modal.offset().top;
+                            var inputHeight = $(input).outerHeight();
+
+                            var top = offset.top - modalTop + inputHeight;
+
+                            datepicker.css({
+                                top: top + 'px',
+                                left: offset.left + 'px'
+                            });
+                        }, 0);
+                    },
+                    onSelect: function (selectedDate) {
+                        dtedDownload.datepicker("option", "minDate", selectedDate);
+                    }
+                });
+
+                dtedDownload.datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    beforeShow: function (input, inst) {
+                        var modal = $(input).closest(".modal");
+                        var datepicker = inst.dpDiv;
+
+                        setTimeout(function () {
+                            var offset = $(input).offset();
+                            var modalTop = modal.offset().top;
+                            var inputHeight = $(input).outerHeight();
+
+                            var top = offset.top - modalTop + inputHeight;
+
+                            datepicker.css({
+                                top: top + 'px',
+                                left: offset.left + 'px'
+                            });
+                        }, 0);
+                    },
+                    onSelect: function (selectedDate) {
+                        dtsdDownload.datepicker("option", "maxDate", selectedDate);
                     }
                 });
             },
@@ -230,6 +282,38 @@
                     dtEndDate.datepicker("option", "minDate", null);
                     gridOutgoingPayment.search(txtSearch.val()).draw();
                 })
+
+                btnDownload.click(function () {
+                    if (dtsdDownload.val() != '' && dtedDownload.val() == '') {
+                        vdEndDateDownload.show();
+                        vdStartDateDownload.hide();
+                        dtedDownload.addClass('error-input');
+                        dtsdDownload.removeClass('error-input');
+                    }
+                    else if (dtedDownload.val() != '' && dtsdDownload.val() == '') {
+                        vdStartDateDownload.show();
+                        vdEndDateDownload.hide();
+                        dtsdDownload.addClass('error-input');
+                        dtedDownload.removeClass('error-input');
+                    }
+                    else if (dtsdDownload.val() == '' && dtedDownload.val() == '') {
+                        vdEndDateDownload.show();
+                        vdStartDateDownload.show();
+                        dtsdDownload.addClass('error-input');
+                        dtedDownload.addClass('error-input');
+                    }
+                    else {
+                        btnDownload.prop('disabled', true);
+                        btnCancel.prop('disabled', true);
+                        btnloader.removeClass("d-none");
+                        dtsdDownload.removeClass('error-input');
+                        dtedDownload.removeClass('error-input');
+                        vdStartDateDownload.hide();
+                        vdEndDateDownload.hide();
+                        
+                        DownloadOutgoingPayment();
+                    }
+                })
             },
             InitValidation: function () {
             },
@@ -239,6 +323,47 @@
             }
         }
     };
+
+    function DownloadOutgoingPayment() {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@getDownloadList",
+            xhrFields: {
+                responseType: 'blob'
+            },
+            data: JSON.stringify({
+                "startDate": dtsdDownload.val(),
+                "endDate": dtedDownload.val()
+            })
+        })).done(function (data) {
+            var a = document.createElement('a');
+            var url = window.URL.createObjectURL(data);
+            a.href = url;
+            a.download = "OutgoingPayment.xlsx";
+            document.body.append(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            ResetDownloadForm();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            ResetDownloadForm();
+            Swal.fire({
+                title: "Error",
+                text: `Gagal untuk download`,
+                icon: "error"
+            });
+        });;
+    }
+
+    function ResetDownloadForm(){
+        mdDownloadDetail.modal('hide');
+
+        btnDownload.prop('disabled', false);
+        btnCancel.prop('disabled', false);
+        btnloader.addClass("d-none");
+        dtsdDownload.val('');
+        dtedDownload.val('');
+    }
 
     function SetFormView() {
         $('#gridOutgoingPayment tbody tr').each(function () {

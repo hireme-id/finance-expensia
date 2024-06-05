@@ -11,6 +11,7 @@ using Finance.Expensia.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Finance.Expensia.Shared.Objects.Inputs;
+using Microsoft.AspNetCore.Http;
 
 namespace Finance.Expensia.Web.Areas.Core.Controllers
 {
@@ -79,6 +80,16 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		public async Task<ResponseObject<List<OutgoingPaymentTaggingDto>>> RetrieveOutgoingPaymentTagging([FromBody] PagingSearchInputBase input)
 		{
 			return await _outgoingPaymentService.RetrieveOutgoingPaymentTagging(input);
+		}
+
+		[Mutation]
+		[AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
+		[HttpPost("outgoingpayment/downloadoutgoingpayment")]
+		public async Task<IActionResult> GetDownloadOutgoingPayment([FromBody] DownloadOutgoingPaymentInput input)
+		{
+			byte[] fileContents = await _outgoingPaymentService.GetFileExcelOutgoingPayment(input, _currentUserAccessor);
+			string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+			return File(fileContents, contentType);
 		}
 
 		[Mutation]
