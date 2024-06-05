@@ -43,12 +43,9 @@ namespace Finance.Expensia.Core.Services.Inbox
 									|| otp.TotalAmount.ToString().Contains(searchKey)
 									|| otp.Remark.ToLower().Contains(searchKey)
 									|| otp.Requestor.ToLower().Contains(searchKey)
-								)
+                                    || otp.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{searchKey}%"))
+                                )
 								&& ibx.ApprovalStatus == ApprovalStatus.WaitingApproval
-                                && (
-									string.IsNullOrEmpty(input.Taggings)
-                                    || otp.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.Taggings}%"))
-								)
                             orderby otp.TotalAmount descending
 							select new ListInboxDto
 							{

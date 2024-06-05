@@ -7,7 +7,6 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Inputs
     {
         public Guid? CompanyId { get; set; }
         public ApprovalStatus? ApprovalStatus { get; set; }
-        public string? Taggings { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set;}
     }

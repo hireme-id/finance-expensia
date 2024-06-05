@@ -15,7 +15,7 @@
     const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
     const ddlCompany = $("#ddlCompany"), ddlApprovalStatus = $('#ddlApprovalStatus');
-    const txtSearch = $("#txtSearch"), txtTagging = $("#txtTagging");
+    const txtSearch = $("#txtSearch");
     const btnFilter = $("#btnFilter"), btnCreate = $('#btnCreate'), btnReset = $("#btnReset");
 
     const badgeStatus = ['badge-secondary', 'badge-warning', 'badge-success', 'badge-danger', 'badge-light', 'badge-outlined-danger'];
@@ -49,7 +49,6 @@
                                 "startDate": dtStartDate.val() == '' ? null : dtStartDate.val(),
                                 "endDate": dtEndDate.val() == '' ? null : dtEndDate.val(),
                                 "approvalStatus": ddlApprovalStatus.val() == '' ? null : ddlApprovalStatus.val(),
-                                "taggings": txtTagging.val() == '' ? null : txtTagging.val(),
                                 "page": d.start / d.length + 1,
                                 "pageSize": d.length,
                                 "searchKey": d.search.value
@@ -225,7 +224,6 @@
                     RefreshDdlCompany();
                     ddlApprovalStatus.val('').change();
                     txtSearch.val('');
-                    txtTagging.val('');
                     dtStartDate.val('');
                     dtStartDate.datepicker("option", "maxDate", null);
                     dtEndDate.val('');

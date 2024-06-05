@@ -19,7 +19,7 @@
     //Variable for control
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
     const ddlCompany = $("#ddlCompany"), ddlTransactionType = $("#ddlTransactionType"), ddlFromBankAlias = $("#ddlFromBankAlias");
-    const txtSearch = $("#txtSearch"), txtTagging = $("#txtTagging");
+    const txtSearch = $("#txtSearch");
     const btnFilter = $("#btnFilter"), btnReset = $("#btnReset");
 
     $(function () {
@@ -52,7 +52,6 @@
                                 "fromBankAliasId": ddlFromBankAlias.val() == '' ? null : ddlFromBankAlias.val(),
                                 "startDate": dtStartDate.val() == '' ? null : dtStartDate.val(),
                                 "endDate": dtEndDate.val() == '' ? null : dtEndDate.val(),
-                                "taggings": txtTagging.val() == '' ? null : txtTagging.val(),
                                 "page": d.start / d.length + 1,
                                 "pageSize": d.length,
                                 "searchKey": d.search.value
@@ -282,7 +281,6 @@
                     await RefreshDdlTransactionType();
                     await RefreshDdlFromAliasBank();
                     txtSearch.val('');
-                    txtTagging.val('');
                     dtStartDate.val('');
                     dtStartDate.datepicker("option", "maxDate", null);
                     dtEndDate.val('');

@@ -33,10 +33,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                         .Where(d =>
                             EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
                             || EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
-                            || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%"))
-                        .Where(d => string.IsNullOrEmpty(input.Taggings)
-                            || d.OutgoingPaymentTaggings.Any(t =>
-                            EF.Functions.Like(t.TagValue, $"%{input.Taggings}%")))
+                            || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
+                            || d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
                         .Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
                         .OrderByDescending(d => d.Modified ?? d.Created)
                         .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
@@ -58,7 +56,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                 .Where(d =>
                     EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
                     || EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
-                    || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%"))
+                    || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
+                    || d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
 				.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"))
 				.Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
 				.OrderByDescending(d => d.Modified ?? d.Created)

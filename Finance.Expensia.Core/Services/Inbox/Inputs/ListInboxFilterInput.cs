@@ -9,6 +9,5 @@ namespace Finance.Expensia.Core.Services.Inbox.Inputs
         public Guid? FromBankAliasId { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public string? Taggings { get; set; }
     }
 }
