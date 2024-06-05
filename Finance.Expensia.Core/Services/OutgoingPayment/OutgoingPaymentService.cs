@@ -395,6 +395,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			{
 				var dataSendEmail = new SendEmailDto
 				{
+					DocumentId = dataOutgoingPayment.Id,
 					ExecutorName = dataOutgoingPayment.Requestor,
 					TransactionNo = dataOutgoingPayment.TransactionNo,
 					RoleCodeReceiver = roleCode
@@ -620,6 +621,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			{
 				var dataSendEmail = new SendEmailDto
 				{
+					DocumentId = existOutgoing.Id,
 					ExecutorName = existOutgoing.Requestor,
 					TransactionNo = existOutgoing.TransactionNo,
 					RoleCodeReceiver = roleCode
@@ -693,7 +695,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			if (dataUsers != null)
 			{
 				var dataEmailConfigs = _dbContext.AppConfigs.AsNoTracking()
-					.Where(x => x.StartDate <= DateTime.Today)
+					.Where(x => x.StartDate <= DateTime.Now && x.Modul.Equals("EmailNotification"))
 					.AsEnumerable()
 					.GroupBy(x => x.Key)
 					.SelectMany(g => g
@@ -701,17 +703,28 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 						.Take(1))
 					.ToList();
 
-				if (dataEmailConfigs != null)
+				var generalConfig = _dbContext.AppConfigs.AsNoTracking()
+					.Where(x => x.StartDate <= DateTime.Now && x.Modul.Equals("General"))
+					.AsEnumerable()
+					.GroupBy(x => x.Key)
+					.SelectMany(g => g
+						.OrderByDescending(x => x.StartDate)
+						.Take(1))
+					.ToList();
+
+				if (dataEmailConfigs != null && generalConfig != null)
 				{
 					var fromEmail = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("FromEmail"))!.Value;
 					var fromEmailDisplay = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("FromEmailDisplay"))!.Value;
 					var emailPass = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("FromEmailPassword"))!.Value;
 					var templateBody = dataEmailConfigs.FirstOrDefault(x => x.Key.Equals("BodyTemplate"))!.Value;
 
-					var roleDesc = dataUsers.FirstOrDefault()!.Role.RoleDescription;
+					var baseUrl = generalConfig.FirstOrDefault(x => x.Key.Equals("BaseUrl"))!.Value;
+					string linkDocument = $"{baseUrl}Core/Mailbox/Approval/{input.DocumentId}";
 
 					var body = templateBody
-							.Replace("{{toName}}", roleDesc)
+							.Replace("{{toName}}", input.RoleCodeReceiver)
+							.Replace("{{linkDocument}}", linkDocument)
 							.Replace("{{documentNo}}", input.TransactionNo)
 							.Replace("{{action}}", status.ToString())
 							.Replace("{{executorName}}", input.ExecutorName);
