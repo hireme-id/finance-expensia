@@ -120,28 +120,20 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 		public async Task<ResponseObject<List<GetDownloadOutgoingPaymentDto>>> GetListDownloadOutgoingPayment(DownloadOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
 		{
-			List<DownloadOutgoingPaymentDto> dataOutgoingPayments = new List<DownloadOutgoingPaymentDto>();
-			if (currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
+			var queryOutgoingPayments = _dbContext.OutgoingPayments
+												  .Include(x => x.OutgoingPaymentDetails.OrderBy(d => d.Created))
+												  .Where(d => d.RequestDate >= input.StartDate)
+												  .Where(d => d.RequestDate <= input.EndDate);
+
+            if (!currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
 			{
-				dataOutgoingPayments = await _dbContext.OutgoingPayments
-									.Include(x => x.OutgoingPaymentDetails.OrderBy(d => d.Created))
-									.Where(d => d.RequestDate >= input.StartDate)
-									.Where(d => d.RequestDate <= input.EndDate)
-									.OrderByDescending(d => d.Modified ?? d.Created)
-									.Select(d => _mapper.Map<DownloadOutgoingPaymentDto>(d))
-									.ToListAsync();
-			}
-			else
-			{
-				dataOutgoingPayments = await _dbContext.OutgoingPayments
-									.Include(x => x.OutgoingPaymentDetails.OrderBy(d => d.Created))
-									.Where(d => d.RequestDate >= input.StartDate)
-									.Where(d => d.RequestDate <= input.EndDate)
-									.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"))
-									.OrderByDescending(d => d.Modified ?? d.Created)
-									.Select(d => _mapper.Map<DownloadOutgoingPaymentDto>(d))
-									.ToListAsync();
-			}
+                queryOutgoingPayments = queryOutgoingPayments.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"));
+
+            }
+
+			var dataOutgoingPayments = await queryOutgoingPayments.OrderByDescending(d => d.Modified ?? d.Created)
+																  .Select(d => _mapper.Map<DownloadOutgoingPaymentDto>(d))
+																  .ToListAsync();
 
 			var processedData = dataOutgoingPayments
 							.SelectMany(o => o.OutgoingPaymentDetails.DefaultIfEmpty(), (o, d) => new GetDownloadOutgoingPaymentDto
@@ -179,7 +171,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 		public async Task<byte[]> GetFileExcelOutgoingPayment(DownloadOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
 		{
 			var data = await GetListDownloadOutgoingPayment(input, currentUserAccessor);
-			IWorkbook workbook = new XSSFWorkbook();
+			var workbook = new XSSFWorkbook();
 			ISheet sheet = workbook.CreateSheet("Sheet1");
 
 			#region styling row
@@ -213,7 +205,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 																	  .ToArray();
 
 			// Tambahkan "No" di awal array menggunakan LINQ
-			string[] headers = new[] { "No" }.Concat(propertyNames).ToArray();
+			string[] headers = ["No", .. propertyNames];
 
 			for (int i = 0; i < headers.Length; i++)
 			{
