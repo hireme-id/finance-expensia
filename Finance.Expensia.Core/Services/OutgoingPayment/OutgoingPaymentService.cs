@@ -29,17 +29,19 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
         {
             var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
 
-            var dataOutgoingPayments = _dbContext.OutgoingPayments
-				.Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
-				.Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
-				.Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
-                .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
-				.Where(d => 
-					EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
-					|| EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
-					|| EF.Functions.Like(d.Remark, $"%{input.SearchKey}%"))
-                .OrderByDescending(d => d.Modified ?? d.Created)
-                .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
+			var dataOutgoingPayments = _dbContext.OutgoingPayments
+                        .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
+                        .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
+                        .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
+                        .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
+                        .Where(d =>
+                            EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
+                            || EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
+                            || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
+                            || d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
+                        .Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
+                        .OrderByDescending(d => d.Modified ?? d.Created)
+                        .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
 
             retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
 
@@ -58,9 +60,11 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
                 .Where(d =>
                     EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
                     || EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
-                    || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%"))
+                    || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
+                    || d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
 				.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"))
-                .OrderByDescending(d => d.Modified ?? d.Created)
+				.Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
+				.OrderByDescending(d => d.Modified ?? d.Created)
                 .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
 
             retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);

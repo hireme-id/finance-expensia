@@ -1,4 +1,5 @@
-﻿using Finance.Expensia.Shared.Enums;
+﻿using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
+using Finance.Expensia.Shared.Enums;
 
 namespace Finance.Expensia.Core.Services.Inbox.Dtos
 {
@@ -17,5 +18,6 @@ namespace Finance.Expensia.Core.Services.Inbox.Dtos
         public string FromBankAliasName { get; set; } = string.Empty;
         public string ToBankAliasName { get; set; } = string.Empty;
         public ApprovalStatus ApprovalStatus { get; set; }
+        public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
     }
 }
