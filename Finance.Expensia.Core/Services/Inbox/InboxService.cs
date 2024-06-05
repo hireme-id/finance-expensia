@@ -137,6 +137,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 			{
 				var dataSendEmail = new SendEmailDto
 				{
+					DocumentId = outgoingPayment.Id,
 					ExecutorName = currentUserAccessor.FullName,
 					TransactionNo = outgoingPayment.TransactionNo,
 					RoleCodeReceiver = nextApprover.RoleCode
