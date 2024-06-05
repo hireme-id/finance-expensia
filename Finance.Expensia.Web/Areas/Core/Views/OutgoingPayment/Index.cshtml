@@ -9,7 +9,7 @@
 <div class="card">
     <div class="card-body">
         <div class="row mb-3">
-            <div class="col-lg-8">
+            <div class="col-lg-4">
                 <label>Company</label>
                 <select class="form-control select2" id="ddlCompany" name="companyId"></select>
             </div>
@@ -19,8 +19,7 @@
                     <option value="">&nbsp</option>
                     @foreach (var item in Enum.GetValues(typeof(ApprovalStatus)))
                     {
-                        @Html.Raw($"<option value=\"{item}\">{((ApprovalStatus)item).GetDescription()}</option>")
-                        ;
+                        @Html.Raw($"<option value=\"{item}\">{((ApprovalStatus)item).GetDescription()}</option>");
                     }
                 </select>
             </div>
@@ -37,7 +36,7 @@
                             </span>
                         </div>
                     </div>
-                    <span class="text-danger d-none" id="sdmessage">Startdate harus diisi</span>
+                    <span class="text-danger d-none" id="sdmessage">Start date harus diisi</span>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -51,7 +50,7 @@
                             </span>
                         </div>
                     </div>
-                    <span class="text-danger d-none" id="sdmessage">Startdate harus diisi</span>
+                    <span class="text-danger d-none" id="sdmessage">End date harus diisi</span>
                 </div>
             </div>
             <div class="col-lg-4">

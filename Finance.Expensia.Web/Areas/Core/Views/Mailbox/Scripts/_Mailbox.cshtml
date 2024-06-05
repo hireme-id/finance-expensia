@@ -119,6 +119,19 @@
                                 return elem;
                             },
                         },
+                        {
+                            title: "Taggings",
+                            render: function (data, type, row) {
+                                var htmltag = '';
+                                $.each(row.outgoingPaymentTaggings, function (key, value) {
+                                    var tagValue = value.tagValue;
+                                    let listTagging = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;"  data-value="${tagValue}">${tagValue}
+                                                                </span>`;
+                                    htmltag += listTagging;
+                                });
+                                return htmltag;
+                            }
+                        },
                         { title: "Requestor", data: "requestor" },
                         {
                             title: "", render: function (data, type, row) {
@@ -248,6 +261,17 @@
                     $("#txttotalamount").val(fmtMoney(totalAmount));
                 });
 
+                gridMailbox.on('draw', function () {
+                    $('#gridMailbox tbody tr').each(function () {
+                        var $taggingsCell = $(this).find('td').eq(8);
+                        if ($taggingsCell.text().trim() === '') {
+                            $taggingsCell.addClass('small-width').removeClass('large-width');
+                        } else {
+                            $taggingsCell.addClass('large-width').removeClass('small-width');
+                        }
+                    });
+                });
+
                 btnFilter.click(function () {
                     gridMailbox.search(txtSearch.val()).draw();
                 })
@@ -267,12 +291,24 @@
             InitValidation: function () {
             },
             InitLoad: function () {
+                SetFormView();
                 RefreshDdlCompany();
                 RefreshDdlTransactionType();
                 RefreshDdlFromAliasBank();
             }
         }
     };
+
+    function SetFormView() {
+        $('#gridMailbox tbody tr').each(function () {
+            var $taggingsCell = $(this).find('td').eq(8);
+            if ($taggingsCell.text().trim() === '') {
+                $taggingsCell.addClass('small-width').removeClass('large-width');
+            } else {
+                $taggingsCell.addClass('large-width').removeClass('small-width');
+            }
+        });
+    }
 
     async function RefreshDdlCompany() {
         await $.ajax(Object.assign({}, glbBaseRequest, {
