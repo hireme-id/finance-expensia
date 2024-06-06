@@ -445,12 +445,15 @@
                     })
                 });
 
+                document.body.classList.remove('loaded');
+
                 $.ajax(Object.assign({}, glbBaseRequest, {
                     method: "POST",
                     url: "@doActionWorkflowsUrl",
                     data: JSON.stringify(payload),
                     contentType: "application/json"
                 })).done(function (response) {
+                    document.body.classList.add('loaded');
                     if (response.succeeded) {
                         Swal.fire({
                             title: "Success",
@@ -467,6 +470,8 @@
                             icon: "error"
                         });
                     }
+                }).fail(function () {
+                    document.body.classList.add('loaded');
                 });
             }
         });

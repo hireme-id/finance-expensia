@@ -393,6 +393,7 @@ Account No : ` + accountNo);
 						allowOutsideClick: () => !Swal.isLoading()
 					}).then((result) => {
 						if (result.isConfirmed) {
+							document.body.classList.remove('loaded');
 							$.ajax(Object.assign({}, glbBaseRequest, {
 								method: "POST",
 								url: "@doActionWorkflowUrl",
@@ -403,6 +404,7 @@ Account No : ` + accountNo);
 								}),
 								contentType: "application/json"
 							})).done(function (response) {
+								document.body.classList.add('loaded');
 								if (response.succeeded) {
 									Swal.fire({
 										title: "Success",
@@ -419,6 +421,8 @@ Account No : ` + accountNo);
 										icon: "error"
 									});
 								}
+							}).fail(function () {
+								document.body.classList.add('loaded');
 							});
 						}
 					});

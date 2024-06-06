@@ -613,12 +613,15 @@ Account No : ` + accountNo);
 						});
 					});
 
+					document.body.classList.remove('loaded');
+
 					$.ajax(Object.assign({}, glbBaseRequest, {
 						method: "POST",
 						url: "@createOutgoingPaymentUrl",
 						data: JSON.stringify(formDataObject),
 						contentType: "application/json"
 					})).done(function (response) {
+						document.body.classList.add('loaded');
 						if (response.succeeded) {
 							Swal.fire({
 								title: "Success",
@@ -635,7 +638,9 @@ Account No : ` + accountNo);
 								icon: "error"
 							});
 						}
-					});
+					}).fail(function () {
+						document.body.classList.add('loaded');
+					})
 				});
 
 				$("#txtTagging").autocomplete({
