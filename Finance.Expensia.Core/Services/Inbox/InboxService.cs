@@ -142,8 +142,10 @@ namespace Finance.Expensia.Core.Services.Inbox
 					DocumentId = outgoingPayment.Id,
 					ExecutorName = currentUserAccessor.FullName,
 					TransactionNo = outgoingPayment.TransactionNo,
-					RoleCodeReceiver = nextApprover.RoleCode
-				};
+					RoleCodeReceiver = nextApprover.RoleCode,
+                    Remark = outgoingPayment.Remark,
+					ScheduleDate = outgoingPayment.ScheduledDate
+                };
 
 				await _outgoingPaymentService.SendEmailToApprover(dataSendEmail, ApprovalStatus.Approved);
 			}

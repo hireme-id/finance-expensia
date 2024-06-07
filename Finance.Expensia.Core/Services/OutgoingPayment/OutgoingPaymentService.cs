@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Finance.Expensia.Core.Services.Inbox;
-using Finance.Expensia.Core.Services.MasterData.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess;
@@ -18,7 +16,6 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Reflection;
 using System.Net.Mail;
-using System.Xml.Linq;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
 {
@@ -398,8 +395,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					DocumentId = dataOutgoingPayment.Id,
 					ExecutorName = dataOutgoingPayment.Requestor,
 					TransactionNo = dataOutgoingPayment.TransactionNo,
-					RoleCodeReceiver = roleCode
-				};
+					RoleCodeReceiver = roleCode,
+					Remark = dataOutgoingPayment.Remark,
+                    ScheduleDate = dataOutgoingPayment.ScheduledDate
+                };
 
 				await SendEmailToApprover(dataSendEmail, ApprovalStatus.Submitted);
 			}
@@ -624,8 +623,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					DocumentId = existOutgoing.Id,
 					ExecutorName = existOutgoing.Requestor,
 					TransactionNo = existOutgoing.TransactionNo,
-					RoleCodeReceiver = roleCode
-				};
+					RoleCodeReceiver = roleCode,
+                    Remark = existOutgoing.Remark,
+                    ScheduleDate = existOutgoing.ScheduledDate
+                };
 
 				await SendEmailToApprover(dataSendEmail, ApprovalStatus.Submitted);
 			}
@@ -729,14 +730,24 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 							.Replace("{{action}}", status.ToString())
 							.Replace("{{executorName}}", input.ExecutorName);
 
-					var emailDataInput = new EmailData
+					if (!string.IsNullOrEmpty(input.Remark))
+						body = body.Replace("{{remark}}", $"untuk <strong>{input.Remark}</strong>");
+					else
+                        body = body.Replace("{{remark}}", $"");
+
+					if (input.ScheduleDate != null)
+                        body = body.Replace("{{scheduledate}}", $"Transaksi perlu dilakukan pada tanggal : <strong>{input.ScheduleDate.Value:dd-MMM-yyyy}</strong>");
+					else
+                        body = body.Replace("{{scheduledate}}", $"");
+
+                    var emailDataInput = new EmailData
 					{
 						BodyEmail = body,
 						FromDisplayName = fromEmailDisplay,
 						FromEmail = fromEmail,
 						PasswordEmail = emailPass,
 						SubjectEmail = "Outgoing Payment Notification",
-						MultiRecievers = new List<MailAddress>()
+						MultiRecievers = []
 					};
 
 					foreach (var user in dataUsers)
