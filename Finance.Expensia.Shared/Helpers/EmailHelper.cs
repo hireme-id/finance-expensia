@@ -1,6 +1,6 @@
-﻿using System.Net.Mail;
+﻿using Finance.Expensia.Shared.Objects;
 using System.Net;
-using Finance.Expensia.Shared.Objects;
+using System.Net.Mail;
 
 namespace Finance.Expensia.Shared.Helpers
 {

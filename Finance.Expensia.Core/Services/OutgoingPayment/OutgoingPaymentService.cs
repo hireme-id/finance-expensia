@@ -14,69 +14,69 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using System.Reflection;
 using System.Net.Mail;
+using System.Reflection;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
 {
-    public class OutgoingPaymentService(ApplicationDbContext dbContext, IMapper mapper, ILogger<OutgoingPaymentService> logger) 
-        : BaseService<OutgoingPaymentService>(dbContext, mapper, logger)
-    {
-        #region Query
-        public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPayment(ListOutgoingPaymentFilterInput input, CurrentUserAccessor currentUserAccessor)
-        {
-            var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
+	public class OutgoingPaymentService(ApplicationDbContext dbContext, IMapper mapper, ILogger<OutgoingPaymentService> logger)
+		: BaseService<OutgoingPaymentService>(dbContext, mapper, logger)
+	{
+		#region Query
+		public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPayment(ListOutgoingPaymentFilterInput input, CurrentUserAccessor currentUserAccessor)
+		{
+			var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
 
 			var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.CompanyId).ToListAsync();
 
 			var dataOutgoingPayments = _dbContext.OutgoingPayments
 						.Where(d => userCompanyIds.Contains(d.CompanyId))
-                        .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
-                        .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
-                        .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
-                        .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
-                        .Where(d =>
-                            EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
-                            || EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
-                            || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
-                            || d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
-                        .Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
-                        .OrderByDescending(d => d.Modified ?? d.Created)
-                        .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
+						.Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
+						.Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
+						.Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
+						.Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
+						.Where(d =>
+							EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
+							|| EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
+							|| EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
+							|| d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
+						.Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
+						.OrderByDescending(d => d.Modified ?? d.Created)
+						.Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
 
-            retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
+			retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
 
-            return await Task.FromResult(retVal);
-        }
+			return await Task.FromResult(retVal);
+		}
 
-        public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPaymentMyDocument(ListOutgoingPaymentFilterInput input, CurrentUserAccessor currentUserAccessor)
-        {
-            var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
+		public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPaymentMyDocument(ListOutgoingPaymentFilterInput input, CurrentUserAccessor currentUserAccessor)
+		{
+			var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
 
-            var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.CompanyId).ToListAsync();
+			var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.CompanyId).ToListAsync();
 
-            var dataOutgoingPayments = _dbContext.OutgoingPayments
-                .Where(d => userCompanyIds.Contains(d.CompanyId))
-                .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
-                .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
-                .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
-                .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
-                .Where(d =>
-                    EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
-                    || EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
-                    || EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
-                    || d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
+			var dataOutgoingPayments = _dbContext.OutgoingPayments
+				.Where(d => userCompanyIds.Contains(d.CompanyId))
+				.Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
+				.Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
+				.Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
+				.Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
+				.Where(d =>
+					EF.Functions.Like(d.TransactionNo, $"%{input.SearchKey}%")
+					|| EF.Functions.Like(d.Requestor, $"%{input.SearchKey}%")
+					|| EF.Functions.Like(d.Remark, $"%{input.SearchKey}%")
+					|| d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
 				.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"))
 				.Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
 				.OrderByDescending(d => d.Modified ?? d.Created)
-                .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
+				.Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
 
-            retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
+			retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
 
-            return await Task.FromResult(retVal);
-        }
+			return await Task.FromResult(retVal);
+		}
 
-        public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid outgoingPaymentId, CurrentUserAccessor currentUserAccessor)
+		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment(Guid outgoingPaymentId, CurrentUserAccessor currentUserAccessor)
 		{
 			var result = new ResponseObject<OutgoingPaymentDto>();
 			var dataOutgoingPay = await _dbContext.OutgoingPayments
@@ -95,15 +95,15 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				if (dataUserCompany != null)
 					dataOutgoingPayDto.AllowApproval = dataUserCompany.AllowApproval;
 
-                return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>(responseCode: ResponseCode.Ok)
-                {
-                    Obj = dataOutgoingPayDto,
-                });
+				return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>(responseCode: ResponseCode.Ok)
+				{
+					Obj = dataOutgoingPayDto,
+				});
 
-            }
+			}
 
-            return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>("Data outgoing payment tidak ditemukan", ResponseCode.NotFound));
-        }
+			return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>("Data outgoing payment tidak ditemukan", ResponseCode.NotFound));
+		}
 
 		public async Task<ResponseObject<List<OutgoingPaymentTaggingDto>>> RetrieveOutgoingPaymentTagging(PagingSearchInputBase input)
 		{
@@ -133,11 +133,11 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 												  .Where(d => d.RequestDate >= input.StartDate)
 												  .Where(d => d.RequestDate <= input.EndDate);
 
-            if (!currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
+			if (!currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
 			{
-                queryOutgoingPayments = queryOutgoingPayments.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"));
+				queryOutgoingPayments = queryOutgoingPayments.Where(d => EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"));
 
-            }
+			}
 
 			var dataOutgoingPayments = await queryOutgoingPayments.OrderByDescending(d => d.Modified ?? d.Created)
 																  .Select(d => _mapper.Map<DownloadOutgoingPaymentDto>(d))
@@ -237,7 +237,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					value = properties[j].GetValue(data.Obj?[i])?.ToString() ?? "";
 					if (properties[j].PropertyType == typeof(DateTime) || properties[j].PropertyType == typeof(DateTime?))
 					{
-						if(value.IsNullOrEmpty())
+						if (value.IsNullOrEmpty())
 						{
 							row.CreateCell(j + 1).SetCellValue(value);
 						}
@@ -293,7 +293,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 		#region Mutation
 		public async Task<ResponseBase> CreateOutgoingPayment(CreateOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
-        {
+		{
 			if (input == null)
 				return new ResponseBase("Tolong lengkapi informasi yang mandatory", ResponseCode.NotFound);
 
@@ -307,12 +307,12 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);
 
 			var dataCompany = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(input.CompanyId));
-            var dataFromBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.FromBankAliasId) && d.CompanyId.Equals(input.CompanyId));
+			var dataFromBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.FromBankAliasId) && d.CompanyId.Equals(input.CompanyId));
 			var dataToBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.ToBankAliasId));
-            var dataTransactionType = await _dbContext.TransactionTypes.FirstOrDefaultAsync(d => d.Id.Equals(input.TransactionTypeId));
+			var dataTransactionType = await _dbContext.TransactionTypes.FirstOrDefaultAsync(d => d.Id.Equals(input.TransactionTypeId));
 
-            if (dataCompany == null)
-                return new ResponseBase("Data company tidak valid", ResponseCode.NotFound);
+			if (dataCompany == null)
+				return new ResponseBase("Data company tidak valid", ResponseCode.NotFound);
 
 			if (dataFromBankAlias == null)
 				return new ResponseBase("Data from bank alias tidak valid", ResponseCode.NotFound);
@@ -320,10 +320,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			if (dataToBankAlias == null)
 				return new ResponseBase("Data to bank alias tidak valid", ResponseCode.NotFound);
 
-            if (dataTransactionType == null)
-                return new ResponseBase("Data to transaction type tidak valid", ResponseCode.NotFound);
+			if (dataTransactionType == null)
+				return new ResponseBase("Data to transaction type tidak valid", ResponseCode.NotFound);
 
-            var dateNow = DateTime.Now;
+			var dateNow = DateTime.Now;
 
 			var runningNumberConfig = await GetRunningNumberDocument(dataTransactionType.TransactionTypeCode, dataCompany.CompanyCode, dateNow);
 
@@ -372,8 +372,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 				dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
 				dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
-                dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
-                dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
+				dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
+				dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
 				dataOutgoingPaymentDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
 				dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;
 				dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
@@ -386,17 +386,17 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			string roleCode = string.Empty;
 
-            if (input.IsSubmit)
-            {
-                (var isSuccessWorkflow, roleCode) = await CreateApprovalWorkflow(dataOutgoingPayment, currentUserAccessor);
+			if (input.IsSubmit)
+			{
+				(var isSuccessWorkflow, roleCode) = await CreateApprovalWorkflow(dataOutgoingPayment, currentUserAccessor);
 
-                if (!isSuccessWorkflow)
-                    return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
-            }
+				if (!isSuccessWorkflow)
+					return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
+			}
 
-            await _dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
-            _ = await UpdateRunningNumber(runningNumberConfig.Id);
+			_ = await UpdateRunningNumber(runningNumberConfig.Id);
 
 			if (input.IsSubmit)
 			{
@@ -407,19 +407,19 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					TransactionNo = dataOutgoingPayment.TransactionNo,
 					RoleCodeReceiver = roleCode,
 					Remark = dataOutgoingPayment.Remark,
-                    ScheduleDate = dataOutgoingPayment.ScheduledDate
-                };
+					ScheduleDate = dataOutgoingPayment.ScheduledDate
+				};
 
 				await SendEmailToApprover(dataSendEmail, ApprovalStatus.Submitted);
 			}
 
-            return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
+			return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
 		}
-		
+
 		public async Task<ResponseBase> EditOutgoingPayment(EditOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
 		{
-            if (input == null)
-                return new ResponseBase("Tolong lengkapi informasi yang mandatory", ResponseCode.NotFound);
+			if (input == null)
+				return new ResponseBase("Tolong lengkapi informasi yang mandatory", ResponseCode.NotFound);
 
 			if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
 				return new ResponseBase("Schedule date harus diisi");
@@ -428,46 +428,46 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				return new ResponseBase("Schedule date tidak boleh lebih kecil dari hari ini");
 
 			if (input.OutgoingPaymentDetails.Count == 0 && input.IsSubmit)
-                return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);
+				return new ResponseBase("Belum ada data detail", ResponseCode.NotFound);
 
-            var dataCompany = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(input.CompanyId));
-            var dataFromBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.FromBankAliasId) && d.CompanyId.Equals(input.CompanyId));
-            var dataToBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.ToBankAliasId));
-            var dataTransactionType = await _dbContext.TransactionTypes.FirstOrDefaultAsync(d => d.Id.Equals(input.TransactionTypeId));
+			var dataCompany = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(input.CompanyId));
+			var dataFromBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.FromBankAliasId) && d.CompanyId.Equals(input.CompanyId));
+			var dataToBankAlias = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.ToBankAliasId));
+			var dataTransactionType = await _dbContext.TransactionTypes.FirstOrDefaultAsync(d => d.Id.Equals(input.TransactionTypeId));
 
-            if (dataCompany == null)
-                return new ResponseBase("Data company tidak valid", ResponseCode.NotFound);
+			if (dataCompany == null)
+				return new ResponseBase("Data company tidak valid", ResponseCode.NotFound);
 
-            if (dataFromBankAlias == null)
-                return new ResponseBase("Data from bank alias tidak valid", ResponseCode.NotFound);
+			if (dataFromBankAlias == null)
+				return new ResponseBase("Data from bank alias tidak valid", ResponseCode.NotFound);
 
-            if (dataToBankAlias == null)
-                return new ResponseBase("Data to bank alias tidak valid", ResponseCode.NotFound);
-            if (dataTransactionType == null)
-                return new ResponseBase("Data to transaction type tidak valid", ResponseCode.NotFound);
+			if (dataToBankAlias == null)
+				return new ResponseBase("Data to bank alias tidak valid", ResponseCode.NotFound);
+			if (dataTransactionType == null)
+				return new ResponseBase("Data to transaction type tidak valid", ResponseCode.NotFound);
 
-            var existOutgoing = await _dbContext.OutgoingPayments.Include(x => x.OutgoingPaymentDetails)
+			var existOutgoing = await _dbContext.OutgoingPayments.Include(x => x.OutgoingPaymentDetails)
 				.ThenInclude(x => x.OutgoingPaymentDetailAttachments)
 				.FirstOrDefaultAsync(x => x.Id == input.Id);
 
 			if (existOutgoing == null)
-                return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>("Data outgoing payment tidak ditemukan", ResponseCode.NotFound));
+				return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>("Data outgoing payment tidak ditemukan", ResponseCode.NotFound));
 
-            #region edit data outgoing payment
-            existOutgoing.CompanyName = dataCompany.CompanyName;
+			#region edit data outgoing payment
+			existOutgoing.CompanyName = dataCompany.CompanyName;
 			existOutgoing.TransactionTypeId = dataTransactionType.Id;
 			existOutgoing.TransactionTypeCode = dataTransactionType.TransactionTypeCode;
-            existOutgoing.ApprovalStatus = input.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
+			existOutgoing.ApprovalStatus = input.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
 
-            existOutgoing.FromBankAliasName = dataFromBankAlias.AliasName;
-            existOutgoing.FromBankName = dataFromBankAlias.BankName;
-            existOutgoing.FromAccountNo = dataFromBankAlias.AccountNo;
-            existOutgoing.FromAccountName = dataFromBankAlias.AccountName;
+			existOutgoing.FromBankAliasName = dataFromBankAlias.AliasName;
+			existOutgoing.FromBankName = dataFromBankAlias.BankName;
+			existOutgoing.FromAccountNo = dataFromBankAlias.AccountNo;
+			existOutgoing.FromAccountName = dataFromBankAlias.AccountName;
 
-            existOutgoing.ToBankAliasName = dataToBankAlias.AliasName;
-            existOutgoing.ToBankName = dataToBankAlias.BankName;
-            existOutgoing.ToAccountNo = dataToBankAlias.AccountNo;
-            existOutgoing.ToAccountName = dataToBankAlias.AccountName;
+			existOutgoing.ToBankAliasName = dataToBankAlias.AliasName;
+			existOutgoing.ToBankName = dataToBankAlias.BankName;
+			existOutgoing.ToAccountNo = dataToBankAlias.AccountNo;
+			existOutgoing.ToAccountName = dataToBankAlias.AccountName;
 			existOutgoing.ExpectedTransfer = input.ExpectedTransfer;
 			existOutgoing.BankPaymentType = input.BankPaymentType;
 			existOutgoing.Remark = input.Remark;
@@ -483,8 +483,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			//delete outgoing detail
 			var deleteOutgoingDetails = await _dbContext.OutgoingPaymentDetails
 														.Include(x => x.OutgoingPaymentDetailAttachments)
-														.Where(x => 
-															x.OutgoingPaymentId == input.Id 
+														.Where(x =>
+															x.OutgoingPaymentId == input.Id
 															&& !input.OutgoingPaymentDetails.Select(d => d.Id).Contains(x.Id))
 														.ToListAsync();
 
@@ -504,16 +504,16 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			// add / edit outgoing payment detail
 			foreach (var outgoingPaymentDetailInput in input.OutgoingPaymentDetails)
 			{
-                var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId));
-                var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.ChartOfAccountId) && d.CompanyId.Equals(input.CompanyId));
-                var dataCostCenter = await _dbContext.CostCenters.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.CostCenterId) && d.CompanyId.Equals(input.CompanyId));
+				var dataPartner = await _dbContext.Partners.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PartnerId));
+				var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.ChartOfAccountId) && d.CompanyId.Equals(input.CompanyId));
+				var dataCostCenter = await _dbContext.CostCenters.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.CostCenterId) && d.CompanyId.Equals(input.CompanyId));
 				var dataPostingAccount = await _dbContext.Companies.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentDetailInput.PostingAccountId));
 
 				if (dataPartner == null)
-                    return new ResponseBase("Data partner tidak valid", ResponseCode.NotFound);
+					return new ResponseBase("Data partner tidak valid", ResponseCode.NotFound);
 
-                if (dataCoa == null)
-                    return new ResponseBase("Data chart of account tidak valid", ResponseCode.NotFound);
+				if (dataCoa == null)
+					return new ResponseBase("Data chart of account tidak valid", ResponseCode.NotFound);
 
 				if (dataPostingAccount == null)
 					return new ResponseBase("Data posting account tidak valid", ResponseCode.NotFound);
@@ -527,18 +527,18 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					existOutgoingDetail.PartnerId = outgoingPaymentDetailInput.PartnerId;
 					existOutgoingDetail.PartnerName = dataPartner.PartnerName;
 					existOutgoingDetail.ChartOfAccountId = outgoingPaymentDetailInput.ChartOfAccountId ?? Guid.Empty;
-                    existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
-                    existOutgoingDetail.ChartOfAccountName = dataCoa.AccountName;
+					existOutgoingDetail.ChartOfAccountNo = dataCoa.AccountCode;
+					existOutgoingDetail.ChartOfAccountName = dataCoa.AccountName;
 					existOutgoingDetail.CostCenterId = outgoingPaymentDetailInput.CostCenterId;
 					existOutgoingDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
-                    existOutgoingDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
+					existOutgoingDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
 					existOutgoingDetail.PostingAccountId = outgoingPaymentDetailInput.PostingAccountId;
 					existOutgoingDetail.PostingAccountName = dataPostingAccount.CompanyName;
 					existOutgoingDetail.Amount = outgoingPaymentDetailInput.Amount;
 
 					//delete attachment
 					var deletedAttachments = existOutgoingDetail.OutgoingPaymentDetailAttachments
-																.Where(x => 
+																.Where(x =>
 																	!outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => d.Id).Contains(x.Id));
 
 					if (deletedAttachments.Any())
@@ -564,19 +564,19 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				else
 				{
 					//Add data baru
-                    var dataOutgoingPaymentDetail = _mapper.Map<OutgoingPaymentDetail>(outgoingPaymentDetailInput);
+					var dataOutgoingPaymentDetail = _mapper.Map<OutgoingPaymentDetail>(outgoingPaymentDetailInput);
 
 					dataOutgoingPaymentDetail.OutgoingPaymentId = existOutgoing.Id;
 					dataOutgoingPaymentDetail.PartnerName = dataPartner.PartnerName;
-                    dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
-                    dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
-                    dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
-                    dataOutgoingPaymentDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
+					dataOutgoingPaymentDetail.ChartOfAccountNo = dataCoa.AccountCode;
+					dataOutgoingPaymentDetail.ChartOfAccountName = dataCoa.AccountName;
+					dataOutgoingPaymentDetail.CostCenterCode = dataCostCenter?.CostCenterCode ?? string.Empty;
+					dataOutgoingPaymentDetail.CostCenterName = dataCostCenter?.CostCenterName ?? string.Empty;
 					dataOutgoingPaymentDetail.PostingAccountName = dataPostingAccount.CompanyName;
-                    dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
+					dataOutgoingPaymentDetail.OutgoingPaymentDetailAttachments.AddRange(outgoingPaymentDetailInput.OutgoingPaymentDetailAttachments.Select(d => _mapper.Map<OutgoingPaymentDetailAttachment>(d)));
 
 					await _dbContext.AddAsync(dataOutgoingPaymentDetail);
-                }
+				}
 			}
 
 			//delete outgoing tagging
@@ -612,19 +612,19 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			}
 			#endregion
 
-				_dbContext.OutgoingPayments.Update(existOutgoing);
+			_dbContext.OutgoingPayments.Update(existOutgoing);
 
 			string roleCode = string.Empty;
 
 			if (input.IsSubmit)
 			{
-                (var isSuccessWorkflow, roleCode) = await CreateApprovalWorkflow(existOutgoing, currentUserAccessor);
+				(var isSuccessWorkflow, roleCode) = await CreateApprovalWorkflow(existOutgoing, currentUserAccessor);
 
-                if (!isSuccessWorkflow)
-                    return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
-            }
+				if (!isSuccessWorkflow)
+					return new ResponseBase("Gagal membuat workflow approval", ResponseCode.Error);
+			}
 
-            await _dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
 			if (input.IsSubmit)
 			{
@@ -634,15 +634,15 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					ExecutorName = existOutgoing.Requestor,
 					TransactionNo = existOutgoing.TransactionNo,
 					RoleCodeReceiver = roleCode,
-                    Remark = existOutgoing.Remark,
-                    ScheduleDate = existOutgoing.ScheduledDate
-                };
+					Remark = existOutgoing.Remark,
+					ScheduleDate = existOutgoing.ScheduledDate
+				};
 
 				await SendEmailToApprover(dataSendEmail, ApprovalStatus.Submitted);
 			}
 
 			return new ResponseBase($"Data outgoing payment berhasil {(input.IsSubmit ? "disubmit" : "disimpan sebagai draft")}", ResponseCode.Ok);
-        }
+		}
 
 		public async Task<ResponseBase> DeleteOutgoingPayment(Guid outgoingPaymentId)
 		{
@@ -662,28 +662,28 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 		public async Task<ResponseBase> CancelOutgoingPaymen(Guid outgoingPaymentId, CurrentUserAccessor currentUserAccessor)
 		{
-            var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentId));
-            if (outgoingPayment == null)
-                return new ResponseBase("Gagal membatalkan dokumen, karena dokumen tidak ditemukan", ResponseCode.NotFound);
+			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentId));
+			if (outgoingPayment == null)
+				return new ResponseBase("Gagal membatalkan dokumen, karena dokumen tidak ditemukan", ResponseCode.NotFound);
 
-            if (outgoingPayment.ApprovalStatus != ApprovalStatus.WaitingApproval)
-                return new ResponseBase("Gagal membatalkan dokumen, dokumen yang dapat dibatalkan hanya dokumen berstatus waiting approval", ResponseCode.Error);
+			if (outgoingPayment.ApprovalStatus != ApprovalStatus.WaitingApproval)
+				return new ResponseBase("Gagal membatalkan dokumen, dokumen yang dapat dibatalkan hanya dokumen berstatus waiting approval", ResponseCode.Error);
 
 			if (outgoingPayment.CreatedBy != currentUserAccessor.Id.ToString())
-                return new ResponseBase("Gagal membatalkan dokumen, dokumen yang dapat dibatalkan hanya bisa dibatalkan oleh requestor", ResponseCode.Error);
+				return new ResponseBase("Gagal membatalkan dokumen, dokumen yang dapat dibatalkan hanya bisa dibatalkan oleh requestor", ResponseCode.Error);
 
-            outgoingPayment.ApprovalStatus = ApprovalStatus.Cancelled;
-            _dbContext.Update(outgoingPayment);
+			outgoingPayment.ApprovalStatus = ApprovalStatus.Cancelled;
+			_dbContext.Update(outgoingPayment);
 
 			var cancelApproval = await CancelInboxApproval(outgoingPayment, currentUserAccessor);
 
 			if (!cancelApproval)
 				return new ResponseBase("Gagal membatalkan approval untuk dokumen ini");
 
-            await _dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
-            return new ResponseBase("Berhasil membatalkan dokumen", ResponseCode.Ok);
-        }
+			return new ResponseBase("Berhasil membatalkan dokumen", ResponseCode.Ok);
+		}
 
 		#endregion
 
@@ -743,14 +743,14 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					if (!string.IsNullOrEmpty(input.Remark))
 						body = body.Replace("{{remark}}", $"untuk <strong>{input.Remark}</strong>");
 					else
-                        body = body.Replace("{{remark}}", $"");
+						body = body.Replace("{{remark}}", $"");
 
 					if (input.ScheduleDate != null)
-                        body = body.Replace("{{scheduledate}}", $"Transaksi perlu dilakukan pada tanggal : <strong>{input.ScheduleDate.Value:dd-MMM-yyyy}</strong>");
+						body = body.Replace("{{scheduledate}}", $"Transaksi perlu dilakukan pada tanggal : <strong>{input.ScheduleDate.Value:dd-MMM-yyyy}</strong>");
 					else
-                        body = body.Replace("{{scheduledate}}", $"");
+						body = body.Replace("{{scheduledate}}", $"");
 
-                    var emailDataInput = new EmailData
+					var emailDataInput = new EmailData
 					{
 						BodyEmail = body,
 						FromDisplayName = fromEmailDisplay,
@@ -764,7 +764,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 					{
 						emailDataInput.MultiRecievers.Add(new MailAddress(user.User.Email, user.User.FullName));
 					}
-						
+
 					try
 					{
 						EmailHelper.SendEmailMultiReceiver(emailDataInput);
@@ -799,8 +799,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			}
 		}
 
-        #region private service
-        private async Task<(bool, string)> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
+		#region private service
+		private async Task<(bool, string)> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
 		{
 			var dataRoleCodes = await _dbContext.UserRoles.Include(ur => ur.Role).Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.Role.RoleCode).ToListAsync();
 			var workflowRule = await _dbContext.ApprovalRules.AsNoTracking()
@@ -851,50 +851,50 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 		private async Task<DocNumberConfig> GetRunningNumberDocument(string transactionTypeCode, string companyCode, DateTime date)
 		{
-            DocNumberConfig? docNumberConfig = null;
+			DocNumberConfig? docNumberConfig = null;
 			int month = date.Month;
 			int year = date.Year;
 
-            docNumberConfig = await _dbContext.DocNumberConfigs
-                .FirstOrDefaultAsync(x => x.TransactionTypeCode == transactionTypeCode && x.CompanyCode == companyCode && x.Month == month && x.Year == year);
+			docNumberConfig = await _dbContext.DocNumberConfigs
+				.FirstOrDefaultAsync(x => x.TransactionTypeCode == transactionTypeCode && x.CompanyCode == companyCode && x.Month == month && x.Year == year);
 
 
-            if (docNumberConfig == null)
-            {
-                docNumberConfig = new DocNumberConfig
-                {
-                    TransactionTypeCode = transactionTypeCode,
-                    CompanyCode = companyCode,
-                    Month = month,
-                    Year = year,
-                    RunningNumber = 0
-                };
+			if (docNumberConfig == null)
+			{
+				docNumberConfig = new DocNumberConfig
+				{
+					TransactionTypeCode = transactionTypeCode,
+					CompanyCode = companyCode,
+					Month = month,
+					Year = year,
+					RunningNumber = 0
+				};
 
-                await _dbContext.DocNumberConfigs.AddAsync(docNumberConfig);
-                await _dbContext.SaveChangesAsync();
+				await _dbContext.DocNumberConfigs.AddAsync(docNumberConfig);
+				await _dbContext.SaveChangesAsync();
 
-                return docNumberConfig;
-            }
-            else
-            {
-                return docNumberConfig;
-            }
-        }
+				return docNumberConfig;
+			}
+			else
+			{
+				return docNumberConfig;
+			}
+		}
 
-        private async Task<DocNumberConfig?> UpdateRunningNumber(Guid idData)
-        {
-            var docNumberConfig = await _dbContext.DocNumberConfigs
-                .FirstOrDefaultAsync(x => x.Id == idData);
+		private async Task<DocNumberConfig?> UpdateRunningNumber(Guid idData)
+		{
+			var docNumberConfig = await _dbContext.DocNumberConfigs
+				.FirstOrDefaultAsync(x => x.Id == idData);
 
-            if (docNumberConfig == null)
-                return null;
+			if (docNumberConfig == null)
+				return null;
 
-            docNumberConfig.RunningNumber = docNumberConfig.RunningNumber + 1;
-            _dbContext.DocNumberConfigs.Update(docNumberConfig);
-            await _dbContext.SaveChangesAsync();
+			docNumberConfig.RunningNumber = docNumberConfig.RunningNumber + 1;
+			_dbContext.DocNumberConfigs.Update(docNumberConfig);
+			await _dbContext.SaveChangesAsync();
 
-            return docNumberConfig;
-        }
+			return docNumberConfig;
+		}
 
 		private async Task<bool> CancelInboxApproval(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
 		{
@@ -931,6 +931,6 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 			return true;
 		}
-        #endregion
-    }
+		#endregion
+	}
 }
