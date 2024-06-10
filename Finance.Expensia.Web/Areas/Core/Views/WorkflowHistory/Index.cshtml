@@ -1,0 +1,24 @@
+﻿@using Finance.Expensia.Shared.Enums;
+@using Finance.Expensia.Shared.Helpers
+@{
+	ViewData["Title"] = "Approval History";
+	ViewData["Subtitle"] = "Approval History";
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-4">
+                <label>Search</label>
+                <input type="text" class="form-control" id="txtSearch" />
+            </div>
+        </div>
+        <div class="resposivetable" style="margin-top:10px">
+            <table id="gridWorkflowHistory" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @await Html.PartialAsync("~/Areas/Core/Views/WorkflowHistory/Scripts/_WorkflowHistory.cshtml")
+}

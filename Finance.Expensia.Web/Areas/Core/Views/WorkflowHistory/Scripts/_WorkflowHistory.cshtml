@@ -1,0 +1,156 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var getListWorkflowHistoryUrl = Url.Action("GetListWorkflowHistory", "WorkflowHistory");
+    var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
+    var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();
+}
+
+<script type="text/javascript">
+    var gridWorkflowHistory;
+    var currentDraw = 0;
+
+    const txtSearch = $("#txtSearch");
+    const btnFilter = $("#btnFilter"), btnReset = $("#btnReset");
+
+    const badgeStatus = ['badge-secondary', 'badge-warning', 'badge-success', 'badge-danger', 'badge-light', 'badge-outlined-danger'];
+
+    $(function () {
+        WorkflowHistoryManager = new WorkflowHistoryManager();
+        WorkflowHistoryManager.InitManagement();
+    })
+
+    function WorkflowHistoryManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function(){
+                gridWorkflowHistory = $('#gridWorkflowHistory').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@getListWorkflowHistoryUrl",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        }
+                    })),
+                    columns: [
+                        { title: "Transaction No", data: "transactionNo" },
+                        {
+                            title: "Status",
+                            render: function (data, type, row) {
+                                var statusList = @Html.Raw(Json.Serialize(statusList));
+                                var status = statusList[row.approvalStatus];
+                                var badgeType = badgeStatus[row.approvalStatus];
+                                var bgstatus = `<span class="badge ${badgeType}">${status}</span>`;
+                                return bgstatus;
+                            }
+                        },
+                        { title: "Executor Role", data: "executorRoleCode" },
+                        { title: "Approval Level", data: "approvalLevel" },
+                        { title: "Remark", data: "remark" },
+                        {
+                            title: "Action Date",
+                            render: function (data, type, row) {
+                                const date2 = new Date(row.created);
+
+                                const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
+                                const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false };
+
+                                const formattedDate = new Intl.DateTimeFormat('id-ID', optionsDate).format(date2);
+                                const formattedTime = new Intl.DateTimeFormat('id-ID', optionsTime).format(date2);
+
+                                const formattedDateTime = `${formattedDate} ${formattedTime}`;
+
+                                return formattedDateTime;
+                            }
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: null,
+                        bottomStart: 'info',
+                        bottomEnd: 'paging',
+                    }
+                });
+            },
+            InitHandlers: function () {
+                var debouncedAjaxRequest;
+                $('#txtJump').on('keyup change', function () {
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridWorkflowHistory.page.info().pages) {
+                                gridWorkflowHistory.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                gridWorkflowHistory.on('draw', function () {
+                    $('#gridWorkflowHistory tbody tr').each(function () {
+                        var $taggingsCell = $(this).find('td').eq(8);
+                        if ($taggingsCell.text().trim() === '') {
+                            $taggingsCell.addClass('small-width').removeClass('large-width');
+                        } else {
+                            $taggingsCell.addClass('large-width').removeClass('small-width');
+                        }
+                    });
+                });
+
+                txtSearch.keyup(function () {
+                    if (txtSearch.val().length >= 3) {
+                        gridWorkflowHistory.search(txtSearch.val()).draw();
+                    } else if (txtSearch.val().length === 0) {
+                        gridWorkflowHistory.search(txtSearch.val()).draw();
+                    }
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                SetFormView();
+            }
+        }
+    }
+
+    function SetFormView() {
+        $('#gridWorkflowHistory tbody tr').each(function () {
+            var $taggingsCell = $(this).find('td').eq(8);
+            if ($taggingsCell.text().trim() === '') {
+                $taggingsCell.addClass('small-width').removeClass('large-width');
+            } else {
+                $taggingsCell.addClass('large-width').removeClass('small-width');
+            }
+        });
+    }
+</script>

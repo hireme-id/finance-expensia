@@ -51,5 +51,10 @@
             public const string StorageUpload = "Storage.Upload";
 			public const string StorageDownload = "Storage.Download";
 		}
+
+        public static class WorkflowHistory
+        {
+            public const string WorkflowHistoryView = "WorkflowHistory.View";
+        }
     }
 }
