@@ -1,18 +1,10 @@
 ﻿using AutoMapper;
-using Finance.Expensia.Core.Services.Inbox;
-using Finance.Expensia.Core.Services.OutgoingPayment;
-using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Finance.Expensia.Core.Services.WorkflowHistory
 {
@@ -26,9 +18,9 @@ namespace Finance.Expensia.Core.Services.WorkflowHistory
 			var userId = currentUserAccessor.Id.ToString();
 			var dataApprovalHistory = _dbContext.ApprovalHistories
 				.Where(x => x.CreatedBy.Equals(userId))
-                .Where(x =>
-                            EF.Functions.Like(x.TransactionNo, $"%{input.SearchKey}%"))
-                .OrderByDescending(d => d.Modified ?? d.Created);
+				.Where(x =>
+							EF.Functions.Like(x.TransactionNo, $"%{input.SearchKey}%"))
+				.OrderByDescending(d => d.Modified ?? d.Created);
 
 			retVal.ApplyPagination(input.Page, input.PageSize, dataApprovalHistory);
 

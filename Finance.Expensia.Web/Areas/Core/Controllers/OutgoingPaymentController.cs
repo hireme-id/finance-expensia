@@ -1,17 +1,14 @@
-﻿using Finance.Expensia.Core.Services.MasterData.Dtos;
-using Finance.Expensia.Core.Services.MasterData;
-using Finance.Expensia.Core.Services.OutgoingPayment;
+﻿using Finance.Expensia.Core.Services.OutgoingPayment;
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
+using Finance.Expensia.Shared.Objects.Inputs;
 using Finance.Expensia.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Finance.Expensia.Shared.Objects.Inputs;
-using Microsoft.AspNetCore.Http;
 
 namespace Finance.Expensia.Web.Areas.Core.Controllers
 {
@@ -32,25 +29,25 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 			return View();
 		}
 
-        [AllowAnonymous]
-        public IActionResult Edit()
-        {
-            return View();
-        }
+		[AllowAnonymous]
+		public IActionResult Edit()
+		{
+			return View();
+		}
 
-        [AllowAnonymous]
-        public IActionResult Approval()
-        {
-            return View();
-        }
+		[AllowAnonymous]
+		public IActionResult Approval()
+		{
+			return View();
+		}
 
-        [AllowAnonymous]
-        public IActionResult Detail()
-        {
-            return View();
-        }
+		[AllowAnonymous]
+		public IActionResult Detail()
+		{
+			return View();
+		}
 
-        [Mutation]
+		[Mutation]
 		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
 		[HttpPost("outgoingpayment/create")]
 		public async Task<ResponseBase> CreateOutgoingPayment([FromBody] CreateOutgoingPaymentInput input)
@@ -65,15 +62,15 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 			if (_currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
 				return await _outgoingPaymentService.GetListOfOutgoingPayment(input, _currentUserAccessor);
 			else
-                return await _outgoingPaymentService.GetListOfOutgoingPaymentMyDocument(input, _currentUserAccessor);
-        }
+				return await _outgoingPaymentService.GetListOfOutgoingPaymentMyDocument(input, _currentUserAccessor);
+		}
 
-        [AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
-        [HttpGet("outgoingpayment/detail")]
+		[AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
+		[HttpGet("outgoingpayment/detail")]
 		public async Task<ResponseObject<OutgoingPaymentDto>> GetDetailOutgoingPayment([FromQuery] Guid outgoingPaymentId)
 		{
-            return await _outgoingPaymentService.GetDetailOutgoingPayment(outgoingPaymentId, _currentUserAccessor);
-        }
+			return await _outgoingPaymentService.GetDetailOutgoingPayment(outgoingPaymentId, _currentUserAccessor);
+		}
 
 		[AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
 		[HttpPost("outgoingpayment/getoutgoingtagging")]
@@ -93,12 +90,12 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		}
 
 		[Mutation]
-        [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
-        [HttpPost("outgoingpayment/edit")]
-        public async Task<ResponseBase> EditOutgoingPayment([FromBody] EditOutgoingPaymentInput input)
-        {
-            return await _outgoingPaymentService.EditOutgoingPayment(input, _currentUserAccessor);
-        }
+		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
+		[HttpPost("outgoingpayment/edit")]
+		public async Task<ResponseBase> EditOutgoingPayment([FromBody] EditOutgoingPaymentInput input)
+		{
+			return await _outgoingPaymentService.EditOutgoingPayment(input, _currentUserAccessor);
+		}
 
 		[Mutation]
 		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
@@ -108,12 +105,12 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 			return await _outgoingPaymentService.DeleteOutgoingPayment(outgoingPaymentId);
 		}
 
-        [Mutation]
-        [AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
-        [HttpPost("outgoingpayment/cancel")]
-        public async Task<ResponseBase> CancelOutgoingPayment([FromQuery] Guid outgoingPaymentId)
-        {
-            return await _outgoingPaymentService.CancelOutgoingPaymen(outgoingPaymentId, _currentUserAccessor);
-        }
-    }
+		[Mutation]
+		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
+		[HttpPost("outgoingpayment/cancel")]
+		public async Task<ResponseBase> CancelOutgoingPayment([FromQuery] Guid outgoingPaymentId)
+		{
+			return await _outgoingPaymentService.CancelOutgoingPaymen(outgoingPaymentId, _currentUserAccessor);
+		}
+	}
 }

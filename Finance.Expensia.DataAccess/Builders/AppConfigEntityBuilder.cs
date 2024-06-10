@@ -1,11 +1,6 @@
 ﻿using Finance.Expensia.DataAccess.Bases;
 using Finance.Expensia.DataAccess.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Finance.Expensia.DataAccess.Builders
 {
@@ -27,6 +22,6 @@ namespace Finance.Expensia.DataAccess.Builders
 				.Property(e => e.Modul)
 				.HasConversion<string>()
 				.HasMaxLength(50);
-		}	
+		}
 	}
 }
