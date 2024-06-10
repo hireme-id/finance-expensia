@@ -13,5 +13,6 @@ namespace Finance.Expensia.DataAccess.Models
         public virtual List<ChartOfAccount> ChartOfAccounts { get; set; } = [];
         public virtual List<CostCenter> CostCenters { get; set; } = [];
         public virtual List<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set;} = [];
+        public virtual List<UserCompany> UserCompanies { get; set; } = [];
     }
 }

@@ -31,6 +31,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
         public string CreatedBy { get; set; } = string.Empty;
         public bool IsCancelAble { get; set; } = false;
         public bool IsBtnCancelHidden { get; set; } = false;
+        public bool AllowApproval { get; set; } = false;
 
         public List<OutgoingPaymentDetailDto> OutgoingPaymentDetails { get; set; } = [];
         public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
