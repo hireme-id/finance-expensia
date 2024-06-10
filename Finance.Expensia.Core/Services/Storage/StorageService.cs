@@ -5,6 +5,7 @@ using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -19,8 +20,13 @@ namespace Finance.Expensia.Core.Services.Storage
 		{
 			try
 			{
-				if (file.Length > 1000000)
-					return new ResponseObject<UploadFileDto>("File yang diupload tidak boleh lebih dari 1MB", ResponseCode.Error);
+				var maximumFileSizeValue = (await _dbContext.AppConfigs.FirstOrDefaultAsync(d => d.Key == "MaximumFileSize"))?.Value;
+
+				if (!int.TryParse(maximumFileSizeValue, out int maximumFileSize))
+					maximumFileSize = 1000000;
+
+				if (file.Length > maximumFileSize)
+					return new ResponseObject<UploadFileDto>($"File yang diupload tidak boleh lebih dari {(maximumFileSize / 1000000.00):N2} MB", ResponseCode.Error);
 
 				var uploadFileDto = new UploadFileDto
 				{
