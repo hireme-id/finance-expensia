@@ -18,6 +18,7 @@ namespace Finance.Expensia.Core.Services.Inbox.Dtos
         public string FromBankAliasName { get; set; } = string.Empty;
         public string ToBankAliasName { get; set; } = string.Empty;
         public ApprovalStatus ApprovalStatus { get; set; }
+        public bool AllowApproval { get; set; } = false;
         public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
     }
 }

@@ -749,6 +749,11 @@ Account No : ` + accountNo);
 					totalAmount = totalAmount + value.amount;
 				});
 				txtTotalAmount.val(fmtMoney(totalAmount));
+				
+				if (!response.obj.allowApproval) {
+					btnApprove.remove();
+					btnReject.remove();
+				}
 			}
 			else {
 				Swal.fire({

@@ -23,11 +23,14 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
         : BaseService<OutgoingPaymentService>(dbContext, mapper, logger)
     {
         #region Query
-        public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPayment(ListOutgoingPaymentFilterInput input)
+        public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOfOutgoingPayment(ListOutgoingPaymentFilterInput input, CurrentUserAccessor currentUserAccessor)
         {
             var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
 
+			var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.CompanyId).ToListAsync();
+
 			var dataOutgoingPayments = _dbContext.OutgoingPayments
+						.Where(d => userCompanyIds.Contains(d.CompanyId))
                         .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
                         .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
                         .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
@@ -50,7 +53,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
         {
             var retVal = new ResponsePaging<ListOutgoingPaymentDto>();
 
+            var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.CompanyId).ToListAsync();
+
             var dataOutgoingPayments = _dbContext.OutgoingPayments
+                .Where(d => userCompanyIds.Contains(d.CompanyId))
                 .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
                 .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
                 .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
@@ -84,6 +90,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				var dataOutgoingPayDto = _mapper.Map<OutgoingPaymentDto>(dataOutgoingPay);
 				if (dataOutgoingPayDto.CreatedBy != currentUserAccessor.Id.ToString())
 					dataOutgoingPayDto.IsBtnCancelHidden = true;
+
+				var dataUserCompany = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id) && d.CompanyId.Equals(dataOutgoingPayDto.CompanyId)).FirstOrDefaultAsync();
+				if (dataUserCompany != null)
+					dataOutgoingPayDto.AllowApproval = dataUserCompany.AllowApproval;
 
                 return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>(responseCode: ResponseCode.Ok)
                 {

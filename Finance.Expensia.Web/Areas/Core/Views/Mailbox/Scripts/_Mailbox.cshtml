@@ -71,13 +71,14 @@
                             title: '<input id="selectAll" type="checkbox" />', 
                             render: function (data, type, row, meta) {
                                 let ischecked;
+                                let isDisabled = row.allowApproval ? "" : "disabled";
                                 if (Array.isArray(listTransactions)) {
                                     if (listTransactions.findIndex(d => d.transactionNo == row.transactionNo) != -1) {
                                         ischecked = 'checked';
                                     }
                                 }
 
-                                return `<input type="checkbox" class="checkbox-document" data-transactionno="${row.transactionNo}" data-amount="${row.totalAmount}" data-tobankalias="${row.toBankAliasName}" ${ischecked}/>`;
+                                return `<input type="checkbox" class="checkbox-document" data-transactionno="${row.transactionNo}" data-amount="${row.totalAmount}" data-tobankalias="${row.toBankAliasName}" ${ischecked} ${isDisabled} />`;
                             },
 
                             orderable: false
@@ -108,7 +109,6 @@
                                 var schDate = '';
                                 var elem;
                                 if (row.scheduledDate != null) {
-                                    console.log(row.scheduledDate);
                                     schDate = fmtDate4(row.scheduledDate);
                                     elem = `<b class="text-nowrap">Scheduled - ${schDate} </b> <br /> ${row.remark}`;
                                 }
@@ -207,7 +207,8 @@
                 });
 
                 $('#selectAll').change(function () {
-                    let checkElements = this.checked ? $('.checkbox-document:not(:checked)') : $('.checkbox-document:checked');
+                    debugger;
+                    let checkElements = this.checked ? $('.checkbox-document:not(:checked):not(:disabled)') : $('.checkbox-document:checked:not(:disabled)');
 
                     if (this.checked) {
                         checkElements.map(function () {
@@ -221,9 +222,9 @@
                                 amount,
                                 toBankAliasName
                             });
-                        });
 
-                        $('.checkbox-document').prop('checked', true)
+                            $(this).prop('checked', true);
+                        });
                     }
                     else {
                         checkElements.map(function () {
@@ -233,9 +234,9 @@
 
                             totalAmount = totalAmount - amount;
                             listTransactions.splice(listTransactions.findIndex(d => d.transactionNo == transactionNo), 1);
-                        });
 
-                        $('.checkbox-document').prop('checked', false)
+                            $(this).prop('checked', false);
+                        });
                     }
                     $("#txttotalamount").val(fmtMoney(totalAmount));
                 });

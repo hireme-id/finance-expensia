@@ -63,7 +63,7 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOutgoingPayment([FromBody] ListOutgoingPaymentFilterInput input)
 		{
 			if (_currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
-				return await _outgoingPaymentService.GetListOfOutgoingPayment(input);
+				return await _outgoingPaymentService.GetListOfOutgoingPayment(input, _currentUserAccessor);
 			else
                 return await _outgoingPaymentService.GetListOfOutgoingPaymentMyDocument(input, _currentUserAccessor);
         }
