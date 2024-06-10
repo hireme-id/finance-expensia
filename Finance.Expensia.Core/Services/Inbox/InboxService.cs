@@ -21,14 +21,16 @@ namespace Finance.Expensia.Core.Services.Inbox
         public async Task<ResponsePaging<ListInboxDto>> GetListOfActiveInbox(ListInboxFilterInput input, Guid userId)
         {
             var retVal = new ResponsePaging<ListInboxDto>();
-			var searchKey = string.IsNullOrEmpty(input.SearchKey) ? string.Empty : input.SearchKey.ToLower();
+            var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(userId)).Select(d => d.CompanyId).ToListAsync();
+            var searchKey = string.IsNullOrEmpty(input.SearchKey) ? string.Empty : input.SearchKey.ToLower();
 
 			var dataInbox = from ibx in _dbContext.ApprovalInboxes
 							join ur in _dbContext.UserRoles.Where(d => d.UserId.Equals(userId)) on ibx.ApprovalRoleCode equals ur.Role.RoleCode
 							join otp in _dbContext.OutgoingPayments on ibx.TransactionNo equals otp.TransactionNo
 							join tt in _dbContext.TransactionTypes on otp.TransactionTypeId equals tt.Id
+							join uc in _dbContext.UserCompanies.Where(d => d.UserId.Equals(userId)) on otp.CompanyId equals uc.CompanyId
 							where
-								(!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
+                                (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
 								&& (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
 								&& (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
 								&& (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
@@ -61,6 +63,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 								FromBankAliasName = otp.FromBankAliasName,
 								ToBankAliasName = otp.ToBankAliasName,
 								ApprovalStatus = otp.ApprovalStatus,
+								AllowApproval = uc.AllowApproval,
 								OutgoingPaymentTaggings = _mapper.Map<List<OutgoingPaymentTaggingDto>>(otp.OutgoingPaymentTaggings.OrderBy(d => d.Created))
                             };
 

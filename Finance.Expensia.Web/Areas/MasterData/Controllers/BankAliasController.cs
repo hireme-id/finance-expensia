@@ -4,6 +4,7 @@ using Finance.Expensia.Core.Services.MasterData.Inputs;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Enums;
+using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Finance.Expensia.Web.Areas.MasterData.Validators;
@@ -14,9 +15,10 @@ using static Finance.Expensia.Shared.Constants.PermissionConstants.MasterData;
 
 namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 {
-    public class BankAliasController(BankAliasService bankAliasService) : BaseController
+    public class BankAliasController(BankAliasService bankAliasService, CurrentUserAccessor currentUserAccessor) : BaseController
     {
         private readonly BankAliasService _bankAliasService = bankAliasService;
+        private readonly CurrentUserAccessor _currentUserAccessor = currentUserAccessor;
 
         [AllowAnonymous]
         public IActionResult Index()
@@ -42,7 +44,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         [AppAuthorize(BankAlias.BankAliasView)]
         public async Task<ResponsePaging<BankAliasDto>> GetListBankAlias([FromBody] PagingSearchInputBase input)
         {
-            return await _bankAliasService.GetListBankAlias(input);
+            return await _bankAliasService.GetListBankAlias(input, _currentUserAccessor.Id);
         }
 
         [AppAuthorize(BankAlias.BankAliasView)]

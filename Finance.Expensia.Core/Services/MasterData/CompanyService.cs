@@ -11,9 +11,11 @@ namespace Finance.Expensia.Core.Services.MasterData
     public class CompanyService(ApplicationDbContext dbContext, IMapper mapper, ILogger<CompanyService> logger)
         : BaseService<CompanyService>(dbContext, mapper, logger)
     {
-        public async Task<ResponseObject<List<CompanyDto>>> RetrieveCompanyDatas()
+        public async Task<ResponseObject<List<CompanyDto>>> RetrieveCompanyDatas(Guid userId)
         {
             var dataCompanies = await _dbContext.Companies
+                                                .Include(c => c.UserCompanies.Where(d => d.UserId.Equals(userId)))
+                                                .Where(d => d.UserCompanies.Count > 0)
                                                 .OrderBy(d => d.CompanyName)
                                                 .Select(d => _mapper.Map<CompanyDto>(d))
                                                 .ToListAsync();

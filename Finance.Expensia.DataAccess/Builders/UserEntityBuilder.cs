@@ -32,6 +32,12 @@ namespace Finance.Expensia.DataAccess.Builders
                 .WithOne(e => e.User)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder
+                .HasMany(e => e.UserCompanies)
+                .WithOne(e => e.User)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

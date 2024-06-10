@@ -163,7 +163,7 @@
             row.find('td').not(':last-child').each(function () {
                 var cellIndex = $(this).index();
                 var cellValue = $(this).text();
-                console.log('val ' + cellValue);
+
                 if (cellIndex === 3) { // Check if the cell is "Gender"
                     var genderSelect = $('<select class="edit-input"><option value="Male">Male</option><option value="Female">Female</option></select>');
                     genderSelect.val(cellValue);
@@ -173,7 +173,6 @@
                     var inhtml = '';
                     // Melakukan loop pada array buah menggunakan forEach
                     val.forEach(function (item, index) {
-                        console.log(item);
                         if (item != '') {
                             var badgeElement = document.createElement('span');
                             badgeElement.textContent = item;
@@ -200,7 +199,6 @@
                             badgeElement.append(spanclose);
                             inhtml += badgeElement.outerHTML;
                         }
-
                     });
 
                     var btnadd = document.createElement('span');
@@ -222,7 +220,6 @@
 
         $('#tblConsumer').on('click', '.delete-file', function () {
             $(this).parent().remove();
-            console.log('delete');
         });
 
         $('#tblConsumer').on('click', '.add-file', function () {
@@ -231,7 +228,6 @@
             newItem.find(".hapusBtn").click(function () {
                 $(this).parent().remove();
             });
-            console.log('add');
         });
 
         $('#tblConsumer').on('click', '.delete-btn', function () {
@@ -240,7 +236,6 @@
         });
 
         $('#tblConsumer').on('click', '.save-btn', function () {
-            console.log('savee');
             var row = $(this).closest('tr');
             var rowData = table.row(row).data();
 

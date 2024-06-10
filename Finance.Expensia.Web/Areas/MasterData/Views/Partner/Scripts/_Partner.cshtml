@@ -242,7 +242,6 @@
         dmButton.hide();
         await loadDataPartner(partnerId);
         dmInput.add(dmSelect).each(function () {
-            console.log($(this).val());
             if ($(this).val() === '') {
                 $(this).val('-');
             }
