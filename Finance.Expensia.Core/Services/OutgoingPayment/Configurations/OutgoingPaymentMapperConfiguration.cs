@@ -2,6 +2,7 @@
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess.Models;
+using Finance.Expensia.Shared.Helpers;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
 {
@@ -9,27 +10,28 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
     {
         public OutgoingPaymentMapperConfiguration()
         {
-            #region query
             CreateMap<DataAccess.Models.OutgoingPayment, ListOutgoingPaymentDto>()
                 .ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FromBankAlias, opt => opt.MapFrom(src => src.FromBankAliasName))
                 .ForMember(dest => dest.ToBankAlias, opt => opt.MapFrom(src => src.ToBankAliasName));
+
             CreateMap<DataAccess.Models.OutgoingPayment, OutgoingPaymentDto>()
                 .ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.ApprovalStatus, opt => opt.MapFrom(src => src.ApprovalStatus.ToString()))
-                .ForMember(dest => dest.ExpectedTransfer, opt => opt.MapFrom(src => src.ExpectedTransfer.ToString()))
-                .ForMember(dest => dest.IsCancelAble, opt => opt.MapFrom(src => src.ApprovalStatus != Shared.Enums.ApprovalStatus.WaitingApproval))
-                .ForMember(dest => dest.IsBtnCancelHidden, opt => opt.MapFrom(src => false));
+                .ForMember(dest => dest.ApprovalStatus, opt => opt.MapFrom(src => src.ApprovalStatus.GetDescription()))
+                .ForMember(dest => dest.ExpectedTransfer, opt => opt.MapFrom(src => src.ExpectedTransfer.GetDescription()))
+                .ForMember(dest => dest.IsCancelable, opt => opt.MapFrom(src => src.ApprovalStatus != Shared.Enums.ApprovalStatus.WaitingApproval));
+
 			CreateMap<DataAccess.Models.OutgoingPayment, DownloadOutgoingPaymentDto>()
 				.ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id));
 
 			CreateMap<OutgoingPaymentDetail, OutgoingPaymentDetailDto>();
-			CreateMap<OutgoingPaymentDetail, DownloadOutgoingPaymentDetailDto>();
-            CreateMap<OutgoingPaymentTagging, OutgoingPaymentTaggingDto>();
-            CreateMap<OutgoingPaymentDetailAttachment, OutgoingPaymentDetailAttachmentDto>();
-            #endregion
 
-            #region mutation
+			CreateMap<OutgoingPaymentDetail, DownloadOutgoingPaymentDetailDto>();
+
+            CreateMap<OutgoingPaymentTagging, OutgoingPaymentTaggingDto>();
+
+            CreateMap<OutgoingPaymentDetailAttachment, OutgoingPaymentDetailAttachmentDto>();
+
             CreateMap<CreateOutgoingPaymentInput, DataAccess.Models.OutgoingPayment>()
                 .ForMember(dest => dest.OutgoingPaymentDetails, opt => opt.Ignore());
 
@@ -65,8 +67,6 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.OutgoingPaymentId, opt => opt.Ignore())
 				.ForMember(dest => dest.OutgoingPayment, opt => opt.Ignore());
-
-			#endregion
 		}
     }
 }

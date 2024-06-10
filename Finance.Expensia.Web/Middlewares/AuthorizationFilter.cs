@@ -14,7 +14,7 @@ namespace Finance.Expensia.Web.Middlewares
 	{
 		private readonly ILogger<AuthorizationFilter> _logger = logger;
 		private readonly string logPrefix = nameof(AuthorizationFilter);
-		private CurrentUserAccessor _currentUserAccessor = currentUserAccessor;
+		protected CurrentUserAccessor _currentUserAccessor = currentUserAccessor;
 
 		public void OnAuthorization(AuthorizationFilterContext context)
 		{
@@ -22,12 +22,12 @@ namespace Finance.Expensia.Web.Middlewares
 
 			if (SkipAuthorization(context))
 			{
-				_logger.LogInformation($"{logPrefix}: Allow anonymous access");
+				_logger.LogInformation("{Prefix}: Allow anonymous access", logPrefix);
 				return;
 			}
 
 			var bearerToken = context.HttpContext.Request.Headers.Authorization;
-			_logger.LogInformation($"{logPrefix}: {bearerToken}");
+			_logger.LogInformation("{Prefix}: {BearerToken}", logPrefix, bearerToken);
 
 			try
 			{
@@ -50,13 +50,13 @@ namespace Finance.Expensia.Web.Middlewares
 					}
 				}
 
-				_logger.LogInformation($"{logPrefix}: User does not have required permissions.");
+				_logger.LogInformation("{Prefix}: User does not have required permissions.", logPrefix);
 				context.HttpContext.Response.StatusCode = 401;
 				context.Result = new JsonResult(response);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError($"{logPrefix}: Error occurred while authorizing the request: {ex.Message}");
+				_logger.LogError("{Prefix}: Error occurred while authorizing the request: {Message}", logPrefix, ex.Message);
 				context.HttpContext.Response.StatusCode = 401;
 				response.UnAuthorized(ex.Message);
 				context.Result = new JsonResult(response);
@@ -80,7 +80,7 @@ namespace Finance.Expensia.Web.Middlewares
 			{
 				if (claims.Any(c => appAuthorizeAttribute.Permissions.Contains(c.Value)))
 				{
-					_logger.LogInformation($"{logPrefix}: User is authorized based on specified permissions.");
+					_logger.LogInformation("{Prefix}: User is authorized based on specified permissions.", logPrefix);
 					return true;
 				}
 			}

@@ -18,9 +18,8 @@ namespace Finance.Expensia.Core.Services.WorkflowHistory
 			var userId = currentUserAccessor.Id.ToString();
 			var dataApprovalHistory = _dbContext.ApprovalHistories
 				.Where(x => x.CreatedBy.Equals(userId))
-				.Where(x =>
-							EF.Functions.Like(x.TransactionNo, $"%{input.SearchKey}%"))
-				.OrderByDescending(d => d.Modified ?? d.Created);
+				.Where(x => EF.Functions.Like(x.TransactionNo, $"%{input.SearchKey}%"))
+				.OrderByDescending(d => d.Created);
 
 			retVal.ApplyPagination(input.Page, input.PageSize, dataApprovalHistory);
 

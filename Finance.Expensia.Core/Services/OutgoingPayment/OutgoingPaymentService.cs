@@ -283,11 +283,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 				sheet.AutoSizeColumn(i);
 			}
 
-			using (var exportData = new MemoryStream())
-			{
-				workbook.Write(exportData);
-				return exportData.ToArray();
-			}
+			using var exportData = new MemoryStream();
+			workbook.Write(exportData);
+			return exportData.ToArray();
 		}
 		#endregion
 
@@ -889,7 +887,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			if (docNumberConfig == null)
 				return null;
 
-			docNumberConfig.RunningNumber = docNumberConfig.RunningNumber + 1;
+			docNumberConfig.RunningNumber++;
 			_dbContext.DocNumberConfigs.Update(docNumberConfig);
 			await _dbContext.SaveChangesAsync();
 

@@ -27,7 +27,7 @@
 		public Guid TransactionTypeId { get; set; }
 		public string TransactionTypeCode { get; set; } = string.Empty;
 		public string CreatedBy { get; set; } = string.Empty;
-		public bool IsCancelAble { get; set; } = false;
+		public bool IsCancelable { get; set; } = false;
 		public bool IsBtnCancelHidden { get; set; } = false;
 		public bool AllowApproval { get; set; } = false;
 
