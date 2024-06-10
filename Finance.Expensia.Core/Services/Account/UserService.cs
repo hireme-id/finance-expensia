@@ -44,8 +44,7 @@ namespace Finance.Expensia.Core.Services.Account
 
         public async Task<ResponseObject<TokenDto>> RefreshToken(Guid userId)
         {
-            var dataUser = await _dbContext.Users
-                                       .FirstOrDefaultAsync(d => d.Id.Equals(userId));
+            var dataUser = await _dbContext.Users.FirstOrDefaultAsync(d => d.Id.Equals(userId));
 
             if (dataUser == null)
 				return new ResponseObject<TokenDto>($"Gagal memperbaharui akses token", ResponseCode.Forbidden);

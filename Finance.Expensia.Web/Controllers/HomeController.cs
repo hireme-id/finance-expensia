@@ -4,16 +4,9 @@ using System.Diagnostics;
 
 namespace Finance.Expensia.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController() : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
-        public IActionResult Index()
+		public IActionResult Index()
         {
             return View();
         }

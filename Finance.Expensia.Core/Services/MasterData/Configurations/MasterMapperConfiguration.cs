@@ -13,7 +13,7 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
                 .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Id));
             CreateMap<BankAlias, BankAliasDto>()
                 .ForMember(dest => dest.BankAliasId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.CompanyName));
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company != null ? src.Company.CompanyName : string.Empty));
 			CreateMap<Partner, PartnerDto>()
 				.ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.Id));
 			CreateMap<ChartOfAccount, CoaDto>()

@@ -84,6 +84,7 @@ namespace Finance.Expensia.Core.Services.MasterData
                 return new ResponseBase("Data partner tidak ditemukan", ResponseCode.NotFound);
 
             dataPartner.RowStatus = 1;
+
             _dbContext.Update(dataPartner);
             await _dbContext.SaveChangesAsync();
 

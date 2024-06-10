@@ -21,17 +21,6 @@ namespace Finance.Expensia.Shared
 			{
 				var decodedServiceAccount = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(googleServiceAccount));
 
-				//FirebaseApp.Create(new AppOptions
-				//{
-				//    Credential = GoogleCredential.FromJson(decodedServiceAccount)
-				//});
-
-				//services.Configure<GoogleCloudConfig>(configOp =>
-				//{
-				//    configOp.GoogleCredentialJson = decodedServiceAccount;
-				//    configOp.GoogleCloudStorageBucketName = googleCloudStorageBucketName;
-				//});
-
 				var loggerConfig = new LoggerConfiguration()
 					.Enrich.FromLogContext()
 					.Enrich.WithExceptionDetails()

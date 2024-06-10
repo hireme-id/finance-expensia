@@ -11,6 +11,6 @@ namespace Finance.Expensia.Shared.Objects
         public string SubjectEmail { get; set; } = string.Empty;
         public string ToEmail { get; set; } = string.Empty;
         public string ToDisplayName { get; set; } = string.Empty;
-        public List<MailAddress> MultiRecievers { get; set; } = new List<MailAddress>();
+        public List<MailAddress> MultiRecievers { get; set; } = [];
 	}
 }

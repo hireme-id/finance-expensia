@@ -18,13 +18,12 @@ namespace Finance.Expensia.Core.Services.MasterData
 		/// 
 		/// </summary>
 		/// <param name="companyId"></param>
-		/// <param name="mode">0 => Retrieve for From Bank Alias | Other value / null => Retrieve for general Bank Alias
+		/// <param name="mode">0 => Retrieve for only from bank alias | Other value / null => Retrieve for all bank alias
 		/// </param>
 		/// <returns></returns>
 		public async Task<ResponseObject<List<BankAliasDto>>> RetrieveBankAlias(Guid? companyId, int? mode = null)
 		{
-			var dataBankAliasesWhere = _dbContext.BankAliases
-												 .Where(d => companyId == null || d.CompanyId.Equals(companyId.Value));
+			var dataBankAliasesWhere = _dbContext.BankAliases.Where(d => companyId == null || d.CompanyId.Equals(companyId.Value));
 
 			if (mode == 0)
 				dataBankAliasesWhere = dataBankAliasesWhere.Where(d => d.CompanyId.HasValue);
@@ -44,7 +43,6 @@ namespace Finance.Expensia.Core.Services.MasterData
 			var retVal = new ResponsePaging<BankAliasDto>();
 
 			var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(userId)).Select(d => d.CompanyId).ToListAsync();
-
 			var dataBankAliases = _dbContext.BankAliases
 											.Include(ba => ba.Company)
 											.Where(d => d.CompanyId == null || userCompanyIds.Contains(d.CompanyId.Value))
@@ -105,6 +103,7 @@ namespace Finance.Expensia.Core.Services.MasterData
 				return new ResponseBase("Data bank alias tidak ditemukan", ResponseCode.NotFound);
 
 			dataBankAlias.RowStatus = 1;
+
 			_dbContext.Update(dataBankAlias);
 			await _dbContext.SaveChangesAsync();
 
