@@ -5,6 +5,7 @@
     var mailbox = Url.Action("Index", "Mailbox", new { area = "Core" });
     var masterPartner = Url.Action("Index", "Partner", new { area = "MasterData" });
     var masterBankAlias = Url.Action("Index", "BankAlias", new { area = "MasterData" });
+    var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
     var myPermissionUrl = Url.Action("GetMyPermission", "Login");
@@ -98,6 +99,14 @@
                                 <i class="nav-icon far fa-envelope"></i>
                                 <p>
                                     Mailbox
+                                </p>
+                            </a>
+                        </li>
+                        <li id="menuWorkflowHistory" class="nav-item" style="display:none">
+                            <a href="@workflowHistory" class="nav-link">
+                                <i class="nav-icon fa fa-history"></i>
+                                <p>
+                                    Workflow History
                                 </p>
                             </a>
                         </li>
@@ -230,6 +239,10 @@
 					if (response.obj.permissions.includes("@PermissionConstants.ApprovalInbox.ApprovalInboxView")) {
 						$('#menuInbox').show();
 					}
+
+                    if (response.obj.permissions.includes("@PermissionConstants.WorkflowHistory.WorkflowHistoryView")) {
+                        $('#menuWorkflowHistory').show();
+                    }
 				}
 			})
 			.fail(function (xhr, status, error) {

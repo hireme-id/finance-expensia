@@ -3,6 +3,7 @@ using Finance.Expensia.Core.Services.Inbox;
 using Finance.Expensia.Core.Services.MasterData;
 using Finance.Expensia.Core.Services.OutgoingPayment;
 using Finance.Expensia.Core.Services.Storage;
+using Finance.Expensia.Core.Services.WorkflowHistory;
 using Finance.Expensia.Shared.Objects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,8 +33,9 @@ namespace Finance.Expensia.Core
             services.AddScoped<TransactionTypeService>();
 			services.AddScoped<StorageService>();
             services.AddScoped<InboxService>();
+            services.AddScoped<WorkflowHistoryService>();
 
-			services.AddHttpClient();
+            services.AddHttpClient();
 
             return services;
         }
