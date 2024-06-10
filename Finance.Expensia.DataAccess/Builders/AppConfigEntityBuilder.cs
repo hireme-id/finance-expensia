@@ -22,6 +22,16 @@ namespace Finance.Expensia.DataAccess.Builders
 				.Property(e => e.Modul)
 				.HasConversion<string>()
 				.HasMaxLength(50);
+
+			SeedingData(builder);
+		}
+
+		private static void SeedingData(EntityTypeBuilder<AppConfig> builder)
+		{
+			builder
+				.HasData(
+					new AppConfig { Id = new Guid("d22dfd1c-44ee-46e7-8329-ad7041a99bb9"), Key = "MaximumFileSize", Value = "1000000", Modul = "Storage", StartDate = new DateTime(2024, 6, 10, 0, 0, 0, DateTimeKind.Utc).AddTicks(0), Created = new DateTime(2024, 6, 10, 0, 0, 0, DateTimeKind.Utc).AddTicks(0), CreatedBy = "SYSTEM" }
+				);
 		}
 	}
 }
