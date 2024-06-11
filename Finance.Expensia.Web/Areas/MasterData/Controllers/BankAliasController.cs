@@ -43,7 +43,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 		[AppAuthorize(BankAlias.BankAliasView)]
 		public async Task<ResponsePaging<BankAliasDto>> GetListBankAlias([FromBody] PagingSearchInputBase input)
 		{
-			return await _bankAliasService.GetListBankAlias(input, _currentUserAccessor.Id);
+			return await _bankAliasService.GetListBankAlias(input, _currentUserAccessor);
 		}
 
 		[AppAuthorize(BankAlias.BankAliasView)]

@@ -1,133 +1,132 @@
 ﻿@{
-    var homePageUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
-    var getGoogleAuthUrl = Url.Action("GetGoogleAuthUrl", "Login");
-    var loginUrl = Url.Action("Login", "Login");
-    var refreshTokenUrl = Url.Action("RefreshToken", "Login");
+	var homePageUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
+	var getGoogleAuthUrl = Url.Action("GetGoogleAuthUrl", "Login");
+	var loginUrl = Url.Action("Login", "Login");
+	var refreshTokenUrl = Url.Action("RefreshToken", "Login");
 }
 <script type="text/javascript">
-    const bodyElement = document.body;
+	const bodyElement = document.body;
 
-    $(function () {
-        LoginGoogle = new LoginGoogle();
-        LoginGoogle.InitManagement();
-    });
+	$(function () {
+		LoginGoogle = new LoginGoogle();
+		LoginGoogle.InitManagement();
+	});
 
-    function LoginGoogle() {
-        return {
-            InitManagement: function () {
-                this.InitControls();
-                this.InitHandlers();
-                this.InitValidation();
-                this.InitLoad();
-            },
-            InitControls: function () {
-                
-            },
-            InitHandlers: function () {
-                $('#btnlogingoogle').on('click', function () {
-                    $.ajax({
-                        type: 'POST',
-                        url: '@getGoogleAuthUrl',
-                        success: function (response) {
-                            if (response.succeeded) {
-                                window.location.href = response.obj;
-                            }
-                            else {
-                                Swal.fire({
-                                    position: "top-end",
-                                    icon: "error",
-                                    title: response.message,
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                });
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            Swal.fire({
-                                position: "top-end",
-                                icon: "error",
-                                title: error,
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        }
-                    })
-                });
-            },
-            InitValidation: function () {
-            },
-            InitLoad: function () {
-                const urlParams = new URLSearchParams(window.location.search);
-                const authCode = urlParams.get('code');
+	function LoginGoogle() {
+		return {
+			InitManagement: function () {
+				this.InitControls();
+				this.InitHandlers();
+				this.InitValidation();
+				this.InitLoad();
+			},
+			InitControls: function () {
 
-                if (UserSessionAvailable())
-                    window.location.href = "@homePageUrl";
-                
-                if (authCode) {
-                    $("#btnlogingoogle").prop('disabled', true);
-                    $("#btnloader").removeClass("d-none");
-                    $.ajax({
-                        type: 'POST',
-                        url: "@loginUrl?authCode=" + authCode,
-                        success: function (response) {
-                            if (response.succeeded) {
-                                localStorage.setItem("accessToken", response.obj.accessToken);
-                                localStorage.setItem("expiredAt", response.obj.expiredAt);
-                                localStorage.setItem("refreshToken", response.obj.refreshToken);
-                                localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
-                                localStorage.setItem("displayName", response.obj.displayName);
-                                localStorage.setItem("photoUrl", response.obj.photoUrl);
+			},
+			InitHandlers: function () {
+				$('#btnlogingoogle').on('click', function () {
+					$.ajax({
+						type: 'POST',
+						url: '@getGoogleAuthUrl',
+						success: function (response) {
+							if (response.succeeded) {
+								window.location.href = response.obj;
+							}
+							else {
+								Swal.fire({
+									position: "top-end",
+									icon: "error",
+									title: response.message,
+									showConfirmButton: false,
+									timer: 1500
+								});
+							}
+						},
+						error: function (xhr, status, error) {
+							Swal.fire({
+								position: "top-end",
+								icon: "error",
+								title: error,
+								showConfirmButton: false,
+								timer: 1500
+							});
+						}
+					})
+				});
+			},
+			InitValidation: function () {
+			},
+			InitLoad: function () {
+				if (UserSessionAvailable())
+					window.location.href = "@homePageUrl";
 
-                                window.location.href = "@homePageUrl";
-                            }
-                            else {
-                                Swal.fire({
-                                    position: "top-end",
-                                    icon: "error",
-                                    title: response.message,
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                });
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            $("#btnlogingoogle").prop('disabled', false);
-                            $("#btnloader").addClass("d-none");
+				const urlParams = new URLSearchParams(window.location.search);
+				const authCode = urlParams.get('code');
 
-                            Swal.fire({
-                                position: "top-end",
-                                icon: "error",
-                                title: error,
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        }
-                    });
-                }
-                else {
-                    bodyElement.classList.add('loaded');
-                }
-            }
-        }
-    };
+				if (authCode) {
+					$("#btnlogingoogle").prop('disabled', true);
+					$("#btnloader").removeClass("d-none");
+					$.ajax({
+						type: 'POST',
+						url: "@loginUrl?authCode=" + authCode,
+						success: function (response) {
+							if (response.succeeded) {
+								localStorage.setItem("accessToken", response.obj.accessToken);
+								localStorage.setItem("expiredAt", response.obj.expiredAt);
+								localStorage.setItem("refreshToken", response.obj.refreshToken);
+								localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
+								localStorage.setItem("displayName", response.obj.displayName);
+								localStorage.setItem("photoUrl", response.obj.photoUrl);
 
-    function UserSessionAvailable() {
-        if (IsTokenNotExist()) {
-            return false;
-        }
-        
-        const expiredAt = new Date(localStorage.getItem("expiredAt"));
-        const sessionExpiredAt = new Date(localStorage.getItem("sessionExpiredAt"));
+								window.location.href = "@homePageUrl";
+							}
+							else {
+								Swal.fire({
+									position: "top-end",
+									icon: "error",
+									title: response.message,
+									showConfirmButton: false,
+									timer: 1500
+								});
+							}
+						},
+						error: function (xhr, status, error) {
+							$("#btnlogingoogle").prop('disabled', false);
+							$("#btnloader").addClass("d-none");
 
-        if (new Date() >= sessionExpiredAt) {
-            localStorage.clear();
+							Swal.fire({
+								position: "top-end",
+								icon: "error",
+								title: error,
+								showConfirmButton: false,
+								timer: 1500
+							});
+						}
+					});
+				}
+				else {
+					bodyElement.classList.add('loaded');
+				}
+			}
+		}
+	};
 
-            return false;
-        }
+	function UserSessionAvailable() {
+		if (IsTokenNotExist()) {
+			return false;
+		}
 
-        if (new Date() < expiredAt) {
-            return true;
-        }
+		const expiredAt = new Date(localStorage.getItem("expiredAt"));
+		const sessionExpiredAt = new Date(localStorage.getItem("sessionExpiredAt"));
+
+		if (new Date() >= sessionExpiredAt) {
+			localStorage.clear();
+			return false;
+		}
+
+		if (new Date() < expiredAt) {
+			return true;
+		}
 
 		$.ajax({
 			"url": "@refreshTokenUrl",
@@ -148,8 +147,9 @@
 					window.location.reload();
 				}
 				else {
+					localStorage.clear();
 					return false;
 				}
 			});
-    }
+	}
 </script>

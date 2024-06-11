@@ -17,16 +17,16 @@
     const mdPartner = $('#partnerForm');
     const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit")
 
-    var gridPartner;
-    var isEdit = false;
-    var idPartner;
-    var currentDraw = 0;
+    let gridPartner;
+    let isEdit = false;
+    let idPartner;
+    let currentDraw = 0;
     $(function () {
-        OutgoingPaymentManager = new OutgoingPaymentManager();
-        OutgoingPaymentManager.InitManagement();
+        PartnerManager = new PartnerManager();
+        PartnerManager.InitManagement();
     });
 
-    function OutgoingPaymentManager() {
+    function PartnerManager() {
         return {
             InitManagement: function () {
                 this.InitControls();
@@ -64,8 +64,8 @@
                         { title: "Description", data: "description" },
                         {
                             title: "", width: '6%', className: "py-1", render: function (data, type, row) {
-                                var id = row.partnerId;
-                                var elem = `<div class="d-inline-flex justify-content-between">
+                                let id = row.partnerId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
                                                 <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
                                                 <button class="edit-button btn btn-link text-danger" data-id="${id}" name="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
                                                 <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
@@ -102,22 +102,81 @@
             },
             InitHandlers: function () {
                 $(document).on('click', '[name="editbutton"]', function () {
-                    var partnerId = $(this).data('id');
-                    fnEditForm(partnerId);
+                    idPartner = $(this).data('id');
+                    
+                    isEdit = true;
+                    lblTitle.text("Edit Partner");
+                    dmInput.add(dmSelect).prop('disabled', false);
+                    dmButton.show();
+                    loadDataPartner(idPartner);
                 });
 
                 $(document).on('click', '[name="deletebutton"]', function () {
-                    var partnerId = $(this).data('id');
-                    fnDeleteForm(partnerId);
+                    idPartner = $(this).data('id');
+                    
+                    Swal.fire({
+                        title: 'Delete',
+                        html: 'Apakah anda yakin untuk menghapus data ini?',
+                        width: '500px',
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        confirmButtonColor: "#D92D20",
+                        customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                        },
+                        icon: "warning",
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax(Object.assign({}, glbBaseRequest, {
+                                method: "POST",
+                                url: "@deletePartnerUrl?partnerId=" + idPartner,
+                                contentType: "application/json"
+                            })).done(function (response) {
+                                if (response.succeeded) {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.message,
+                                        icon: "success"
+                                    }).then(() => {
+                                        window.location.href = "@partnerHomeUrl";
+                                    });
+                                }
+                                else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: response.message,
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                        }
+                    });
                 });
 
-                $(document).on('click', '[name="detailbutton"]', function () {
-                    var partnerId = $(this).data('id');
-                    fnDetailForm(partnerId);
+                $(document).on('click', '[name="detailbutton"]', async function () {
+                    idPartner = $(this).data('id');
+                    
+                    lblTitle.text("Detail Partner");
+                    dmInput.add(dmSelect).attr('disabled', true);
+                    dmButton.hide();
+                    await loadDataPartner(idPartner);
+                    dmInput.add(dmSelect).each(function () {
+                        if ($(this).val() === '') {
+                            $(this).val('-');
+                        }
+                    });
                 });
 
                 $("#btnCreate").click(function () { 
-                    fnCreateForm();
+                    isEdit = false;
+                    lblTitle.text("Create Partner");
+                    dmInput.add(dmSelect).prop('disabled', false);
+                    dmInput.add(dmSelect).val('');
+                    dmButton.show();
+                    mdPartner.modal('show');
                 })
 
                 btnSubmit.on("click", function (e) {
@@ -128,8 +187,6 @@
                     disabledElement.removeAttr('disabled');
                     let formDataArray = $('.card-body :input').serializeArray();
                     disabledElement.attr('disabled', true);
-
-                    mdPartner.modal('toggle');
 
                     let formDataObject = {};
                     formDataArray.forEach(function (field) {
@@ -174,79 +231,6 @@
             }
         }
     };
-
-    function fnCreateForm(){
-        isEdit = false;
-        lblTitle.text("Create Partner");
-        dmInput.add(dmSelect).prop('disabled', false);
-        dmInput.add(dmSelect).val('');
-        dmButton.show();
-        mdPartner.modal('show');
-    }
-
-    function fnEditForm(partnerId) {
-        isEdit = true;
-        idPartner = partnerId;
-        lblTitle.text("Edit Partner");
-        dmInput.add(dmSelect).prop('disabled', false);
-        dmButton.show();
-        loadDataPartner(partnerId);
-    }
-
-    function fnDeleteForm(partnerId) {
-        Swal.fire({
-            title: 'Delete',
-            html: 'Are you sure to delete this data?',
-            width: '500px',
-            showCancelButton: true,
-            confirmButtonText: 'Delete',
-            confirmButtonColor: "#D92D20",
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2',
-            },
-            icon: "warning",
-            allowOutsideClick: () => !Swal.isLoading()
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax(Object.assign({}, glbBaseRequest, {
-                    method: "POST",
-                    url: "@deletePartnerUrl?partnerId=" + partnerId,
-                    contentType: "application/json"
-                })).done(function (response) {
-                    if (response.succeeded) {
-                        Swal.fire({
-                            title: "Success",
-                            text: response.message,
-                            icon: "success"
-                        }).then(() => {
-                            window.location.href = "@partnerHomeUrl";
-                        });
-                    }
-                    else {
-                        Swal.fire({
-                            title: "Error",
-                            text: response.message,
-                            icon: "error"
-                        });
-                    }
-                });
-            }
-        });
-    }
-
-    async function fnDetailForm(partnerId) {
-        lblTitle.text("Detail Partner");
-        dmInput.add(dmSelect).attr('disabled', true);
-        dmButton.hide();
-        await loadDataPartner(partnerId);
-        dmInput.add(dmSelect).each(function () {
-            if ($(this).val() === '') {
-                $(this).val('-');
-            }
-        });
-    }
 
     function loadDataPartner(partnerId) {
         return new Promise((resolve, reject) => {

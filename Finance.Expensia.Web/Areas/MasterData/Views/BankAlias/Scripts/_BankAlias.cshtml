@@ -66,8 +66,8 @@
                         { title: "Account Name", data: "accountName" },
                         {
                             title: "", width: '6%', className: "py-1", render: function (data, type, row) {
-                                var id = row.bankAliasId;
-                                var elem = `<div class="d-inline-flex justify-content-between">
+                                let id = row.bankAliasId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
                                                 <button class="edit-button btn btn-link text-secondary" data-id="${id}" action="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
                                                 <button class="edit-button btn btn-link text-danger" data-id="${id}" action="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
                                                 <button class="edit-button btn btn-link text-secondary" data-id="${id}" action="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
@@ -104,22 +104,87 @@
             },
             InitHandlers: function () {
                 $(document).on('click', '[action="editbutton"]', function () {
-                    var bankAliasId = $(this).data('id');
-                    fnEditForm(bankAliasId);
+                    idBankAlias = $(this).data('id');
+                    
+                    isEdit = true;
+                    lblTitle.text("Edit Bank Alias");
+                    dmSelect.addClass('select2 select2-hidden-accessible');
+                    $('span.select2').add($('small')).show();
+                    dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
+                    dmButton.show();
+                    loadDataBankAlias(idBankAlias);
                 });
 
                 $(document).on('click', '[action="deletebutton"]', function () {
-                    var bankAliasId = $(this).data('id');
-                    fnDeleteForm(bankAliasId);
+                    idBankAlias = $(this).data('id');
+                    
+                    Swal.fire({
+                        title: 'Delete',
+                        html: 'Apakah anda yakin menghapus data ini?',
+                        width: '500px',
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        confirmButtonColor: "#D92D20",
+                        customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                        },
+                        icon: "warning",
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax(Object.assign({}, glbBaseRequest, {
+                                method: "POST",
+                                url: "@deleteBankAliasUrl?bankAliasId=" + idBankAlias,
+                                contentType: "application/json"
+                            })).done(function (response) {
+                                if (response.succeeded) {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.message,
+                                        icon: "success"
+                                    }).then(() => {
+                                        window.location.href = "@bankAliasHomeUrl";
+                                    });
+                                }
+                                else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: response.message,
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                        }
+                    });
                 });
 
-                $(document).on('click', '[action="detailbutton"]', function () {
-                    var bankAliasId = $(this).data('id');
-                    fnDetailForm(bankAliasId);
+                $(document).on('click', '[action="detailbutton"]', async function () {
+                    idBankAlias = $(this).data('id');
+                    
+                    lblTitle.text("Detail Bank Alias");
+                    dmSelect.removeClass('select2 select2-hidden-accessible');
+                    $('span.select2').add($('small')).hide();
+                    dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true);
+                    dmButton.hide();
+                    await loadDataBankAlias(idBankAlias);
+                    dmInput.add(dmSelect).add(dmTextArea).each(function () {
+                        if ($(this).val() === '') {
+                            $(this).val('-');
+                        }
+                    });
                 });
 
                 $("#btnCreate").click(function () { 
-                    fnCreateForm();
+                    isEdit = false;
+                    lblTitle.text("Create Bank Alias");
+                    dmSelect.addClass('select2 select2-hidden-accessible');
+                    $('span.select2').add($('small')).show();
+                    dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
+                    dmInput.add(dmSelect).add(dmTextArea).val('');
+                    dmButton.show();
+                    bankAliasForm.modal('show');
                 })
 
                 btnSubmit.on("click", function (e) {
@@ -130,8 +195,6 @@
                     disabledElement.removeAttr('disabled');
                     let formDataArray = $('.card-body :input').serializeArray();
                     disabledElement.attr('disabled', true);
-
-                    bankAliasForm.modal('toggle');
 
                     let formDataObject = {};
                     formDataArray.forEach(function (field) {
@@ -197,85 +260,6 @@
                     text: response.message,
                     icon: "error"
                 });
-            }
-        });
-    }
-
-    function fnCreateForm(){
-        isEdit = false;
-        lblTitle.text("Create Bank Alias");
-        dmSelect.addClass('select2 select2-hidden-accessible');
-        $('span.select2').add($('small')).show();
-        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
-        dmInput.add(dmSelect).add(dmTextArea).val('');
-        dmButton.show();
-        bankAliasForm.modal('show');
-    }
-
-    function fnEditForm(bankAliasId) {
-        isEdit = true;
-        idBankAlias = bankAliasId;
-        lblTitle.text("Edit Bank Alias");
-        dmSelect.addClass('select2 select2-hidden-accessible');
-        $('span.select2').add($('small')).show();
-        dmInput.add(dmSelect).add(dmTextArea).prop('disabled', false);
-        dmButton.show();
-        loadDataBankAlias(bankAliasId);
-    }
-
-    function fnDeleteForm(bankAliasId) {
-        Swal.fire({
-            title: 'Delete',
-            html: 'Apakah anda yakin menghapus data ini?',
-            width: '500px',
-            showCancelButton: true,
-            confirmButtonText: 'Delete',
-            confirmButtonColor: "#D92D20",
-            customClass: {
-                actions: 'my-actions',
-                cancelButton: 'order-1 right-gap',
-                confirmButton: 'order-2',
-            },
-            icon: "warning",
-            allowOutsideClick: () => !Swal.isLoading()
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax(Object.assign({}, glbBaseRequest, {
-                    method: "POST",
-                    url: "@deleteBankAliasUrl?bankAliasId=" + bankAliasId,
-                    contentType: "application/json"
-                })).done(function (response) {
-                    if (response.succeeded) {
-                        Swal.fire({
-                            title: "Success",
-                            text: response.message,
-                            icon: "success"
-                        }).then(() => {
-                            window.location.href = "@bankAliasHomeUrl";
-                        });
-                    }
-                    else {
-                        Swal.fire({
-                            title: "Error",
-                            text: response.message,
-                            icon: "error"
-                        });
-                    }
-                });
-            }
-        });
-    }
-
-    async function fnDetailForm(bankAliasId) {
-        lblTitle.text("Detail Bank Alias");
-        dmSelect.removeClass('select2 select2-hidden-accessible');
-        $('span.select2').add($('small')).hide();
-        dmInput.add(dmSelect).add(dmTextArea).attr('disabled', true);
-        dmButton.hide();
-        await loadDataBankAlias(bankAliasId);
-        dmInput.add(dmSelect).add(dmTextArea).each(function () {
-            if ($(this).val() === '') {
-                $(this).val('-');
             }
         });
     }

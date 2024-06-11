@@ -29,10 +29,8 @@ namespace Finance.Expensia.Web.Middlewares
 
 				if (resultContext.Result != null && resultContext.Exception == null)
 				{
-					if (resultContext.Result is ObjectResult)
+					if (resultContext.Result is ObjectResult objectResult)
 					{
-						var objectResult = (ObjectResult)resultContext.Result;
-
 						if (objectResult.Value is not ResponseBase && !isCustomResponse)
 						{
 							string errorMessage = "Use ResponseBase or it's inheritance";
@@ -43,16 +41,14 @@ namespace Finance.Expensia.Web.Middlewares
 
 						if (isMutation && objectResult.Value != null)
 						{
-							if ((objectResult.Value is ResponseBase @base && @base.Succeeded) || objectResult.Value != null)
+							if ((objectResult.Value is ResponseBase responseBase && responseBase.Succeeded) || objectResult.Value != null)
 							{
 								_logger.LogInformation("{Prefix}: Commit transaction scope", logPrefix);
 								await transaction.CommitAsync();
 							}
 							else
 							{
-								var statusCode = (objectResult.Value is ResponseBase base1) ? base1.Code.ToString() : "400";
-
-								_logger.LogInformation("{Prefix}: Rollback transaction scope: Status code {StatusCode}", logPrefix, statusCode);
+								_logger.LogInformation("{Prefix}: Rollback transaction scope: Status code 400", logPrefix);
 								await transaction.RollbackAsync();
 							}
 						}
