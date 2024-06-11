@@ -30,7 +30,7 @@ namespace Finance.Expensia.DataAccess.Builders
 		{
 			builder
 				.HasData(
-					new AppConfig { Id = new Guid("d22dfd1c-44ee-46e7-8329-ad7041a99bb9"), Key = "MaximumFileSize", Value = "1000000", Modul = "Storage", StartDate = new DateTime(2024, 6, 10, 0, 0, 0, DateTimeKind.Utc).AddTicks(0), Created = new DateTime(2024, 6, 10, 0, 0, 0, DateTimeKind.Utc).AddTicks(0), CreatedBy = "SYSTEM" }
+					new AppConfig { Id = new Guid("d22dfd1c-44ee-46e7-8329-ad7041a99bb9"), Key = "MaximumFileSize", Value = "1000000", Modul = "Storage", Created = new DateTime(2024, 6, 10, 0, 0, 0, DateTimeKind.Utc).AddTicks(0), CreatedBy = "SYSTEM" }
 				);
 		}
 	}

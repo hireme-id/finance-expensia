@@ -3,6 +3,8 @@ using Finance.Expensia.Core.Services.Inbox.Dtos;
 using Finance.Expensia.Core.Services.Inbox.Inputs;
 using Finance.Expensia.Core.Services.OutgoingPayment;
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
+using Finance.Expensia.Core.Services.Workflow;
+using Finance.Expensia.Core.Services.Workflow.Dtos;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
@@ -13,12 +15,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Finance.Expensia.Core.Services.Inbox
 {
-    public class InboxService(ApplicationDbContext dbContext, IMapper mapper, ILogger<InboxService> logger, OutgoingPaymentService outgoingPaymentService)
+    public class InboxService(
+		ApplicationDbContext dbContext, IMapper mapper, ILogger<InboxService> logger, OutgoingPaymentService outgoingPaymentService, WorkflowService workflowService)
         : BaseService<InboxService>(dbContext, mapper, logger)
     {
         private readonly OutgoingPaymentService _outgoingPaymentService = outgoingPaymentService;
+		private readonly WorkflowService _workflowService = workflowService;
 
-        public async Task<ResponsePaging<ListInboxDto>> GetListOfActiveInbox(ListInboxFilterInput input, Guid userId)
+		public async Task<ResponsePaging<ListInboxDto>> GetListOfActiveInbox(ListInboxFilterInput input, Guid userId)
         {
             var retVal = new ResponsePaging<ListInboxDto>();
             var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(userId)).Select(d => d.CompanyId).ToListAsync();
@@ -149,7 +153,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 					ScheduleDate = outgoingPayment.ScheduledDate
                 };
 
-				await _outgoingPaymentService.SendEmailToApprover(dataSendEmail, ApprovalStatus.Approved);
+				await _workflowService.SendEmailToApprover(dataSendEmail, ApprovalStatus.Approved);
 			}
 			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
 		}
