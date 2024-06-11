@@ -6,7 +6,7 @@ using Finance.Expensia.Shared.Objects.Inputs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Finance.Expensia.Core.Services.WorkflowHistory
+namespace Finance.Expensia.Core.Services.Workflow
 {
 	public class WorkflowHistoryService(ApplicationDbContext dbContext, IMapper mapper, ILogger<WorkflowHistoryService> logger)
 		: BaseService<WorkflowHistoryService>(dbContext, mapper, logger)

@@ -1,4 +1,4 @@
-﻿using Finance.Expensia.Core.Services.WorkflowHistory;
+﻿using Finance.Expensia.Core.Services.Workflow;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Objects;
