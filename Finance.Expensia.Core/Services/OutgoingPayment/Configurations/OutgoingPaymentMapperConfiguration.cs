@@ -67,6 +67,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.OutgoingPaymentId, opt => opt.Ignore())
 				.ForMember(dest => dest.OutgoingPayment, opt => opt.Ignore());
-		}
+
+            CreateMap<CreateOutgoingPaymentDetailInput, BaseOutgoingPaymentDetailInput>();
+            CreateMap<EditOutgoingPaymentDetailInput, BaseOutgoingPaymentDetailInput>();
+        }
     }
 }

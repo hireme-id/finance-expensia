@@ -380,10 +380,10 @@ Account No : ` + accountNo);
 					}).then((result) => {
 						if (result.isConfirmed) {
 							let data = gridOutgoingPaymentDetail.api().row(indexRowDelete).data();
-							let dataamount = (data.amount).replace(/\./g, "");
+
 							gridOutgoingPaymentDetail.api().row(indexRowDelete).remove().draw();
 
-							totalAmount = totalAmount - parseInt(dataamount);
+							totalAmount = totalAmount - data.amount;
 							txtTotalAmount.val(fmtMoney(totalAmount));
 						}
 					});

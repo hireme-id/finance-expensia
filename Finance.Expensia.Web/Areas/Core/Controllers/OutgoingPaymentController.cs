@@ -60,10 +60,10 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		public async Task<ResponsePaging<ListOutgoingPaymentDto>> GetListOutgoingPayment([FromBody] ListOutgoingPaymentFilterInput input)
 		{
 			if (_currentUserAccessor.Permissions!.Any(d => d == PermissionConstants.OutgoingPayment.OutgoingPaymentView))
-				return await _outgoingPaymentService.GetListOfOutgoingPayment(input, _currentUserAccessor);
+				return await _outgoingPaymentService.GetListOfOutgoingPayment(input, _currentUserAccessor, false);
 			else
-				return await _outgoingPaymentService.GetListOfOutgoingPaymentMyDocument(input, _currentUserAccessor);
-		}
+                return await _outgoingPaymentService.GetListOfOutgoingPayment(input, _currentUserAccessor, true);
+        }
 
 		[AppAuthorize([PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument])]
 		[HttpGet("outgoingpayment/detail")]
@@ -110,7 +110,7 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		[HttpPost("outgoingpayment/cancel")]
 		public async Task<ResponseBase> CancelOutgoingPayment([FromQuery] Guid outgoingPaymentId)
 		{
-			return await _outgoingPaymentService.CancelOutgoingPaymen(outgoingPaymentId, _currentUserAccessor);
+			return await _outgoingPaymentService.CancelOutgoingPayment(outgoingPaymentId, _currentUserAccessor);
 		}
 	}
 }
