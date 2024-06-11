@@ -19,7 +19,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         [AppAuthorize(PermissionConstants.MasterData.CompanyView)]
         public async Task<ResponseObject<List<CompanyDto>>> RetrieveCompanyDatas()
         {
-            return await _companyService.RetrieveCompanyDatas(_currentUserAccessor.Id);
+            return await _companyService.RetrieveCompanyDatas(_currentUserAccessor);
         }
     }
 }

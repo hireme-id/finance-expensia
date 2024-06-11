@@ -26,8 +26,6 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 		[AppAuthorize(PermissionConstants.Storage.StorageDownload)]
 		public IActionResult DownloadFile([FromBody] DownloadFileInput input)
 		{
-			//_webHostEnvironment.Root
-
 			return PhysicalFile(Path.Combine(_webHostEnvironment.ContentRootPath, input.FileUrl), input.ContentType, input.FileName);
 		}
 	}

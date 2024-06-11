@@ -4,6 +4,7 @@ using Finance.Expensia.Core.Services.MasterData.Inputs;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
+using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Microsoft.EntityFrameworkCore;
@@ -38,11 +39,11 @@ namespace Finance.Expensia.Core.Services.MasterData
 			};
 		}
 
-		public async Task<ResponsePaging<BankAliasDto>> GetListBankAlias(PagingSearchInputBase input, Guid userId)
+		public async Task<ResponsePaging<BankAliasDto>> GetListBankAlias(PagingSearchInputBase input, CurrentUserAccessor currentUserAccessor)
 		{
 			var retVal = new ResponsePaging<BankAliasDto>();
 
-			var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(userId)).Select(d => d.CompanyId).ToListAsync();
+			var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.CompanyId).ToListAsync();
 			var dataBankAliases = _dbContext.BankAliases
 											.Include(ba => ba.Company)
 											.Where(d => d.CompanyId == null || userCompanyIds.Contains(d.CompanyId.Value))
