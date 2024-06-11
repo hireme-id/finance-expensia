@@ -41,7 +41,7 @@ namespace Finance.Expensia.Web.Middlewares
 
 						if (isMutation && objectResult.Value != null)
 						{
-							if ((objectResult.Value is ResponseBase responseBase && responseBase.Succeeded) || objectResult.Value != null)
+							if ((objectResult.Value is ResponseBase responseBase && responseBase.Succeeded) || isCustomResponse)
 							{
 								_logger.LogInformation("{Prefix}: Commit transaction scope", logPrefix);
 								await transaction.CommitAsync();

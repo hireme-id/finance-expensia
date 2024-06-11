@@ -1,4 +1,5 @@
 ﻿using Finance.Expensia.Core.Services.Account;
+using Finance.Expensia.Core.Services.DocumentNumbering;
 using Finance.Expensia.Core.Services.Inbox;
 using Finance.Expensia.Core.Services.MasterData;
 using Finance.Expensia.Core.Services.OutgoingPayment;
@@ -34,6 +35,7 @@ namespace Finance.Expensia.Core
 			services.AddScoped<StorageService>();
             services.AddScoped<InboxService>();
             services.AddScoped<WorkflowHistoryService>();
+            services.AddScoped<DocumentNumberingService>();
 
             services.AddHttpClient();
 
