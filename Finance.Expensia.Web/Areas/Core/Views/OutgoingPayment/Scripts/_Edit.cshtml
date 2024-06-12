@@ -1,4 +1,6 @@
-﻿@using Finance.Expensia.Shared.Enums
+﻿<!--MOVE INTO _OutgoingPaymentForm, KEEP IT UNTIL JULY 2024 FOR BACKUP-->
+
+@using Finance.Expensia.Shared.Enums
 @{
 	var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
 	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
@@ -608,7 +610,6 @@ Account No : ` + accountNo);
 					formDataObject.outgoingPaymentTaggings = [];
 					
 					let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
-
 					if (dataOutgoingPaymentDetails.length > 0) {
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
 							formDataObject.outgoingPaymentDetails.push({
@@ -710,11 +711,10 @@ Account No : ` + accountNo);
 							method: "POST",
 							url: "@ddlOutgoingPaymentTagging",
 							data: JSON.stringify({
-									"page": 1,
-									"pageSize": 10,
-									"searchKey": $("#txtTagging").val()
-								  })
-
+								"page": 1,
+								"pageSize": 10,
+								"searchKey": $("#txtTagging").val()
+							})
 						})).done(function (data) {
 							if (data.succeeded) {
 								const suggestions = data.obj.map(item => item.tagValue);
@@ -730,9 +730,10 @@ Account No : ` + accountNo);
 						const divTag = $('#dvListTag');
 						var inputValue = ui.item.value;
 						let listhtml = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;" data-value="${inputValue}">${inputValue}
-												<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
-													<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
-												</a></span>`;
+											<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
+												<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
+											</a>
+										</span>`;
 						divTag.append($(listhtml));
 						setTimeout(() => {
 							$(this).val('');
@@ -745,9 +746,10 @@ Account No : ` + accountNo);
 					var inputValue = $("#txtTagging").val();
 					if (event.which === 13) {
 						let listhtml = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;"  data-value="${inputValue}">${inputValue}
-												<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
-													<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
-												</a></span>`;
+											<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
+												<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
+											</a>
+										</span>`;
 						divTag.append($(listhtml));
 						$("#txtTagging").val('');
 					}
