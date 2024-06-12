@@ -1,6 +1,4 @@
-﻿<!--MOVE INTO _OutgoingPaymentForm, KEEP IT UNTIL JULY 2024 FOR BACKUP-->
-
-@using Finance.Expensia.Shared.Enums
+﻿@using Finance.Expensia.Shared.Enums
 @{
 	var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
 	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
@@ -9,32 +7,49 @@
 	var ddlCoaUrl = Url.Action("RetrieveCoa", "Coa");
 	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
 	var ddlOutgoingPaymentTagging = Url.Action("RetrieveOutgoingPaymentTagging", "OutgoingPayment");
-	var createOutgoingPaymentUrl = Url.Action("CreateOutgoingPayment", "OutgoingPayment");
+
 	var uploadFileUrl = Url.Action("UploadFile", "Storage");
 	var downloadFileUrl = Url.Action("DownloadFile", "Storage");
-	var outgoingPaymentHomeUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
+
 	var detailOutgoingPaymentUrl = Url.Action("GetDetailOutgoingPayment", "OutgoingPayment");
+	var createOutgoingPaymentUrl = Url.Action("CreateOutgoingPayment", "OutgoingPayment");
+	var editOutgoingPaymentUrl = Url.Action("EditOutgoingPayment", "OutgoingPayment");
+	var deleteOutgoingPaymentUrl = Url.Action("DeleteOutgoingPayment", "OutgoingPayment");
+	var cancelOutgoingPaymentUrl = Url.Action("CancelOutgoingPayment", "OutgoingPayment");
+
+	var getHistoryApproval = Url.Action("GetListApprovalHistory", "Mailbox");
+	
+	var outgoingPaymentHomePageUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
+	var createOutgoingPaymentPageUrl = Url.Action("Create", "OutgoingPayment", new { area = "Core" });
 }
 
 <script type="text/javascript">
-	//Variable for control
+	const contextRequestPath = '@Context.Request.Path';
+	const createPath = '@Url.Action("Create", "OutgoingPayment")', detailPath = '@Url.Action("Detail", "OutgoingPayment")', editPath = '@Url.Action("Edit", "OutgoingPayment")';
+
 	const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
+
 	const dtRequestDate = $("#dtRequestDate"), dtScheduledDate = $("#dtScheduledDate");
+
 	const ddlTransactionType = $('#ddlTransactionType'), ddlCompany = $("#ddlCompany"), ddlFromAliasBank = $("#ddlFromAliasBank"), ddlToAliasBank = $("#ddlToAliasBank");
 	const ddlExpectedTransfer = $('#ddlExpectedTransfer');
-	const txtTransactionNo = $('#txtTransactionNo'), txtDocumentStatus = $('#txtDocumentStatus'), txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
-	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft");
 
-	let indexRowEdit = -1;
+	const txtTransactionNo = $('#txtTransactionNo'), txtDocumentStatus = $('#txtDocumentStatus'), txtRequestor = $("#txtRequestor"), txtTotalAmount = $("#txtTotalAmount");
+	const txtRemark = $("#txtRemark"), txtFromBankName = $("#txtFromBankName"), txtToBankName = $("#txtToBankName");
+
+	const btnSubmit = $("#btnSubmit"), btnDraft = $("#btnDraft"), btnDelete = $("#btnDelete"), btnHistory = $("#btnHistory"), btnCancel = $("#btnCancel"), btnCopy = $("#btnCopy");
+
+	const divTag = $('#dvListTag'), divHistory = $("#dvHistoryApproval");
+
+	let indexRowEdit = -1, totalAmount = 0, outgoingPaymentId = null;
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas, ddlCompanyDatas;
-	let totalAmount = 0;
 
 	$(function () {
-		CreateManager = new CreateManager();
-		CreateManager.InitManagement();
+		OutgoingPaymentFormManager = new OutgoingPaymentFormManager();
+		OutgoingPaymentFormManager.InitManagement();
 	});
 
-	function CreateManager() {
+	function OutgoingPaymentFormManager() {
 		return {
 			InitManagement: function () {
 				this.InitControls();
@@ -67,7 +82,7 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div class="input-group">
-												<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + value + `>
+											<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + value + `>
 											<div class="input-group-append">
 												<span class="input-group-text">
 													<i class="fa fa-calendar"></i>
@@ -181,22 +196,22 @@
 										badge = badge +
 											`<span class="badge badge-success mr-1 mb-1 p-0">
 												<a class="btn btn-xs text-white">
-													<span 
-														class="download-file" 
+													<span
+														class="download-file"
 														data-file-url="` + e.fileUrl + `"
 														data-content-type="` + e.contentType + `"
-														data-file-name="` + e.fileName + `">` + 
-															e.fileName + 
+														data-file-name="` + e.fileName + `">` +
+														e.fileName +
 													`</span>
 												</a>`;
-										
+
 										if (meta.row == indexRowEdit) {
 											badge = badge +
 												`<a class="btn btn-xs text-white border-left pl-1">
 													<i class="fas fa-times" data-index="` + i + `"></i>
 												</a>`;
 										}
-										else{
+										else {
 											badge = badge +
 												`<a class="btn btn-xs text-white border-left pl-1">
 													<i class="fas fa-eye" data-file-url="` + e.fileUrl + `"
@@ -206,7 +221,7 @@
 												</a>`;
 										}
 
-										badge = badge + 
+										badge = badge +
 											`</span>`;
 									});
 
@@ -229,8 +244,8 @@
 								}
 
 								return (
-										`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-edit"></i></a>
-										<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-trash"></i></a>`);
+									`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-edit"></i></a>
+									<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-trash"></i></a>`);
 							}
 						}
 					],
@@ -274,14 +289,50 @@
 					},
 					disabled: true
 				});
+
+				$("#txtTagging").autocomplete({
+					source: function (request, response) {
+						$.ajax(Object.assign({}, glbBaseRequest, {
+							method: "POST",
+							url: "@ddlOutgoingPaymentTagging",
+							data: JSON.stringify({
+								"page": 1,
+								"pageSize": 10,
+								"searchKey": $("#txtTagging").val()
+							})
+						})).done(function (data) {
+							if (data.succeeded) {
+								const suggestions = data.obj.map(item => item.tagValue);
+								response(suggestions);
+							}
+							else {
+								response([]);
+							}
+						});
+					},
+					minLength: 2,
+					select: function (event, ui) {
+						const divTag = $('#dvListTag');
+						var inputValue = ui.item.value;
+						let listhtml = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;" data-value="${inputValue}">${inputValue}
+											<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
+												<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
+											</a>
+										</span>`;
+						divTag.append($(listhtml));
+						setTimeout(() => {
+							$(this).val('');
+						}, 100);
+					}
+				});
 			},
 			InitHandlers: function () {
-				ddlCompany.on("change", function (e) {
+				ddlCompany.on("change", async function (e) {
 					ddlFromAliasBank.removeAttr("disabled");
-					RefreshDdlBankAlias(ddlFromAliasBank);
-					LoadDdlPartnerData();
-					LoadDdlCoaData();
-					LoadDdlCostCenterData();
+					await RefreshDdlBankAlias(ddlFromAliasBank);
+					await LoadDdlPartnerData();
+					await LoadDdlCoaData();
+					await LoadDdlCostCenterData();
 
 					$(this).attr("disabled", true);
 				});
@@ -348,10 +399,11 @@ Account No : ` + accountNo);
 					if (ValidateAllowModifyDetail()) {
 						indexRowEdit = parseInt($(this).attr('data-row-index'));
 						let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
-						
+
 						gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
 						gridOutgoingPaymentDetail.api().draw();
 						AfterEditDetail(data);
+
 						totalAmount = totalAmount - parseInt(data.amount);
 					}
 				});
@@ -374,7 +426,7 @@ Account No : ` + accountNo);
 					}).then((result) => {
 						if (result.isConfirmed) {
 							let data = gridOutgoingPaymentDetail.api().row(indexRowDelete).data();
-							
+
 							gridOutgoingPaymentDetail.api().row(indexRowDelete).remove().draw();
 
 							totalAmount = totalAmount - data.amount;
@@ -387,15 +439,15 @@ Account No : ` + accountNo);
 					let indexRowSave = indexRowEdit;
 					let attachments = gridOutgoingPaymentDetail.api().row(indexRowSave).data().attachments;
 					let updateData = {
-						"id": null,
+						"id": gridOutgoingPaymentDetail.api().row(indexRowSave).data().id,
 						"invoiceDate": $('#dtInvoiceDate').val(),
-						"partner": {
-							"partnerId": $('#ddlPartner').val(),
-							"partnerName": $('#ddlPartner option:selected').text()
-						},
 						"postingAccount": {
 							"postingAccountId": $('#ddlPostingAccount').val(),
 							"postingAccountName": $('#ddlPostingAccount option:selected').text()
+						},
+						"partner": {
+							"partnerId": $('#ddlPartner').val(),
+							"partnerName": $('#ddlPartner option:selected').text()
 						},
 						"description": $('#txtDescription').val(),
 						"coa": {
@@ -409,7 +461,7 @@ Account No : ` + accountNo);
 						"amount": parseInt($('#txtAmount').val().replace(/\./g, "")),
 						"attachments": attachments
 					}
-					
+
 					indexRowEdit = -1;
 					gridOutgoingPaymentDetail.api().row(indexRowSave).data(updateData);
 					totalAmount = totalAmount + updateData.amount;
@@ -438,8 +490,6 @@ Account No : ` + accountNo);
 						contentType: $el.attr('data-content-type')
 					});
 
-					// delete request.headers["Content-Type"];
-
 					$.ajax(request).done(function (data, textStatus, jqXHR) {
 						var filename = $el.attr('data-file-name');
 						var blob = new Blob([data], { type: $el.attr('data-content-type') });
@@ -450,7 +500,14 @@ Account No : ` + accountNo);
 						a.click();
 						document.body.removeChild(a);
 						window.URL.revokeObjectURL(a.href);
-					});
+					})
+						.fail(function (jqXHR, textStatus, errorThrown) {
+							Swal.fire({
+								title: "Error",
+								text: `Data tidak ditemukan`,
+								icon: "error"
+							});
+						});
 				});
 
 				gridOutgoingPaymentDetail.on("change", "#fiUpload", function (e) {
@@ -536,6 +593,7 @@ Account No : ` + accountNo);
 						if (format.toLowerCase() == 'pdf') {
 							$('#mdViewAttachment').modal('show');
 							$("#modalTitle").text('PDF Viewer');
+
 							reader.onload = function (event) {
 								const base64PDF = event.target.result.split(',')[1];
 								const embedElement = document.createElement("embed");
@@ -554,7 +612,7 @@ Account No : ` + accountNo);
 								icon: "error"
 							});
 						}
-						else{
+						else {
 							$('#mdViewAttachment').modal('show');
 							$("#modalTitle").text('Image Viewer');
 							reader.onload = function (event) {
@@ -582,6 +640,7 @@ Account No : ` + accountNo);
 					disabledElement.attr('disabled', true);
 
 					let formDataObject = {};
+					formDataObject.id = outgoingPaymentId;
 					formDataArray.forEach(function (field) {
 						if (field.name == "scheduledDate" && field.value == "") {
 							return;
@@ -597,6 +656,7 @@ Account No : ` + accountNo);
 					if (dataOutgoingPaymentDetails.length > 0) {
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
 							formDataObject.outgoingPaymentDetails.push({
+								id: v.id,
 								invoiceDate: v.invoiceDate,
 								partnerId: v.partner.partnerId,
 								description: v.description,
@@ -619,7 +679,7 @@ Account No : ` + accountNo);
 
 					$.ajax(Object.assign({}, glbBaseRequest, {
 						method: "POST",
-						url: "@createOutgoingPaymentUrl",
+						url: outgoingPaymentId == null ? "@createOutgoingPaymentUrl" : "@editOutgoingPaymentUrl",
 						data: JSON.stringify(formDataObject),
 						contentType: "application/json"
 					})).done(function (response) {
@@ -630,7 +690,7 @@ Account No : ` + accountNo);
 								text: response.message,
 								icon: "success"
 							}).then(() => {
-								window.location.href = "@outgoingPaymentHomeUrl";
+								window.location.href = "@outgoingPaymentHomePageUrl";
 							});
 						}
 						else {
@@ -645,40 +705,166 @@ Account No : ` + accountNo);
 					})
 				});
 
-				$("#txtTagging").autocomplete({
-					source: function (request, response) {
-						$.ajax(Object.assign({}, glbBaseRequest, {
-							method: "POST",
-							url: "@ddlOutgoingPaymentTagging",
-							data: JSON.stringify({
-									"page": 1,
-									"pageSize": 10,
-									"searchKey": $("#txtTagging").val()
-								  })
-							
-						})).done(function (data) {
-							if (data.succeeded) {
-								const suggestions = data.obj.map(item => item.tagValue);
-								response(suggestions);
+				btnDelete.on('click', function (e) {
+					Swal.fire({
+						title: "Hapus Data",
+						html: "Apakah anda yakin ingin meghapus dokumen ini?",
+						showCancelButton: true,
+						confirmButtonText: "Hapus",
+						confirmButtonColor: "#D92D20",
+						customClass: {
+							actions: 'my-actions',
+							cancelButton: 'order-1 right-gap',
+							confirmButton: 'order-2',
+						},
+						icon: "warning"
+					}).then(async (result) => {
+						if (result.isConfirmed) {
+							var pathArray = window.location.pathname.split('/');
+
+							await $.ajax(Object.assign({}, glbBaseRequest, {
+								method: "POST",
+								url: "@deleteOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
+							})).done(function (response) {
+								if (response.succeeded) {
+									Swal.fire({
+										title: "Success",
+										text: response.message,
+										icon: "success"
+									}).then(() => {
+										window.location.href = "@outgoingPaymentHomePageUrl";
+									});
+								}
+								else {
+									Swal.fire({
+										title: "Error",
+										text: response.message,
+										icon: "error"
+									});
+								}
+							});
+						}
+					});
+				});
+
+				btnHistory.click(function () {
+					let html;
+					let bgstatus;
+					let iconstatus;
+					let remark;
+					let dateHist;
+					var reqBody = {
+						'TransactionNo': transactionNo
+					};
+
+					$.ajax(Object.assign({}, glbBaseRequest, {
+						method: "POST",
+						url: "@getHistoryApproval",
+						data: JSON.stringify(reqBody),
+						contentType: "application/json",
+						beforeSend: function () {
+							html = '<div style="text-align: center;">' +
+								'<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i><span>Loading...</span>' +
+								'</div>';
+							divHistory.html(html);
+						},
+					})).done(function (response) {
+						if (response.succeeded) {
+							if (response.obj.length == 0) {
+								html = '<div class="text-center"><span> Tidak ada history</span></div>';
+								divHistory.html(html);
 							}
 							else {
-								response([]);
+								html = `<div class="col-md-12">
+												<div class="timeline">`
+								for (var item of response.obj) {
+									dateHist = fmtDate3(item.created);
+									var objIcon = bgIconHistory.find(function (bgitem) {
+										return bgitem.key === item.approvalStatusText.toLowerCase();
+									});
+
+									bgstatus = objIcon ? objIcon.background : 'bg-grey';
+									iconstatus = objIcon ? objIcon.icon : 'fa-dot-circle';
+
+									if (item.remark != "") {
+										remark = `<br /><i>Remark: </i>${item.remark}`;
+									}
+									else {
+										remark = '';
+									}
+
+									html += `<div>
+													<i class="fa ${iconstatus} ${bgstatus}"></i>
+													<div class="timeline-item">
+														<span class="time">${dateHist}</span>
+														<h3 class="timeline-header font-weight-bold">${item.approvalStatusText}</h3>
+														<div class="timeline-body">
+															By ${item.executorName} (${item.executorRoleDesc}) ${remark}
+														</div>
+													</div>
+												</div>`;
+								}
+								html += `	</div>
+											</div>`;
+								divHistory.html(html);
 							}
-						});
-					},
-					minLength: 2,
-					select: function (event, ui) {
-						const divTag = $('#dvListTag');
-						var inputValue = ui.item.value;
-						let listhtml = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;" data-value="${inputValue}">${inputValue}
-											<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
-												<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
-											</a></span>`;
-						divTag.append($(listhtml));
-						setTimeout(() => {
-							$(this).val('');
-						}, 100);
-					}
+						}
+						else {
+							let errhtml;
+							errhtml = '<div style="text-align: center;">' +
+								'<i class="fa fa-warning"></i><span> Data gagal untuk dimuat</span>' +
+								'</div>';
+							divHistory.html(errhtml);
+						}
+					});
+				});
+
+				btnCopy.on("click", function (e) {
+					var pathArray = window.location.pathname.split('/');
+
+					window.location.href = "@createOutgoingPaymentPageUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1];
+				});
+
+				btnCancel.on('click', function (e) {
+					Swal.fire({
+						title: "Pembatalan Dokumen",
+						html: "Apakah anda yakin ingin membatalkan dokumen ini?",
+						showCancelButton: true,
+						confirmButtonText: "Iya",
+						confirmButtonColor: "#D92D20",
+						customClass: {
+							actions: 'my-actions',
+							cancelButton: 'order-1 right-gap',
+							confirmButton: 'order-2',
+						},
+						icon: "warning"
+					}).then(async (result) => {
+						if (result.isConfirmed) {
+							var pathArray = window.location.pathname.split('/');
+
+							await $.ajax(Object.assign({}, glbBaseRequest, {
+								method: "POST",
+								url: "@cancelOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
+							})).done(function (response) {
+								if (response.succeeded) {
+									Swal.fire({
+										title: "Success",
+										text: response.message,
+										icon: "success"
+									}).then(() => {
+										window.location.href = "@outgoingPaymentHomePageUrl";
+									});
+								}
+								else {
+									Swal.fire({
+										title: "Error",
+										text: response.message,
+										icon: "error"
+									});
+								}
+							});
+						}
+					});
 				});
 
 				$("#txtTagging").keypress(function (event) {
@@ -688,7 +874,8 @@ Account No : ` + accountNo);
 						let listhtml = `<span name="tagSpan" class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mb-2" style="padding: 0.25em 0.75em;"  data-value="${inputValue}">${inputValue}
 											<a class="btn btn-xs text-success pl-1" style="padding: 0.025rem 0.15rem;">
 												<i class="fas fa-times" name="deleteSpan" data-value="${inputValue}"></i>
-											</a></span>`;
+											</a>
+										</span>`;
 						divTag.append($(listhtml));
 						$("#txtTagging").val('');
 					}
@@ -698,27 +885,109 @@ Account No : ` + accountNo);
 					$(this).closest('span').remove();
 				});
 			},
-			InitValidation: function () {
-			},
+			InitValidation: function () {},
 			InitLoad: async function () {
 				await RefreshDdlTransactionType();
 				await RefreshDdlCompany();
 				await RefreshDdlBankAlias(ddlToAliasBank);
 
-				let urlParams = new URLSearchParams(window.location.search);
-				let outgoingPaymentId = urlParams.get('outgoingPaymentId');
+				if (contextRequestPath == createPath) {
+					let urlParams = new URLSearchParams(window.location.search);
+					let copyOutgoingPaymentId = urlParams.get('outgoingPaymentId');
 
-				if (outgoingPaymentId != null) {
-					await LoadOutgoingPaymentDetailData(outgoingPaymentId);
+					if (copyOutgoingPaymentId != null) {
+						await LoadOutgoingPaymentDetailData(copyOutgoingPaymentId);
+					}
+
+					txtRequestor.val(localStorage.getItem('displayName'));
+					txtTransactionNo.val('');
+					txtDocumentStatus.val('');
+					dtRequestDate.datepicker('setDate', new Date());
 				}
+				else {
+					let pathArray = window.location.pathname.split('/');
+					outgoingPaymentId = pathArray[pathArray.length - 1];
+					await LoadOutgoingPaymentDetailData(outgoingPaymentId);
 
-				txtRequestor.val(localStorage.getItem("displayName"));
-				txtTransactionNo.val("");
-				txtDocumentStatus.val("");
-				dtRequestDate.datepicker("setDate", new Date());
+					if (contextRequestPath == detailPath)
+						SetFormForView();
+
+					if (contextRequestPath == editPath)
+						SetFormForEdit();
+				}
 			}
 		}
-	};
+	}
+
+	function SetFormForView() {
+		btnHistory.prop('disabled', true);
+		$('select').removeClass('select2');
+		$("#btnloader").removeClass("d-none");
+		$("#dvListTag").removeClass("mt-3");
+		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
+		$('#txtTagging').hide();
+
+		btnHistory.prop('disabled', false);
+		$("#btnloader").addClass("d-none");
+	}
+	
+	function SetFormForEdit() {
+		ddlTransactionType.prop('disabled', true);
+	}
+
+	async function LoadDdlPartnerData() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlPartnerUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlPartnerDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function LoadDdlCoaData() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCoaUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCoaDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function LoadDdlCostCenterData() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCostCenterDatas = response.obj;
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
 
 	async function RefreshDdlTransactionType() {
 		await $.ajax(Object.assign({}, glbBaseRequest, {
@@ -785,32 +1054,13 @@ Account No : ` + accountNo);
 					const data = response.obj[i];
 					ddlBankAlias.append(
 						`<option
-								value="` + data.bankAliasId + `"
-								data-bank-name="` + data.bankName + `"
-								data-account-no="` + data.accountNo + `"
-								data-account-name="` + data.accountName + `"
-								>` +
-						data.aliasName +
+							value="` + data.bankAliasId + `"
+							data-bank-name="` + data.bankName + `"
+							data-account-no="` + data.accountNo + `"
+							data-account-name="` + data.accountName + `">` +
+							data.aliasName +
 						`</option>`);
 				}
-			}
-			else {
-				Swal.fire({
-					title: "Error",
-					text: response.message,
-					icon: "error"
-				});
-			}
-		});
-	}
-
-	function LoadDdlPartnerData() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
-			method: "POST",
-			url: "@ddlPartnerUrl"
-		})).done(function (response) {
-			if (response.succeeded) {
-				ddlPartnerDatas = response.obj;
 			}
 			else {
 				Swal.fire({
@@ -825,30 +1075,11 @@ Account No : ` + accountNo);
 	function RefreshDdlPartner(partnerId) {
 		let ddlPartner = $("#ddlPartner");
 		ddlPartner.empty().append(`<option value="">&nbsp</option>`);
-
 		for (let i = 0; i < ddlPartnerDatas.length; i++) {
 			const data = ddlPartnerDatas[i];
 			const isSelected = partnerId.toLowerCase() == data.partnerId.toLowerCase() ? ` selected` : ``;
 			ddlPartner.append(`<option value="` + data.partnerId + `"` + isSelected + `>` + data.partnerName + `</option>`);
 		}
-	}
-
-	function LoadDdlCoaData() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
-			method: "POST",
-			url: "@ddlCoaUrl" + "?companyId=" + ddlCompany.val()
-		})).done(function (response) {
-			if (response.succeeded) {
-				ddlCoaDatas = response.obj;
-			}
-			else {
-				Swal.fire({
-					title: "Error",
-					text: response.message,
-					icon: "error"
-				});
-			}
-		});
 	}
 
 	function RefreshDdlCoa(coaId) {
@@ -860,24 +1091,6 @@ Account No : ` + accountNo);
 			const isSelected = coaId.toLowerCase() == data.coaId.toLowerCase() ? ` selected` : ``;
 			ddlCoa.append(`<option value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + ` - ` + data.accountName + `</option>`);
 		}
-	}
-
-	function LoadDdlCostCenterData() {
-		$.ajax(Object.assign({}, glbBaseRequest, {
-			method: "POST",
-			url: "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
-		})).done(function (response) {
-			if (response.succeeded) {
-				ddlCostCenterDatas = response.obj;
-			}
-			else {
-				Swal.fire({
-					title: "Error",
-					text: response.message,
-					icon: "error"
-				});
-			}
-		});
 	}
 
 	function RefreshDdlCostCenter(costCenterId) {
@@ -903,78 +1116,25 @@ Account No : ` + accountNo);
 		}
 	}
 
-	function ValidateAllowModifyDetail() {
-		let message = '';
-
-		if (ddlCompany.val() == '')
-			message = 'Harap memilih company terlebih dahulu';
-
-		if (indexRowEdit != -1)
-			message = "Harap menyelesaikan edit yang belum selesai terlebih dahulu";
-
-		if (message != '') {
-			Swal.fire({
-				title: "Error",
-				text: message,
-				icon: "error"
-			});
-
-			return false;
-		}
-
-		return true;
-	}
-
-	function AfterEditDetail(data) {
-		$('#dtInvoiceDate').datepicker({
-			dateFormat: "yy-mm-dd"
-		});
-		$('#dtInvoiceDate').datepicker("setDate", data.invoiceDate);
-
-		RefreshDdlPartner(data.partner.partnerId);
-		$('#txtDescription').val(data.description);
-		RefreshDdlCoa(data.coa.coaId);
-		RefreshDdlCostCenter(data.costCenter.costCenterId);
-		RefreshDdlPostingAccount(data.postingAccount.postingAccountId);
-		$('#txtAmount').val(fmtMoney(data.amount));
-	}
-
-	function GetTemporaryData() {
-		let temporaryData = {
-			"id": null,
-			"invoiceDate": $('#dtInvoiceDate').datepicker('getDate'),
-			"partner": {
-				"partnerId": $('#ddlPartner').val(),
-				"partnerName": $('#ddlPartner option:selected').text()
-			},
-			"description": $('#txtDescription').val(),
-			"coa": {
-				"coaId": $('#ddlCoa').val(),
-				"accountCode": $('#ddlCoa option:selected').text()
-			},
-			"costCenter": {
-				"costCenterId": $('#ddlCostCenter').val(),
-				"costCenterCode": $('#ddlCostCenter option:selected').text()
-			},
-			"postingAccount": {
-				"postingAccountId": $('#ddlPostingAccount').val(),
-				"postingAccountName": $('#ddlPostingAccount option:selected').text()
-			},
-			"amount": parseInt($('#txtAmount').val().replace(/\./g, ""))
-		}
-
-		return temporaryData;
-	}
-
-	async function LoadOutgoingPaymentDetailData(outgoingPaymentId) {
-		var pathArray = window.location.pathname.split('/');
-
+	async function LoadOutgoingPaymentDetailData(loadOutgoingPaymentId) {
 		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "GET",
-			url: "@detailOutgoingPaymentUrl?outgoingPaymentId=" + outgoingPaymentId
+			url: "@detailOutgoingPaymentUrl?outgoingPaymentId=" + loadOutgoingPaymentId
 		})).done(function (response) {
 			if (response.succeeded) {
 				$.each(response.obj, function (key, value) {
+					if (key == 'isBtnCancelHidden') {
+						if (value) {
+							btnCancel.hide();
+						}
+					}
+
+					if (key == 'isCancelable')
+						btnCancel.prop('disabled', value);
+
+					if (key == 'transactionNo')
+						transactionNo = value;
+
 					let input = $('[bind-name="' + key + '"]');
 
 					if (input.length > 0) {
@@ -997,6 +1157,17 @@ Account No : ` + accountNo);
 					ddlFromAliasBank.val(response.obj.fromBankAliasId);
 					ddlFromAliasBank.trigger('change');
 				}, 500);
+
+				$.each(response.obj.outgoingPaymentTaggings, function (key, value) {
+					var tagValue = value.tagValue;
+					let listTagging = `<span name="tagSpan" 
+											 class="badge badge-pill badge-outlined-success font-weight-normal mr-2 mt-2" 
+											 style="padding: 0.25em 0.75em;" 
+											 data-value="${tagValue}">
+											 ${tagValue}
+									  </span>`;
+					divTag.append($(listTagging));
+				});
 
 				$.each(response.obj.outgoingPaymentDetails, function (key, value) {
 					let attachments = [];
@@ -1048,5 +1219,72 @@ Account No : ` + accountNo);
 				});
 			}
 		});
+	}
+
+	function ValidateAllowModifyDetail() {
+		let message = '';
+
+		if (ddlCompany.val() == '')
+			message = 'Harap memilih company terlebih dahulu';
+
+		if (indexRowEdit != -1)
+			message = "Harap menyelesaikan edit yang belum selesai terlebih dahulu";
+
+		if (message != '') {
+			Swal.fire({
+				title: "Error",
+				text: message,
+				icon: "error"
+			});
+
+			return false;
+		}
+
+		return true;
+	}
+
+	function AfterEditDetail(data) {
+		$('#dtInvoiceDate').datepicker({
+			dateFormat: "yy-mm-dd"
+		});
+		$('#dtInvoiceDate').datepicker("setDate", data.invoiceDate);
+
+		RefreshDdlPartner(data.partner.partnerId);
+		$('#txtDescription').val(data.description);
+		RefreshDdlCoa(data.coa.coaId);
+		RefreshDdlCostCenter(data.costCenter.costCenterId);
+		RefreshDdlPostingAccount(data.postingAccount.postingAccountId);
+		$('#txtAmount').val(fmtMoney(data.amount));
+	}
+
+	function GetTemporaryData() {
+		let temporaryData = {
+			"id": gridOutgoingPaymentDetail.api().row(indexRowEdit).data().id,
+			"invoiceDate": $('#dtInvoiceDate').datepicker('getDate'),
+			"postingAccount": {
+				"postingAccountId": $('#ddlPostingAccount').val(),
+				"postingAccountName": $('#ddlPostingAccount option:selected').text()
+			},
+			"partner": {
+				"partnerId": $('#ddlPartner').val(),
+				"partnerName": $('#ddlPartner option:selected').text()
+			},
+			"description": $('#txtDescription').val(),
+			"coa": {
+				"coaId": $('#ddlCoa').val(),
+				"accountCode": $('#ddlCoa option:selected').text()
+			},
+			"costCenter": {
+				"costCenterId": $('#ddlCostCenter').val(),
+				"costCenterCode": $('#ddlCostCenter option:selected').text()
+			},
+			"postingAccount": {
+				"postingAccountId": $('#ddlPostingAccount').val(),
+				"postingAccountName": $('#ddlPostingAccount option:selected').text()
+			},
+			"amount": parseInt($('#txtAmount').val().replace(/\./g, ""))
+		}
+
+		return temporaryData;
 	}
 </script>
