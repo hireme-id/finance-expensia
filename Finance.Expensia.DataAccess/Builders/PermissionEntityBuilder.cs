@@ -84,8 +84,10 @@ namespace Finance.Expensia.DataAccess.Builders
 			#region Cost Center
 			builder
 				.HasData(
-					new Permission { Id = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), PermissionCode = PermissionConstants.MasterData.CostCenterView, PermissionDescription = "Akses untuk view cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
-				);
+					new Permission { Id = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), PermissionCode = PermissionConstants.MasterData.CostCenter.CostCenterView, PermissionDescription = "Akses untuk view cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+                    new Permission { Id = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"), PermissionCode = PermissionConstants.MasterData.CostCenter.CostCenterUpsert, PermissionDescription = "Akses untuk upsert cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+                    new Permission { Id = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"), PermissionCode = PermissionConstants.MasterData.CostCenter.CostCenterDelete, PermissionDescription = "Akses untuk delete cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
+                );
 			#endregion
 
 			#endregion
