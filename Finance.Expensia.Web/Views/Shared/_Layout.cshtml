@@ -5,6 +5,7 @@
     var mailbox = Url.Action("Index", "Mailbox", new { area = "Core" });
     var masterPartner = Url.Action("Index", "Partner", new { area = "MasterData" });
     var masterBankAlias = Url.Action("Index", "BankAlias", new { area = "MasterData" });
+    var masterCostCenter = Url.Action("Index", "CostCenter", new { area = "MasterData" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
@@ -82,6 +83,12 @@
                                     <a href="@masterBankAlias" class="nav-link">
                                         <i class="fas fa-piggy-bank nav-icon"></i>
                                         <p>Bank Alias</p>
+                                    </a>
+                                </li>
+                                <li id="menuCustomer" class="nav-item" style="display:none">
+                                    <a href="@masterCostCenter" class="nav-link">
+                                        <i class="fas fa-address-book nav-icon"></i>
+                                        <p>Customer</p>
                                     </a>
                                 </li>
                             </ul>
@@ -230,6 +237,11 @@
 						$('#menuMaster').show();
 						$('#menuBankAlias').show();
 					}
+
+                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.CostCenter.CostCenterUpsert")) {
+                        $('#menuMaster').show();
+                        $('#menuCustomer').show();
+                    }
 
 					if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")
 						|| response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentView")) {

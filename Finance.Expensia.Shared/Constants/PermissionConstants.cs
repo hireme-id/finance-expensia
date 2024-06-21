@@ -28,7 +28,6 @@
         {
             public const string CompanyView = "MasterData.Company.View";
 			public const string CoaView = "MasterData.CoA.View";
-			public const string CostCenterView = "MasterData.CostCenter.View";
             public const string TransactionTypeView = "MasterData.TransactionType.View";
 
             public static class Partner
@@ -43,6 +42,13 @@
                 public const string BankAliasView = "MasterData.BankAlias.View";
                 public const string BankAliasUpsert = "MasterData.BankAlias.Upsert";
                 public const string BankAliasDelete = "MasterData.BankAlias.Delete";
+            }
+
+            public static class CostCenter
+            {
+                public const string CostCenterView = "MasterData.CostCenter.View";
+                public const string CostCenterUpsert = "MasterData.CostCenter.Upsert";
+                public const string CostCenterDelete = "MasterData.CostCenter.Delete";
             }
         }
 
