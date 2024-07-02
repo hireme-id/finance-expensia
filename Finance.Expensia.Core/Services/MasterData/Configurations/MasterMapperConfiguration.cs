@@ -19,13 +19,16 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
 			CreateMap<ChartOfAccount, CoaDto>()
 				.ForMember(dest => dest.CoaId, opt => opt.MapFrom(src => src.Id));
 			CreateMap<CostCenter, CostCenterDto>()
-				.ForMember(dest => dest.CostCenterId, opt => opt.MapFrom(src => src.Id));
+				.ForMember(dest => dest.CostCenterId, opt => opt.MapFrom(src => src.Id))
+				.ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company != null ? src.Company.CompanyName : string.Empty));
             CreateMap<TransactionType, TransactionTypeDto>()
                 .ForMember(dest => dest.TransactionTypeId, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<UpsertPartnerInput, Partner>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<UpsertBankAliasInput, BankAlias>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<UpsertCostCenterInput, CostCenter>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
