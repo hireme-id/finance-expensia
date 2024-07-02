@@ -1049,24 +1049,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"),
-                            Created = new DateTime(2024, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "MasterData.CostCenter.Upsert",
-                            PermissionDescription = "Akses untuk upsert cost center",
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"),
-                            Created = new DateTime(2024, 4, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "MasterData.CostCenter.Delete",
-                            PermissionDescription = "Akses untuk delete cost center",
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("f5de4a8f-3b4d-4269-869e-65d72e52acec"),
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372),
                             CreatedBy = "",
@@ -1388,24 +1370,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c5c9fd01-d6b2-45cf-bfc2-de6c3a670d56"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"),
-                            RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("540ccc89-364d-433a-b669-df92739a043c"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"),
-                            RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("410300c9-e850-4e89-91ed-5784634c89c5"),
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
@@ -1554,24 +1518,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
                             PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"),
-                            RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("ad98ff8b-9937-4fe6-ab8e-006395fbc7c5"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"),
-                            RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("f96c2402-b849-4f58-9402-ad7152e5bcca"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"),
                             RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"),
                             RowStatus = 0
                         },
@@ -1757,24 +1703,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("bce391a4-9e1f-4483-9499-1d1610de46ea"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"),
-                            RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("aa7d6bf4-54b1-4d25-ab18-b67f183bc84a"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"),
-                            RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("54ba733c-8ad4-45f2-a552-f77e820b9333"),
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
@@ -1950,24 +1878,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
                             PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"),
-                            RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("1ff0b99a-5815-4dfe-bd74-e3985818574c"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"),
-                            RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("1a66749f-6307-42bb-9aaf-33ef174f61a1"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"),
                             RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"),
                             RowStatus = 0
                         },
@@ -2153,24 +2063,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e4ac8a44-55da-41b8-9322-de69cc46e4ff"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"),
-                            RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("621c4acd-73a5-450b-bd4b-c4683a1288ca"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"),
-                            RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("9c3f2c37-6370-4715-8d41-e5400179abc9"),
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
@@ -2346,24 +2238,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
                             PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"),
-                            RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("6b410e73-fa1a-494e-8374-03cb4c2d82ae"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"),
-                            RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("7a1cae33-3079-422d-8c69-c1244d0c62b0"),
-                            Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"),
                             RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"),
                             RowStatus = 0
                         },
