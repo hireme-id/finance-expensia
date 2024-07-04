@@ -77,7 +77,9 @@ namespace Finance.Expensia.DataAccess.Builders
 			#region Chart Of Account
 			builder
 				.HasData(
-					new Permission { Id = new Guid("9ff1a3b0-e198-4cb0-9f43-c52c22f04da2"), PermissionCode = PermissionConstants.MasterData.CoaView, PermissionDescription = "Akses untuk view coa", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
+					new Permission { Id = new Guid("26a2442b-585d-4d36-9dfa-fbde38c0ead2"), PermissionCode = PermissionConstants.MasterData.CoA.CoAView, PermissionDescription = "Akses untuk view coa", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+					new Permission { Id = new Guid("5c3a6cd7-3d8c-48f8-b10b-0435379fd643"), PermissionCode = PermissionConstants.MasterData.CoA.CoAUpsert, PermissionDescription = "Akses untuk upsert coa", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+					new Permission { Id = new Guid("6b73945c-6fa7-49ee-8c2c-8490b08236f9"), PermissionCode = PermissionConstants.MasterData.CoA.CoADelete, PermissionDescription = "Akses untuk delete coa", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
 				);
 			#endregion
 

@@ -6,6 +6,7 @@
     var masterPartner = Url.Action("Index", "Partner", new { area = "MasterData" });
     var masterBankAlias = Url.Action("Index", "BankAlias", new { area = "MasterData" });
     var masterCostCenter = Url.Action("Index", "CostCenter", new { area = "MasterData" });
+    var masterCoa = Url.Action("Index", "Coa", new { area = "MasterData" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
@@ -89,6 +90,12 @@
                                     <a href="@masterCostCenter" class="nav-link">
                                         <i class="fas fa-address-book nav-icon"></i>
                                         <p>Customer</p>
+                                    </a>
+                                </li>
+                                <li id="menuCoa" class="nav-item" style="display:none">
+                                    <a href="@masterCoa" class="nav-link">
+                                        <i class="fas fa-user-tag nav-icon"></i>
+                                        <p>Chart of Account</p>
                                     </a>
                                 </li>
                             </ul>
@@ -241,6 +248,11 @@
                     if (response.obj.permissions.includes("@PermissionConstants.MasterData.CostCenter.CostCenterUpsert")) {
                         $('#menuMaster').show();
                         $('#menuCustomer').show();
+                    }
+
+                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.CoaView")) {
+                        $('#menuCoa').show();
+                        $('#menuCoa').show();
                     }
 
 					if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")

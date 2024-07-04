@@ -26,5 +26,18 @@ namespace Finance.Expensia.Core.Services.MasterData
                 Obj = dataCompanies
             };
         }
+
+        public async Task<ResponseObject<List<CompanyDto>>> RetrieveCompany()
+        {
+            var dataCompanies = await _dbContext.Companies
+                                                .OrderBy(d => d.CompanyName)
+                                                .Select(d => _mapper.Map<CompanyDto>(d))
+                                                .ToListAsync();
+
+            return new ResponseObject<List<CompanyDto>>(responseCode: ResponseCode.Ok)
+            {
+                Obj = dataCompanies
+            };
+        }
     }
 }

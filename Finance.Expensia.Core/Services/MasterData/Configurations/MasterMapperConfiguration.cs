@@ -30,6 +30,8 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<UpsertCostCenterInput, CostCenter>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<UpsertCoaInput, ChartOfAccount>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }
