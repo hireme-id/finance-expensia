@@ -1,0 +1,50 @@
+﻿<div class="modal fade" id="coaForm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="title-modal"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mb-2" id="dvModalCoa">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Company</label>
+                            <div class="col-md-9">
+                                <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Account Code</label>
+                            <div class="col-md-9">
+                                <input type="number" id="accountCode" class="form-control" bind-name="accountCode" name="accountCode">
+                            </div>
+                        </div>
+                         <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Account Name</label>
+                            <div class="col-md-9">
+                                <input type="text" id="accountName" class="form-control" bind-name="accountName" name="accountName">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Account Type</label>
+                            <div class="col-md-9">
+                                <select class="form-control select2" id="ddlAccountType" name="accountType" bind-name="accountType" bind-trigger="change">
+                                    <option></option>
+                                    <option>D</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="button" class="btn btn-primary float-right ml-2" id="btnSubmit">Submit</button>
+                    <button type="submit" class="btn btn-default close-button float-right" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

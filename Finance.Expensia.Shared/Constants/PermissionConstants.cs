@@ -50,6 +50,13 @@
                 public const string CostCenterUpsert = "MasterData.CostCenter.Upsert";
                 public const string CostCenterDelete = "MasterData.CostCenter.Delete";
             }
+
+            public static class CoA
+            {
+                public const string CoAView = "MasterData.CoA.View";
+                public const string CoAUpsert = "MasterData.CoA.Upsert";
+                public const string CoADelete = "MasterData.CoA.Delete";
+            }
         }
 
         public static class Storage

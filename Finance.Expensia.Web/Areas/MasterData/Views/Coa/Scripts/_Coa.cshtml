@@ -1,0 +1,300 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompany", "Company");
+    var gridCoa = Url.Action("GetListCoa", "Coa");
+    var getDetailCoa = Url.Action("GetDetailCoa", "Coa");
+    var upsertCoaUrl = Url.Action("UpsertCoa", "Coa");
+    var deleteCoaUrl = Url.Action("DeleteCoa", "Coa");
+    var CoaHomeUrl = Url.Action("Index", "Coa", new { area = "MasterData" });
+}
+
+<script type="text/javascript">
+    //Variable for control
+    const ddlCompany = $("#ddlCompany");
+    const dmInput = $('#dvModalCoa input'), dmSelect = $('#dvModalCoa select'), dmButton = $('#dvModalCoa button');
+    const lblTitle = $("#title-modal");
+    const mdCoa = $('#coaForm');
+    const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit")
+
+    let gridCoa;
+    let isEdit = false;
+    let idCoa;
+    let currentDraw = 0;
+    $(function () {
+        CoaManager = new CoaManager();
+        CoaManager.InitManagement();
+    });
+
+    function CoaManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridCoa = $('#gridCoa').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridCoa",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { 
+                            title: "Company", render: function (data, type, row) {
+                                let elem = row.company.companyName;
+                                return elem;
+                            },
+                        },
+                        { title: "Account Code", data: "accountCode" },
+                        { title: "Account Name", data: "accountName" },
+                        { title: "Account Type", data: "accountType" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                let id = row.coaId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                    <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                    <button class="edit-button btn btn-link text-danger" data-id="${id}" name="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
+                                                    <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
+                                                </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+                $(document).on('click', '[name="editbutton"]', function () {
+                    idCoa = $(this).data('id');
+
+                    isEdit = true;
+                    lblTitle.text("Edit Coa");
+                    dmInput.add(dmSelect).prop('disabled', false);
+                    dmButton.show();
+                    loadDataCoa(idCoa);
+                });
+
+                $(document).on('click', '[name="deletebutton"]', function () {
+                    idCoa = $(this).data('id');
+
+                    Swal.fire({
+                        title: 'Delete',
+                        html: 'Apakah anda yakin untuk menghapus data ini?',
+                        width: '500px',
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        confirmButtonColor: "#D92D20",
+                        customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                        },
+                        icon: "warning",
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax(Object.assign({}, glbBaseRequest, {
+                                method: "POST",
+                                url: "@deleteCoaUrl?CoaId=" + idCoa,
+                                contentType: "application/json"
+                            })).done(function (response) {
+                                if (response.succeeded) {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.message,
+                                        icon: "success"
+                                    }).then(() => {
+                                        window.location.href = "@CoaHomeUrl";
+                                    });
+                                }
+                                else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: response.message,
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+
+                $(document).on('click', '[name="detailbutton"]', async function () {
+                    idCoa = $(this).data('id');
+
+                    lblTitle.text("Detail Coa");
+                    dmInput.add(dmSelect).attr('disabled', true);
+                    dmButton.hide();
+                    await loadDataCoa(idCoa);
+                    dmInput.add(dmSelect).each(function () {
+                        if ($(this).val() === '') {
+                            $(this).val('-');
+                        }
+                    });
+                });
+
+                $("#btnCreate").click(function () {
+                    isEdit = false;
+                    lblTitle.text("Create Coa");
+                    dmInput.add(dmSelect).prop('disabled', false);
+                    dmInput.add(dmSelect).val('');
+                    dmButton.show();
+                    mdCoa.modal('show');
+                })
+
+                btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let isSubmit = $el.attr('data-is-submit');
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('.card-body :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        formDataObject[field.name] = field.value;
+                    });
+
+                    if (isEdit) {
+                        formDataObject.Id = idCoa;
+                    }
+                    else {
+                        formDataObject.Id = null;
+                    }
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@upsertCoaUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "@CoaHomeUrl";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                RefreshDdlCompany();
+            }
+        }
+    };
+
+    function loadDataCoa(CoaId) {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getDetailCoa" + "?CoaId=" + CoaId
+            })).done(function (response) {
+                console.log(response);
+                if (response.succeeded) {
+                    $.each(response.obj, function (key, value) {
+                        let input = $('[bind-name="' + key + '"]');
+                        if (input.length > 0) {
+                            let bindTrigger = input.attr('bind-trigger');
+
+                            input.val(value);
+
+                            if (bindTrigger != undefined) {
+                                input.trigger(bindTrigger);
+                            }
+                        }
+                    });
+
+                    mdCoa.modal('show');
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+
+    function RefreshDdlCompany() {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlCompanyUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+</script>

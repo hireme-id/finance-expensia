@@ -21,5 +21,12 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         {
             return await _companyService.RetrieveCompanyDatas(_currentUserAccessor);
         }
+
+        [HttpPost("ddlallcompanies")]
+        [AppAuthorize(PermissionConstants.MasterData.CompanyView)]
+        public async Task<ResponseObject<List<CompanyDto>>> RetrieveCompany()
+        {
+            return await _companyService.RetrieveCompany();
+        }
     }
 }
