@@ -111,11 +111,20 @@ namespace Finance.Expensia.DataAccess.Builders
 					new Permission { Id = new Guid("106ebebf-7ed9-489c-ad28-eeeb49cf71a2"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalInboxUpdate, PermissionDescription = "Akses untuk melakukan update data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
 					new Permission { Id = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalInboxDelete, PermissionDescription = "Akses untuk melakukan delete data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) }
 				);
-			#endregion
+            #endregion
 
-			#region Storage
-			builder
-				.HasData(
+            #region ApprovalRule
+            builder
+                .HasData(
+                    new Permission { Id = new Guid("99cb47e1-28b1-46ee-a90d-b87e195b21a1"), PermissionCode = PermissionConstants.Rule.ApprovalRuleView, PermissionDescription = "Akses untuk view data approval rule", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
+                    new Permission { Id = new Guid("96f688f8-797a-49ef-8e6c-f29c40c67f76"), PermissionCode = PermissionConstants.Rule.ApprovalRuleUpsert, PermissionDescription = "Akses untuk melakukan update data approval rule", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
+                    new Permission { Id = new Guid("692f63e0-eba2-4f81-8d60-52b387b37585"), PermissionCode = PermissionConstants.Rule.ApprovalRuleDelete, PermissionDescription = "Akses untuk melakukan delete data approval rule", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) }
+                );
+            #endregion
+
+            #region Storage
+            builder
+                .HasData(
 					new Permission { Id = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), PermissionCode = PermissionConstants.Storage.StorageUpload, PermissionDescription = "Akses untuk upload file", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
 					new Permission { Id = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), PermissionCode = PermissionConstants.Storage.StorageDownload, PermissionDescription = "Akses untuk download file", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
 				);

@@ -1,0 +1,74 @@
+﻿<div class="modal fade" id="approvalRuleForm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="title-modal"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mb-2" id="dvModalApprovalRule">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Transaction Type</label>
+                            <div class="col-md-9">
+                                <select class="form-control select2" id="ddlTransactionType" name="transactionTypeCode" bind-name="transactionTypeCode" bind-trigger="change">
+                                    <option></option>
+                                    <option>REM</option>
+                                    <option>CAD</option>
+                                    <option>PAY</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Min Amount</label>
+                            <div class="col-md-9">
+                                <input type="number" id="minAmount" class="form-control" bind-name="minAmount" name="minAmount">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Max Amount</label>
+                            <div class="col-md-9">
+                                <input type="number" id="maxAmount" class="form-control" bind-name="maxAmount" name="maxAmount">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Level</label>
+                            <div class="col-md-9">
+                                <select class="form-control select2" id="ddlLevel" name="level" bind-name="level" bind-trigger="change">
+                                    <option></option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Role Code</label>
+                            <div class="col-md-9">
+                                <select class="form-control select2" id="ddlRoleCode" name="roleCode" bind-name="roleCode" bind-trigger="change">
+                                    <option></option>
+                                    <option>Manager</option>
+                                    <option>Accounting</option>
+                                    <option>Finance</option>
+                                    <option>Approval</option>
+                                    <option>Releaser</option>
+                                    <option>User</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="button" class="btn btn-primary float-right ml-2" id="btnSubmit">Submit</button>
+                    <button type="submit" class="btn btn-default close-button float-right" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
