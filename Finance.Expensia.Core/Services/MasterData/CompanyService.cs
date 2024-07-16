@@ -14,11 +14,11 @@ namespace Finance.Expensia.Core.Services.MasterData
     {
         public async Task<ResponseObject<List<CompanyDto>>> RetrieveCompanyDatas(CurrentUserAccessor currentUserAccessor)
         {
-            var dataCompanies = await _dbContext.Companies
-                                                .Include(c => c.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)))
-                                                .Where(d => d.UserCompanies.Count > 0)
-                                                .OrderBy(d => d.CompanyName)
-                                                .Select(d => _mapper.Map<CompanyDto>(d))
+            var dataCompanies = await _dbContext.UserCompanies
+                                                .Include(uc => uc.Company)
+                                                .Where(d => d.UserId.Equals(currentUserAccessor.Id))
+                                                .OrderBy(d => d.Company.CompanyName)
+                                                .Select(d => _mapper.Map<CompanyDto>(d.Company))
                                                 .ToListAsync();
 
             return new ResponseObject<List<CompanyDto>>(responseCode: ResponseCode.Ok)
