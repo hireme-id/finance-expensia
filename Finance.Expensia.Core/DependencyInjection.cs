@@ -3,6 +3,7 @@ using Finance.Expensia.Core.Services.DocumentNumbering;
 using Finance.Expensia.Core.Services.Inbox;
 using Finance.Expensia.Core.Services.MasterData;
 using Finance.Expensia.Core.Services.OutgoingPayment;
+using Finance.Expensia.Core.Services.Rule;
 using Finance.Expensia.Core.Services.Storage;
 using Finance.Expensia.Core.Services.Workflow;
 using Finance.Expensia.Shared.Objects;
@@ -37,6 +38,7 @@ namespace Finance.Expensia.Core
 			services.AddScoped<WorkflowService>();
 			services.AddScoped<WorkflowHistoryService>();
             services.AddScoped<DocumentNumberingService>();
+            services.AddScoped<ApprovalRuleService>();
 
             services.AddHttpClient();
 

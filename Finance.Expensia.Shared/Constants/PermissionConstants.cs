@@ -59,6 +59,13 @@
             }
         }
 
+        public static class Rule
+        {
+            public const string ApprovalRuleView = "ApprovalRule.View";
+            public const string ApprovalRuleUpsert = "ApprovalRule.Upsert";
+            public const string ApprovalRuleDelete = "ApprovalRule.Delete";
+        }
+
         public static class Storage
         {
             public const string StorageUpload = "Storage.Upload";

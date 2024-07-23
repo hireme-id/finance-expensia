@@ -1,0 +1,25 @@
+﻿@{
+	ViewData["Title"] = "Detail Approval Rule";
+	ViewData["Subtitle"] = "Detail Approval Rule";
+}
+<div class="card">
+	<div class="card-body">
+		<div class="d-flex justify-content-between">
+			<div>
+				<input type="text" class="form-control" id="txttitleDetail" disabled />
+			</div>
+			<div class="text-right">
+				<button id="btnCreate" class="btn btn-primary" data-toggle="modal" data-target="#approvalRuleForm">
+					Create
+				</button>
+			</div>
+		</div>
+		<div class="resposivetable" style="margin-top:10px">
+			<table id="gridApprovalRule" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+		</div>
+	</div>
+</div>
+@await Html.PartialAsync("~/Areas/Rule/Views/ApprovalRule/Components/_ApprovalRuleForm.cshtml")
+@section scripts {
+	@await Html.PartialAsync("~/Areas/Rule/Views/ApprovalRule/Scripts/_Detail.cshtml")
+}

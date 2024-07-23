@@ -7,6 +7,7 @@
     var masterBankAlias = Url.Action("Index", "BankAlias", new { area = "MasterData" });
     var masterCostCenter = Url.Action("Index", "CostCenter", new { area = "MasterData" });
     var masterCoa = Url.Action("Index", "Coa", new { area = "MasterData" });
+    var menuApprovalRule = Url.Action("Index", "ApprovalRule", new { area = "Rule" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
@@ -99,6 +100,14 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+                        <li id="menuApprovalRule" class="nav-item" style="display:none">
+                            <a href="@menuApprovalRule" class="nav-link">
+                                <i class="nav-icon fas fa-stamp"></i>
+                                <p>
+                                    Approval Rule
+                                </p>
+                            </a>
                         </li>
                         <li id="menuOutgoingPayment" class="nav-item" style="display:none">
                             <a href="@homePage" class="nav-link">
@@ -253,6 +262,11 @@
                     if (response.obj.permissions.includes("@PermissionConstants.MasterData.CoaView")) {
                         $('#menuCoa').show();
                         $('#menuCoa').show();
+                    }
+
+                    if (response.obj.permissions.includes("@PermissionConstants.Rule.ApprovalRuleUpsert")) {
+                        $('#menuApprovalRule').show();
+                        $('#menuApprovalRule').show();
                     }
 
 					if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")

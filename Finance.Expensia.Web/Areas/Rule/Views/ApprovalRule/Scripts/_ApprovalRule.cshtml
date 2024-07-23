@@ -1,0 +1,223 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var ddlCompanyUrl = Url.Action("RetrieveCompany", "Company");
+    var gridApprovalRule = Url.Action("GetListApprovalRule", "ApprovalRule");
+    var gridApprovalRuleGroup = Url.Action("GetListGroupApprovalRule", "ApprovalRule");
+    var upsertApprovalRuleUrl = Url.Action("UpsertApprovalRule", "ApprovalRule");
+    var ApprovalRuleHomeUrl = Url.Action("Index", "ApprovalRule", new { area = "Rule" });
+}
+
+<script type="text/javascript">
+    //Variable for control
+    const ddlCompany = $("#ddlCompany");
+    const dmInput = $('#dvModalApprovalRule input'), dmSelect = $('#dvModalApprovalRule select'), dmButton = $('#dvModalApprovalRule button');
+    const lblTitle = $("#title-modal");
+    const mdApprovalRule = $('#approvalRuleForm');
+    const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit")
+
+    let gridApprovalRule;
+    let isEdit = false;
+    let idApprovalRule;
+    let currentDraw = 0;
+    $(function () {
+        ApprovalRuleManager = new ApprovalRuleManager();
+        ApprovalRuleManager.InitManagement();
+    });
+
+    function ApprovalRuleManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridApprovalRule = $('#gridApprovalRule').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridApprovalRuleGroup",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { title: "Transaction Type Code", data: "transactionTypeCode" },
+                        { title: "Min Ammount", data: "minAmount" },
+                        { title: "Max Ammount", data: "maxAmount" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                let id = row.approvalRuleId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <a href="../Rule/ApprovalRule/Detail?transactionType=${row.transactionTypeCode}&minamount=${row.minAmount}&maxamount=${row.maxAmount}"
+                                                    class="edit-button btn btn-link text-secondary"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></a>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+                $("#btnCreate").click(function () {
+                    isEdit = false;
+                    lblTitle.text("Create ApprovalRule");
+                    dmInput.add(dmSelect).prop('disabled', false);
+                    dmInput.add(dmSelect).val('');
+                    dmButton.show();
+                    mdApprovalRule.modal('show');
+                })
+
+                btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let isSubmit = $el.attr('data-is-submit');
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('.card-body :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        formDataObject[field.name] = field.value;
+                    });
+
+                    if (isEdit) {
+                        formDataObject.Id = idApprovalRule;
+                    }
+                    else {
+                        formDataObject.Id = null;
+                    }
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@upsertApprovalRuleUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "@ApprovalRuleHomeUrl";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                RefreshDdlCompany();
+            }
+        }
+    };
+
+    function loadDataApprovalRule(ApprovalRuleId) {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@gridApprovalRule" + "?ApprovalRuleId=" + ApprovalRuleId
+            })).done(function (response) {
+                console.log(response);
+                if (response.succeeded) {
+                    $.each(response.obj, function (key, value) {
+                        let input = $('[bind-name="' + key + '"]');
+                        if (input.length > 0) {
+                            let bindTrigger = input.attr('bind-trigger');
+
+                            input.val(value);
+
+                            if (bindTrigger != undefined) {
+                                input.trigger(bindTrigger);
+                            }
+                        }
+                    });
+
+                    mdApprovalRule.modal('show');
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+
+    function RefreshDdlCompany() {
+        $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlCompanyUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+</script>
