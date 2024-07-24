@@ -60,7 +60,7 @@
                         },
                     })),
                     columns: [
-                        { title: "Partner Name", data: "partnerName" },
+                        { title: "Tenant Name", data: "partnerName" },
                         { title: "Description", data: "description" },
                         {
                             title: "", width: '6%', className: "py-1", render: function (data, type, row) {
@@ -105,7 +105,7 @@
                     idPartner = $(this).data('id');
                     
                     isEdit = true;
-                    lblTitle.text("Edit Partner");
+                    lblTitle.text("Edit Tenant");
                     dmInput.add(dmSelect).prop('disabled', false);
                     dmButton.show();
                     loadDataPartner(idPartner);
@@ -172,7 +172,7 @@
 
                 $("#btnCreate").click(function () { 
                     isEdit = false;
-                    lblTitle.text("Create Partner");
+                    lblTitle.text("Create Tenant");
                     dmInput.add(dmSelect).prop('disabled', false);
                     dmInput.add(dmSelect).val('');
                     dmButton.show();

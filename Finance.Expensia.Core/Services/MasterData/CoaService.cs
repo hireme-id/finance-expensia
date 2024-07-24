@@ -3,6 +3,7 @@ using Finance.Expensia.Core.Services.MasterData.Dtos;
 using Finance.Expensia.Core.Services.MasterData.Inputs;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.Shared.Enums;
+using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +29,15 @@ namespace Finance.Expensia.Core.Services.MasterData
             };
         }
 
-        public async Task<ResponsePaging<CoaDto>> GetListCoa(PagingSearchInputBase input)
+        public async Task<ResponsePaging<CoaDto>> GetListCoa(PagingSearchInputBase input, CurrentUserAccessor currentUserAccessor)
         {
             var retVal = new ResponsePaging<CoaDto>();
 
-            var dataCoa = _dbContext.ChartOfAccounts
+			var userCompanyIds = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id)).Select(d => d.CompanyId).ToListAsync();
+			var dataCoa = _dbContext.ChartOfAccounts
                                             .Include(ca => ca.Company)
-                                            .Where(d =>
+											.Where(d => userCompanyIds.Contains(d.CompanyId))
+											.Where(d =>
                                                 (d.Company != null && EF.Functions.Like(d.Company.CompanyName, $"%{input.SearchKey}%"))
                                                 || EF.Functions.Like(d.AccountCode, $"%{input.SearchKey}%")
                                                 || EF.Functions.Like(d.AccountName, $"%{input.SearchKey}%"))

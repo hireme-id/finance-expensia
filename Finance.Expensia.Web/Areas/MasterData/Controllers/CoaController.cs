@@ -4,6 +4,7 @@ using Finance.Expensia.Core.Services.MasterData.Inputs;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Enums;
+using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Finance.Expensia.Web.Areas.MasterData.Validators;
@@ -13,30 +14,31 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 {
-    public class CoaController(CoaService coaService) : BaseController
+    public class CoaController(CoaService coaService, CurrentUserAccessor currentUserAccessor) : BaseController
     {
         private readonly CoaService _coaService = coaService;
+        private readonly CurrentUserAccessor _currentUserAccessor = currentUserAccessor;
 
-        [AllowAnonymous]
+		[AllowAnonymous]
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpPost("ddlcoa")]
-        [AppAuthorize(PermissionConstants.MasterData.CoaView)]
+        [AppAuthorize(PermissionConstants.MasterData.Coa.CoaView)]
         public async Task<ResponseObject<List<CoaDto>>> RetrieveCoa(Guid companyId)
         {
             return await _coaService.RetrieveCoa(companyId);
         }
 
         [HttpPost("coa/list")]
-        [AppAuthorize(PermissionConstants.MasterData.CoA.CoAView)]
+        [AppAuthorize(PermissionConstants.MasterData.Coa.CoaView)]
         public async Task<ResponsePaging<CoaDto>> GetListCoa([FromBody] PagingSearchInputBase input)
         {
-            return await _coaService.GetListCoa(input);
+            return await _coaService.GetListCoa(input, _currentUserAccessor);
         }
-        [AppAuthorize(PermissionConstants.MasterData.CoA.CoAView)]
+        [AppAuthorize(PermissionConstants.MasterData.Coa.CoaView)]
         [HttpPost("coa/detail")]
         public async Task<ResponseObject<CoaDto>> GetDetailCoa([FromQuery] Guid coaId)
         {
@@ -44,7 +46,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         }
 
         [Mutation]
-        [AppAuthorize(PermissionConstants.MasterData.CoA.CoAUpsert)]
+        [AppAuthorize(PermissionConstants.MasterData.Coa.CoaUpsert)]
         [HttpPost("coa/upsert")]
         public async Task<ResponseBase> UpsertCoa([FromBody] UpsertCoaInput input)
         {
@@ -56,7 +58,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         }
 
         [Mutation]
-        [AppAuthorize(PermissionConstants.MasterData.CoA.CoADelete)]
+        [AppAuthorize(PermissionConstants.MasterData.Coa.CoaDelete)]
         [HttpPost("coa/delete")]
         public async Task<ResponseBase> DeleteCoa([FromQuery] Guid coaId)
         {

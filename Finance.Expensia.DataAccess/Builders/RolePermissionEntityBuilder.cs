@@ -50,8 +50,6 @@ namespace Finance.Expensia.DataAccess.Builders
 
             #region Chart Of Account
                     new RolePermission { Id = new Guid("eca833e4-41c9-45df-be6e-c35deb4158ee"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("26a2442b-585d-4d36-9dfa-fbde38c0ead2"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("24c89712-246a-4774-b48a-c62581fef7e5"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("5c3a6cd7-3d8c-48f8-b10b-0435379fd643"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("3f55f0df-10ce-4f2a-a152-5cf6c45a73fc"), RoleId = new Guid("ea2fbce1-631a-4ea3-8076-f32933588f9f"), PermissionId = new Guid("6b73945c-6fa7-49ee-8c2c-8490b08236f9"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 
             #region Cost Center
@@ -135,12 +133,6 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("aca28653-eafe-4c21-8cbf-0737ae5e70d4"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 
-            #region Approval Rule
-                    new RolePermission { Id = new Guid("475194c9-168f-4ee8-a4f6-60b90cc9066d"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("99cb47e1-28b1-46ee-a90d-b87e195b21a1"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("5a9c2c3d-e4ea-4116-a695-352c0396bfc9"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("96f688f8-797a-49ef-8e6c-f29c40c67f76"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("7bdaf0fd-069b-4982-8069-875da371cf2b"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("692f63e0-eba2-4f81-8d60-52b387b37585"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-            #endregion
-
             #region Storage
                     new RolePermission { Id = new Guid("4bab6c42-a6f3-4772-91c0-23f5d7042799"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("01f894b4-d51f-4f03-a3bb-ee3161b98fc5"), RoleId = new Guid("87312c58-9961-4578-bd05-8e0f96aaeb7f"), PermissionId = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
@@ -206,12 +198,6 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("c2b544db-ae0c-49bf-b7aa-683f606355a9"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("15987858-8d59-49bc-b7ad-dec1e9dd3c83"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("7afd64c0-9b7f-4b70-a693-ab961fd7baa2"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("106ebebf-7ed9-489c-ad28-eeeb49cf71a2"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("0671eba2-0fe3-4630-93ad-3fd9cdef88e7"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-            #endregion
-
-            #region Approval Rule
-                    new RolePermission { Id = new Guid("c02d1d3c-a8a3-435a-b4e3-1aaa091ec8d8"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("99cb47e1-28b1-46ee-a90d-b87e195b21a1"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("15404abb-51ca-40c1-9cdb-cff118057179"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("96f688f8-797a-49ef-8e6c-f29c40c67f76"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("fd86560c-3b51-491b-8318-dfbde48c5b84"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("692f63e0-eba2-4f81-8d60-52b387b37585"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 
             #region Storage
@@ -281,12 +267,6 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("3568bf3c-4f11-405f-8528-e587631ebcf0"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 
-            #region Approval Rule
-                    new RolePermission { Id = new Guid("93604f9d-2f8e-450c-8e1a-6626a8f2b243"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("99cb47e1-28b1-46ee-a90d-b87e195b21a1"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("3b92a1da-4800-4023-ba07-f5c206792f0f"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("96f688f8-797a-49ef-8e6c-f29c40c67f76"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("2d748285-666e-4e67-8365-226f6b783142"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("692f63e0-eba2-4f81-8d60-52b387b37585"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-            #endregion
-
             #region Storage
                     new RolePermission { Id = new Guid("7ad32223-2898-4279-bd17-9391059eaa5a"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("b3c112bd-7623-4ce4-a2f4-c4ce82c179f2"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
@@ -354,12 +334,6 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("04db5205-3241-4462-a6b7-811c54dd87e1"), RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"), PermissionId = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 
-            #region Approval Rule
-                    new RolePermission { Id = new Guid("370ba0cd-b788-4a37-9ee2-c6ad815222a7"), RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"), PermissionId = new Guid("99cb47e1-28b1-46ee-a90d-b87e195b21a1"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("c52346be-a185-45c6-8108-56c35fc2d31d"), RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"), PermissionId = new Guid("96f688f8-797a-49ef-8e6c-f29c40c67f76"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("2c541de6-2c5f-4001-8b99-57d0e9a0d857"), RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"), PermissionId = new Guid("692f63e0-eba2-4f81-8d60-52b387b37585"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-            #endregion
-
             #region Storage
                     new RolePermission { Id = new Guid("e70bb298-de35-4ca9-8685-3f4c5da03b70"), RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"), PermissionId = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("db8e122a-9b5d-42fd-ad48-6dfbf5146e31"), RoleId = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"), PermissionId = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
@@ -425,12 +399,6 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("a5a9df0a-1ba7-484a-9734-8db323cb89b0"), RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), PermissionId = new Guid("15987858-8d59-49bc-b7ad-dec1e9dd3c83"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("29123cbb-0247-4899-98d8-c6e5d56f95c1"), RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), PermissionId = new Guid("106ebebf-7ed9-489c-ad28-eeeb49cf71a2"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("2a477cb3-90af-4011-b89e-392bdf2d5339"), RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), PermissionId = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-            #endregion
-
-            #region Approval Rule
-                    new RolePermission { Id = new Guid("dba08c3b-b0d2-477d-b74d-d8473103f0ee"), RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), PermissionId = new Guid("99cb47e1-28b1-46ee-a90d-b87e195b21a1"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("c05cc819-3947-42dd-b095-76baa2f1e414"), RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), PermissionId = new Guid("96f688f8-797a-49ef-8e6c-f29c40c67f76"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-                    new RolePermission { Id = new Guid("905fc8f9-98f0-4006-925c-28afb2385f51"), RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), PermissionId = new Guid("692f63e0-eba2-4f81-8d60-52b387b37585"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 
             #region Storage

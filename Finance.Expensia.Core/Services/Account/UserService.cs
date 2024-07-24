@@ -70,7 +70,7 @@ namespace Finance.Expensia.Core.Services.Account
                 return new ResponseObject<MyPermissionDto>("Data user tidak valid", ResponseCode.NotFound);
 
 			myPermission.RoleCode = string.Join(",", data.UserRoles.Select(d => d.Role.RoleCode));
-			myPermission.Permissions = data.UserRoles.SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().ToList();
+			myPermission.Permissions = [.. data.UserRoles.SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().OrderBy(d => d)];
 
 			return new ResponseObject<MyPermissionDto>(responseCode: ResponseCode.Ok)
             {

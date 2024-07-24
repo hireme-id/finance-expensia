@@ -78,7 +78,7 @@
                                 <li id="menuPartner" class="nav-item" style="display:none">
                                     <a href="@masterPartner" class="nav-link">
                                         <i class="far fa-handshake nav-icon"></i>
-                                        <p>Partner</p>
+                                        <p>Tenant</p>
                                     </a>
                                 </li>
                                 <li id="menuBankAlias" class="nav-item" style="display:none">
@@ -99,15 +99,13 @@
                                         <p>Chart of Account</p>
                                     </a>
                                 </li>
+                                <li id="menuApprovalRule" class="nav-item" style="display:none">
+                                    <a href="@menuApprovalRule" class="nav-link">
+                                        <i class="nav-icon fas fa-stamp"></i>
+                                        <p>Approval Rule</p>
+                                    </a>
+                                </li>
                             </ul>
-                        </li>
-                        <li id="menuApprovalRule" class="nav-item" style="display:none">
-                            <a href="@menuApprovalRule" class="nav-link">
-                                <i class="nav-icon fas fa-stamp"></i>
-                                <p>
-                                    Approval Rule
-                                </p>
-                            </a>
                         </li>
                         <li id="menuOutgoingPayment" class="nav-item" style="display:none">
                             <a href="@homePage" class="nav-link">
@@ -212,11 +210,12 @@
             $.ajax({
                 "url": "@refreshTokenUrl",
                 "method": "POST",
+                "async": false,
                 "timeout": 0,
                 "headers": {
                     "Authorization": "Bearer " + localStorage.getItem("refreshToken"),
                     "Content-Type": "application/json"
-                },
+                }
             })
                 .done(function (response) {
                     if (response.succeeded) {
@@ -232,61 +231,62 @@
                     }
                 });
         }
+        else {
+            $.ajax({
+                "url": "@myPermissionUrl",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+                    "Content-Type": "application/json"
+                },
+            })
+                .done(function (response) {
+                    if (response.succeeded) {
+                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.Partner.PartnerUpsert")) {
+                            $('#menuMaster').show();
+                            $('#menuPartner').show();
+                        }
 
-		$.ajax({
-			"url": "@myPermissionUrl",
-			"method": "POST",
-			"timeout": 0,
-			"headers": {
-				"Authorization": "Bearer " + localStorage.getItem("accessToken"),
-				"Content-Type": "application/json"
-			},
-		})
-			.done(function (response) {
-				if (response.succeeded) {
-					if (response.obj.permissions.includes("@PermissionConstants.MasterData.Partner.PartnerUpsert")) {
-						$('#menuMaster').show();
-						$('#menuPartner').show();
-					}
+                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.BankAlias.BankAliasUpsert")) {
+                            $('#menuMaster').show();
+                            $('#menuBankAlias').show();
+                        }
 
-					if (response.obj.permissions.includes("@PermissionConstants.MasterData.BankAlias.BankAliasUpsert")) {
-						$('#menuMaster').show();
-						$('#menuBankAlias').show();
-					}
+                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.CostCenter.CostCenterUpsert")) {
+                            $('#menuMaster').show();
+                            $('#menuCustomer').show();
+                        }
 
-                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.CostCenter.CostCenterUpsert")) {
-                        $('#menuMaster').show();
-                        $('#menuCustomer').show();
+                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.Coa.CoaUpsert")) {
+                            $('#menuMaster').show();
+                            $('#menuCoa').show();
+                        }
+
+                        // if (response.obj.permissions.includes("@PermissionConstants.Rule.ApprovalRuleUpsert")) {
+                        //     $('#menuMaster').show();
+                        //     $('#menuApprovalRule').show();
+                        // }
+
+                        if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")
+                            || response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentView")) {
+                            $('#menuOutgoingPayment').show();
+                        }
+
+                        if (response.obj.permissions.includes("@PermissionConstants.ApprovalInbox.ApprovalInboxView")) {
+                            $('#menuInbox').show();
+                        }
+
+                        if (response.obj.permissions.includes("@PermissionConstants.WorkflowHistory.WorkflowHistoryView")) {
+                            $('#menuWorkflowHistory').show();
+                        }
                     }
-
-                    if (response.obj.permissions.includes("@PermissionConstants.MasterData.CoaView")) {
-                        $('#menuCoa').show();
-                        $('#menuCoa').show();
-                    }
-
-                    if (response.obj.permissions.includes("@PermissionConstants.Rule.ApprovalRuleUpsert")) {
-                        $('#menuApprovalRule').show();
-                        $('#menuApprovalRule').show();
-                    }
-
-					if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")
-						|| response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentView")) {
-						$('#menuOutgoingPayment').show();
-					}
-
-					if (response.obj.permissions.includes("@PermissionConstants.ApprovalInbox.ApprovalInboxView")) {
-						$('#menuInbox').show();
-					}
-
-                    if (response.obj.permissions.includes("@PermissionConstants.WorkflowHistory.WorkflowHistoryView")) {
-                        $('#menuWorkflowHistory').show();
-                    }
-				}
-			})
-			.fail(function (xhr, status, error) {
-				alert("Anda tidak diizinkan untuk mengakses halaman ini. Hubungi administrator anda!");
-				RedirectToLogin();
-			});
+                })
+                .fail(function (xhr, status, error) {
+                    alert("Anda tidak diizinkan untuk mengakses halaman ini. Hubungi administrator anda!");
+                    RedirectToLogin();
+                });
+        }
     </script>
 </body>
 </html>
