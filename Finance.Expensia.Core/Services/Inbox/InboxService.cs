@@ -128,19 +128,37 @@ namespace Finance.Expensia.Core.Services.Inbox
 			};
 			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
 
+			// nextApprover == null then there is no next approver
 			var approvalStatusForApprove = nextApprover == null ? ApprovalStatus.Approved : ApprovalStatus.WaitingApproval;
 			approvalDocument.ApprovalStatus = input.WorkflowAction == WorkflowAction.Reject ? ApprovalStatus.Reject : approvalStatusForApprove;
 			approvalDocument.ApprovalRoleCode = nextApprover?.RoleCode ?? string.Empty;
 			approvalDocument.ApprovalLevel = nextApprover?.Level ?? 0;
 			_dbContext.Update(approvalDocument);
 
+			// if approval status is not waiting approval then update approval status in outgoing payment
 			if (approvalDocument.ApprovalStatus != ApprovalStatus.WaitingApproval)
 			{
 				await _outgoingPaymentService.UpdateApprovalStatusOutgoingPayment(approvalDocument.TransactionNo, approvalDocument.ApprovalStatus);
+
+				// Send email to requestor if action is approve or reject
+				var dataSendEmail = new SendEmailDto
+				{
+					DocumentId = outgoingPayment.Id,
+					ExecutorName = currentUserAccessor.FullName,
+					RequestorName = outgoingPayment.Requestor,
+					TransactionNo = outgoingPayment.TransactionNo,
+					RoleCodeReceiver = string.Empty,
+					Remark = outgoingPayment.Remark,
+					ScheduleDate = outgoingPayment.ScheduledDate,
+					RejectReason = approvalDocument.ApprovalStatus == ApprovalStatus.Reject ? input.Remark : string.Empty
+				};
+
+				await _workflowService.SendEmailToRequestor(dataSendEmail, approvalDocument.ApprovalStatus, outgoingPayment.CreatedBy);
 			}
 
 			await _dbContext.SaveChangesAsync();
 
+			// nextApprover != null then there is next approver and send email to next approver if action is approve
 			if (nextApprover != null && input.WorkflowAction == WorkflowAction.Approve)
 			{
 				var dataSendEmail = new SendEmailDto
@@ -153,6 +171,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 					ScheduleDate = outgoingPayment.ScheduledDate
                 };
 
+				// Send email to next approver
 				await _workflowService.SendEmailToApprover(dataSendEmail, ApprovalStatus.Approved);
 			}
 			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);

@@ -203,5 +203,93 @@ namespace Finance.Expensia.Core.Services.Workflow
 				await _dbContext.SaveChangesAsync();
 			}
 		}
-	}
+
+		// Send email to requestor get email config with key = "EmailForRequestor"
+		public async Task SendEmailToRequestor(SendEmailDto input, ApprovalStatus status, string requestorId)
+		{
+			var dataUser = await _dbContext.Users.FirstOrDefaultAsync(d => d.Id.Equals(new Guid(requestorId)));
+
+            if (dataUser == null)
+                return;
+
+            var dataEmailConfigs = await _dbContext.AppConfigs
+                                                   .Where(x => x.Modul.Equals("EmailNotification"))
+                                                   .ToListAsync();
+
+            var generalConfig = await _dbContext.AppConfigs
+                                                .Where(x => x.Modul.Equals("General"))
+                                                .ToListAsync();
+
+            if (dataEmailConfigs == null || generalConfig == null)
+                return;
+
+            var emailDataInput = new EmailData();
+
+            try
+            {
+                var fromEmail = dataEmailConfigs.First(x => x.Key.Equals("FromEmail")).Value;
+                var fromEmailDisplay = dataEmailConfigs.First(x => x.Key.Equals("FromEmailDisplay")).Value;
+                var emailPass = dataEmailConfigs.First(x => x.Key.Equals("FromEmailPassword")).Value;
+                var templateBody = dataEmailConfigs.First(x => x.Key.Equals("EmailForRequestor")).Value;
+
+                var baseUrl = generalConfig.First(x => x.Key.Equals("BaseUrl")).Value;
+                string linkDocument = $"{baseUrl}Core/OutgoingPayment/Detail/{input.DocumentId}";
+
+                var body = templateBody
+                        .Replace("{{toName}}", input.RequestorName)
+                        .Replace("{{linkDocument}}", linkDocument)
+                        .Replace("{{documentNo}}", input.TransactionNo)
+                        .Replace("{{action}}", status.ToString())
+                        .Replace("{{executorName}}", input.ExecutorName);
+
+                if (!string.IsNullOrEmpty(input.Remark))
+                    body = body.Replace("{{remark}}", $"untuk <strong>{input.Remark}</strong>");
+                else
+                    body = body.Replace("{{remark}}", $"");
+
+                if (!string.IsNullOrEmpty(input.RejectReason))
+                    body = body.Replace("{{rejectReason}}", $"Alasan penolakan : <strong>{input.RejectReason}</strong>");
+                else
+                    body = body.Replace("{{rejectReason}}", $"");
+
+                emailDataInput = new EmailData
+                {
+                    BodyEmail = body,
+                    FromDisplayName = fromEmailDisplay,
+                    FromEmail = fromEmail,
+                    PasswordEmail = emailPass,
+                    SubjectEmail = "Outgoing Payment Notification",
+                    MultiRecievers = [new MailAddress(dataUser.Email, dataUser.FullName)]
+                };
+
+                EmailHelper.SendEmailMultiReceiver(emailDataInput);
+
+                await _dbContext.EmailHistories.AddAsync(new EmailHistory
+                {
+                    Sender = emailDataInput.FromEmail,
+                    Receiver = string.Join("; ", emailDataInput.MultiRecievers.Select(x => x.Address)),
+                    Subject = emailDataInput.SubjectEmail,
+                    Content = emailDataInput.BodyEmail,
+                    Error = string.Empty,
+                    Status = EmailStatus.Sended
+                });
+            }
+            catch (Exception ex)
+            {
+                await _dbContext.EmailHistories.AddAsync(new EmailHistory
+                {
+                    Sender = emailDataInput.FromEmail,
+                    Receiver = string.Join("; ", emailDataInput.MultiRecievers.Select(x => x.Address)),
+                    Subject = emailDataInput.SubjectEmail,
+                    Content = emailDataInput.BodyEmail,
+                    Error = ex.Message,
+                    Status = EmailStatus.Failed
+                });
+            }
+            finally
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+    }
 }
