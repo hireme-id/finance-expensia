@@ -22,6 +22,7 @@
             public const string ApprovalInboxView = "ApprovalInbox.View";
             public const string ApprovalInboxUpdate = "ApprovalInbox.Update";
             public const string ApprovalInboxDelete = "ApprovalInbox.Delete";
+            public const string ApprovalEditInformation = "ApprovalInbox.EditInformation";
         }
 
         public static class MasterData

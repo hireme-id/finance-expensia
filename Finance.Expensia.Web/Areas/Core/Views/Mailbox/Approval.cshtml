@@ -119,6 +119,19 @@
                 <textarea class="form-control" id="txtToBankName" rows="3" disabled style="resize:none"></textarea>
             </div>
         </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <label>Bank Payment Type<span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlBankPaymentType" name="bankPaymentType" bind-name="bankPaymentType" bind-trigger="change">
+                    <option value="">&nbsp</option>
+                    @foreach (var item in Enum.GetValues(typeof(BankPaymentType)))
+                    {
+                        @Html.Raw($"<option value=\"{item}\">{((BankPaymentType)item).GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
+        </div>
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mb-4 border-bottom border-dark"></div>
 

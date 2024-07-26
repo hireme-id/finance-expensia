@@ -91,19 +91,23 @@ namespace Finance.Expensia.Core.Services.Inbox
 
         public async Task<ResponseBase> DoActionWorkflow(DoActionWorkflowInput input, CurrentUserAccessor currentUserAccessor)
         {
+			#region Cek apakah transaksi ada di inbox dan outgoing payment
 			var approvalDocument = await _dbContext.ApprovalInboxes.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
 			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
 			if (approvalDocument == null || outgoingPayment == null)
 				return new ResponseBase("Gagal melanjutkan proses, karena data tidak ditemukan", ResponseCode.NotFound);
+			#endregion
 
+			#region Cek apakah user memiliki akses untuk approval
 			var dataRoles = await _dbContext.UserRoles
 											.Include(ur => ur.Role)
 											.Where(d => d.UserId.Equals(currentUserAccessor.Id))
 											.ToListAsync();
-
 			if (!dataRoles.Any(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode, StringComparison.OrdinalIgnoreCase)))
 				return new ResponseBase("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
+			#endregion
 
+			#region Proses approval document
 			var nextApprover = await _dbContext.ApprovalRules
 											   .FirstOrDefaultAsync(x =>
 													x.TransactionTypeCode == approvalDocument.TransactionTypeCode
@@ -111,7 +115,64 @@ namespace Finance.Expensia.Core.Services.Inbox
 													&& x.MaxAmount == approvalDocument.MaxAmount
 													&& x.Level == approvalDocument.ApprovalLevel + 1);
 
-			var statusApprove = input.WorkflowAction == WorkflowAction.Approve ? ApprovalStatus.Approved : ApprovalStatus.Reject;
+			var approvalStatusWhenUserApprove = nextApprover == null ? ApprovalStatus.Approved : ApprovalStatus.WaitingApproval;
+			approvalDocument.ApprovalStatus = input.WorkflowAction == WorkflowAction.Reject ? ApprovalStatus.Reject : approvalStatusWhenUserApprove;
+			approvalDocument.ApprovalRoleCode = nextApprover?.RoleCode ?? string.Empty;
+			approvalDocument.ApprovalLevel = nextApprover?.Level ?? 0;
+			_dbContext.Update(approvalDocument);
+			#endregion
+
+			#region Create Workflow History
+			if (input.WorkflowAction == WorkflowAction.Approve)
+			{
+				if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
+					return new ResponseBase("Schedule date harus diisi");
+
+				if (input.ExpectedTransfer != null)
+				{
+					// Cek menggunakan CheckDifferentData untuk ExpectedTransfer antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark
+					var diffExpectedTransfer = CheckDifferentData(outgoingPayment.ExpectedTransfer, input.ExpectedTransfer, "Expected Transfer");
+					if (!string.IsNullOrEmpty(diffExpectedTransfer))
+					{
+						input.Remark = $"{input.Remark}<br/><br/>{diffExpectedTransfer}";
+						outgoingPayment.ExpectedTransfer = input.ExpectedTransfer.Value;
+					}
+						
+				}
+
+				// Cek menggunakan CheckDifferentData untuk ScheduledDate antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark
+				var diffScheduledDate = CheckDifferentData(outgoingPayment.ScheduledDate, input.ScheduledDate, "Scheduled Date");
+				if (!string.IsNullOrEmpty(diffScheduledDate))
+				{
+					input.Remark = $"{input.Remark}<br/><br/>{diffScheduledDate}";
+					outgoingPayment.ScheduledDate = input.ScheduledDate;
+				}
+					
+
+				if (input.FromBankAliasId != null)
+				{
+					// Cek menggunakan CheckDifferentData untuk FromBankAlias antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark
+					var diffFromBankAliasId = CheckDifferentData(outgoingPayment.FromBankAliasId, input.FromBankAliasId, "From Bank Alias");
+					if (!string.IsNullOrEmpty(diffFromBankAliasId))
+					{
+						input.Remark = $"{input.Remark}<br/><br/>{diffFromBankAliasId}";
+						outgoingPayment.FromBankAliasId = input.FromBankAliasId.Value;
+					}
+						
+				}
+
+				if (input.BankPaymentType != null)
+				{
+					// Cek menggunakan CheckDifferentData untuk BankPaymentType antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark
+					var diffBankPaymentType = CheckDifferentData(outgoingPayment.BankPaymentType, input.BankPaymentType, "Bank Payment Type");
+					if (!string.IsNullOrEmpty(diffBankPaymentType))
+					{
+						input.Remark = $"{input.Remark}<br/><br/>{diffBankPaymentType}";
+						outgoingPayment.BankPaymentType = input.BankPaymentType.Value;
+					}
+						
+				}
+			}
 
 			var dataHistory = new ApprovalHistory
 			{
@@ -119,7 +180,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 				ExecutorName = currentUserAccessor.FullName,
 				ExecutorRoleCode = approvalDocument.ApprovalRoleCode,
 				ExecutorRoleDesc = dataRoles.First(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode)).Role.RoleDescription,
-				ApprovalStatus = statusApprove,
+				ApprovalStatus = input.WorkflowAction == WorkflowAction.Approve ? ApprovalStatus.Approved : ApprovalStatus.Reject,
 				ApprovalUserId = currentUserAccessor.Id,
 				TransactionNo = approvalDocument.TransactionNo,
 				MinAmount = approvalDocument.MinAmount,
@@ -127,14 +188,11 @@ namespace Finance.Expensia.Core.Services.Inbox
 				Remark = input.Remark
 			};
 			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
+			#endregion
 
-			// nextApprover == null then there is no next approver
-			var approvalStatusForApprove = nextApprover == null ? ApprovalStatus.Approved : ApprovalStatus.WaitingApproval;
-			approvalDocument.ApprovalStatus = input.WorkflowAction == WorkflowAction.Reject ? ApprovalStatus.Reject : approvalStatusForApprove;
-			approvalDocument.ApprovalRoleCode = nextApprover?.RoleCode ?? string.Empty;
-			approvalDocument.ApprovalLevel = nextApprover?.Level ?? 0;
-			_dbContext.Update(approvalDocument);
+			await _dbContext.SaveChangesAsync();
 
+			#region Update outgoing payment jika approval status bukan waiting approval dan send email ke requestor
 			// if approval status is not waiting approval then update approval status in outgoing payment
 			if (approvalDocument.ApprovalStatus != ApprovalStatus.WaitingApproval)
 			{
@@ -155,8 +213,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 
 				await _workflowService.SendEmailToRequestor(dataSendEmail, approvalDocument.ApprovalStatus, outgoingPayment.CreatedBy);
 			}
-
-			await _dbContext.SaveChangesAsync();
+			#endregion
 
 			// nextApprover != null then there is next approver and send email to next approver if action is approve
 			if (nextApprover != null && input.WorkflowAction == WorkflowAction.Approve)
@@ -174,6 +231,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 				// Send email to next approver
 				await _workflowService.SendEmailToApprover(dataSendEmail, ApprovalStatus.Approved);
 			}
+
 			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
 		}
 
@@ -189,5 +247,25 @@ namespace Finance.Expensia.Core.Services.Inbox
 
 			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
 		}
-    }
+
+		// Fungsi untuk melakukan pengecekan apakah 2 data berbeda
+		// Data dapat memiliki tipe apapun.
+		private string CheckDifferentData<T>(T oldValue, T newValue, string fieldName)
+		{
+			string oldValueString = oldValue?.ToString() ?? "kosong";
+			string newValueString = newValue?.ToString() ?? "kosong";
+
+			if (oldValue is Guid oldValueId && newValue is Guid newValueId)
+			{
+				if (fieldName == "From Bank Alias")
+				{
+					oldValueString = _dbContext.BankAliases.FirstOrDefault(d => d.Id.Equals(oldValueId))?.AliasName ?? oldValueString;
+					newValueString = _dbContext.BankAliases.FirstOrDefault(d => d.Id.Equals(newValueId))?.AliasName ?? newValueString;
+				}
+			}
+
+			// Jika berbeda maka return string menjelaskan dari value awal diubah menjadi value yang baru, jika sama maka return string kosong
+			return !EqualityComparer<T>.Default.Equals(oldValue, newValue) ? $"{fieldName} diubah dari {oldValueString} menjadi {newValueString}" : string.Empty;
+		}
+	}
 }

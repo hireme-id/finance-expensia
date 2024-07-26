@@ -6,6 +6,7 @@ using Finance.Expensia.Core.Services.Workflow;
 using Finance.Expensia.Core.Services.Workflow.Dtos;
 using Finance.Expensia.DataAccess;
 using Finance.Expensia.DataAccess.Models;
+using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
@@ -69,6 +70,29 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             var dataUserCompany = await _dbContext.UserCompanies.Where(d => d.UserId.Equals(currentUserAccessor.Id) && d.CompanyId.Equals(dataOutgoingPayDto.CompanyId)).FirstOrDefaultAsync();
             if (dataUserCompany != null)
                 dataOutgoingPayDto.AllowApproval = dataUserCompany.AllowApproval;
+
+            // Cari role yang sedang di assign pada dokumen outgoing payment ini menggunakan method WorkflowService.GetCurrentRoleApproval
+			var currentRoleApproval = await _workflowService.GetCurrentRoleApproval(dataOutgoingPayDto.TransactionNo);
+
+            // Ambil data user berserta relasi sampai dengan data permission
+            var dataUser = await _dbContext.Users
+                                           .Include(d => d.UserRoles)
+												.ThenInclude(d => d.Role)
+                                                    .ThenInclude(d => d.RolePermissions)
+                                                        .ThenInclude(d => d.Permission)
+                                           .FirstOrDefaultAsync(d => d.Id.Equals(currentUserAccessor.Id));
+
+            if (dataUser != null)
+			{
+				// Ambil semua permission yang dimiliki user
+				var dataPermissions = dataUser.UserRoles.Where(d => d.Role.RoleCode == currentRoleApproval)
+														.SelectMany(d => d.Role.RolePermissions
+														.Select(e => e.Permission.PermissionCode))
+														.Distinct();
+
+				// Cek apakah user memiliki permission ApprovalEditInformation
+				dataOutgoingPayDto.AllowApprovalEdit = dataPermissions.Contains(PermissionConstants.ApprovalInbox.ApprovalEditInformation);
+			}
 
             return await Task.FromResult(new ResponseObject<OutgoingPaymentDto>(responseCode: ResponseCode.Ok)
             {
