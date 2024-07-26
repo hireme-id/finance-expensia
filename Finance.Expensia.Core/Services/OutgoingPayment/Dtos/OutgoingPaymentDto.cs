@@ -1,4 +1,6 @@
-﻿namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
+﻿using Finance.Expensia.Shared.Enums;
+
+namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
 {
 	public class OutgoingPaymentDto
 	{
@@ -30,7 +32,7 @@
 		public bool IsCancelable { get; set; } = false;
 		public bool IsBtnCancelHidden { get; set; } = false;
 		public bool AllowApproval { get; set; } = false;
-
+		public bool AllowApprovalEdit { get; set; } = false;
 		public List<OutgoingPaymentDetailDto> OutgoingPaymentDetails { get; set; } = [];
 		public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
 	}

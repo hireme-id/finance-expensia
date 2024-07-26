@@ -291,5 +291,19 @@ namespace Finance.Expensia.Core.Services.Workflow
                 await _dbContext.SaveChangesAsync();
             }
         }
+
+		// Fungsi untuk mmendapatkan current role yang sedang di assign sebagai approval dari dokumen OutgoingPayment
+		public async Task<string> GetCurrentRoleApproval(string transactionNo)
+		{
+			// Query dari tabel ApprovalInbox untuk mendapatkan data role yang sedang di assign sebagai approval dari dokumen OutgoingPayment
+			var dataInbox = await _dbContext.ApprovalInboxes
+                                            .Where(x => x.TransactionNo == transactionNo)
+                                            .FirstOrDefaultAsync();
+
+			if (dataInbox == null)
+                return string.Empty;
+
+			return dataInbox.ApprovalRoleCode;
+		}
     }
 }

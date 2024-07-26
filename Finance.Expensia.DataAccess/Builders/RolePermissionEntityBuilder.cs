@@ -265,6 +265,8 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("4cbd8aea-22e7-40b1-b97b-5f202532ff33"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("15987858-8d59-49bc-b7ad-dec1e9dd3c83"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("3adb7b0d-840d-4c6f-941e-a74c5bfb92ac"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("106ebebf-7ed9-489c-ad28-eeeb49cf71a2"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("3568bf3c-4f11-405f-8528-e587631ebcf0"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
+                    // Tambahkan mapping permission untuk role Finance dan permission ApprovalEditInformation
+                    new RolePermission { Id = new Guid("5ddb81a5-aad2-4c3b-b6a7-d7ab90f1f6b6"), RoleId = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), PermissionId = new Guid("b7eafb34-d9e7-4cba-9378-8c54c0786dbf"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 
             #region Storage
