@@ -98,6 +98,8 @@ namespace Finance.Expensia.Core.Services.Inbox
 				return new ResponseBase("Gagal melanjutkan proses, karena data tidak ditemukan", ResponseCode.NotFound);
 			#endregion
 
+			var currentRoleApproval = approvalDocument.ApprovalRoleCode;
+
 			#region Cek apakah user memiliki akses untuk approval
 			var dataRoles = await _dbContext.UserRoles
 											.Include(ur => ur.Role)
@@ -178,8 +180,8 @@ namespace Finance.Expensia.Core.Services.Inbox
 			{
 				ApprovalLevel = approvalDocument.ApprovalLevel,
 				ExecutorName = currentUserAccessor.FullName,
-				ExecutorRoleCode = approvalDocument.ApprovalRoleCode,
-				ExecutorRoleDesc = dataRoles.First(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode)).Role.RoleDescription,
+				ExecutorRoleCode = currentRoleApproval,
+				ExecutorRoleDesc = dataRoles.First(d => d.Role.RoleCode.Equals(currentRoleApproval)).Role.RoleDescription,
 				ApprovalStatus = input.WorkflowAction == WorkflowAction.Approve ? ApprovalStatus.Approved : ApprovalStatus.Reject,
 				ApprovalUserId = currentUserAccessor.Id,
 				TransactionNo = approvalDocument.TransactionNo,

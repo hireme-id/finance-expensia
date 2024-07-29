@@ -403,7 +403,7 @@ Account No : ` + accountNo);
 									"workflowAction": $(this)[0].id == btnApprove[0].id ? "@WorkflowAction.Approve.GetDescription()" : "@WorkflowAction.Reject.GetDescription()",
 									"remark": result.value,
 									"expectedTransfer": ddlExpectedTransfer.val(),
-									"scheduledDate": dtScheduledDate.val(),
+									"scheduledDate": dtScheduledDate.val() == "-" ? null : dtScheduledDate.val(),
 									"fromBankAliasId": ddlFromAliasBank.val(),
 									"bankPaymentType": ddlBankPaymentType.val()
 								}),
