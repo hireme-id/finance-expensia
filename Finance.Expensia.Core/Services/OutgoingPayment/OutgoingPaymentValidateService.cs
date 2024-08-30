@@ -17,8 +17,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
                 return (ResponseCode.BadRequest, "Schedule date harus diisi");
 
-            if (input.ScheduledDate.HasValue && input.ScheduledDate.Value.Date < DateTime.Now.Date)
-                return (ResponseCode.BadRequest, "Schedule date tidak boleh lebih kecil dari hari ini");
+            //if (input.ScheduledDate.HasValue && input.ScheduledDate.Value.Date < DateTime.Now.Date)
+            //    return (ResponseCode.BadRequest, "Schedule date tidak boleh lebih kecil dari hari ini");
 
             if (details.Count == 0 && input.IsSubmit)
                 return (ResponseCode.NotFound, "Belum ada data detail");
