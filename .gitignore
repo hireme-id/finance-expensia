@@ -397,3 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /Finance.Expensia.Web/upload/*
+/Finance.Expensia.Web/.config/dotnet-tools.json

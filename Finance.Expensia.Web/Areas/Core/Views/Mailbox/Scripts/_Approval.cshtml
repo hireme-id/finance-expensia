@@ -27,7 +27,7 @@
 	const btnApprove = $("#btnApprove"), btnReject = $("#btnReject"), btnHistory = $("#btnHistory");
 	const divHistory = $("#dvHistoryApproval");
 
-	let indexRowEdit = -1;
+	let indexRowEdit = -1, isAllowEditApproval = false;
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
 	let totalAmount = 0;
 	let transactionNo;
@@ -506,12 +506,14 @@ Account No : ` + accountNo);
 				});
 
 				ddlExpectedTransfer.on("change", function (e) {
-					if (ddlExpectedTransfer.val() == "@ExpectedTransfer.Scheduled") {
-						dtScheduledDate.datepicker('option', 'disabled', false);
-					}
-					else {
-						dtScheduledDate.datepicker('option', 'disabled', true);
-						dtScheduledDate.val('');
+					if (isAllowEditApproval) {
+						if (ddlExpectedTransfer.val() == "@ExpectedTransfer.Scheduled") {
+							dtScheduledDate.datepicker('option', 'disabled', false);
+						}
+						else {
+							dtScheduledDate.datepicker('option', 'disabled', true);
+							dtScheduledDate.val('');
+						}
 					}
 				});
 			},
@@ -771,6 +773,7 @@ Account No : ` + accountNo);
 				}
 
 				if (response.obj.allowApprovalEdit) {
+					isAllowEditApproval = true;
 					ddlExpectedTransfer.removeAttr('disabled');
 					
 					if (response.obj.expectedTransfer == "@ExpectedTransfer.Scheduled") {
