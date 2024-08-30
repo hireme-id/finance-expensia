@@ -271,22 +271,22 @@
 
 				dtScheduledDate.datepicker({
 					dateFormat: "yy-mm-dd",
-					beforeShowDay: function (date) {
-						let effectiveDate = new Date();
-						let deltaEffectiveDate = 2
+					// beforeShowDay: function (date) {
+					// 	let effectiveDate = new Date();
+					// 	let deltaEffectiveDate = 2
 
-						if (effectiveDate.getDay() >= 3 && effectiveDate.getDay() <= 5)
-							deltaEffectiveDate += 2
-						else if (effectiveDate.getDay() == 6)
-							deltaEffectiveDate += 1
+					// 	if (effectiveDate.getDay() >= 3 && effectiveDate.getDay() <= 5)
+					// 		deltaEffectiveDate += 2
+					// 	else if (effectiveDate.getDay() == 6)
+					// 		deltaEffectiveDate += 1
 
-						effectiveDate.setDate(effectiveDate.getDate() + deltaEffectiveDate)
+					// 	effectiveDate.setDate(effectiveDate.getDate() + deltaEffectiveDate)
 
-						if (date < effectiveDate)
-							return [false, '']
-						else
-							return [true, '']
-					},
+					// 	if (date < effectiveDate)
+					// 		return [false, '']
+					// 	else
+					// 		return [true, '']
+					// },
 					disabled: true
 				});
 
