@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 /Finance.Expensia.Web/upload/*
 /Finance.Expensia.Web/.config/dotnet-tools.json
+/Finance.Expensia.Web/appsettings.Development.json
