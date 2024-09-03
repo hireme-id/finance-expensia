@@ -221,8 +221,8 @@
 				});
 
 				dtScheduledDate.datepicker({
-					dateFormat: "yy-mm-dd",
-					minDate: new Date()
+					dateFormat: "yy-mm-dd"
+					//minDate: new Date()
 				});
 			},
 			InitHandlers: function () {
@@ -687,6 +687,19 @@ Account No : ` + accountNo);
 			btnHistory.prop('disabled', false);
 			$("#btnloader").addClass("d-none");
 			if (response.succeeded) {
+				if (response.obj.allowApprovalEdit) {
+					debugger;
+					isAllowEditApproval = true;
+					ddlExpectedTransfer.removeAttr('disabled');
+
+					if (response.obj.expectedTransfer == "@ExpectedTransfer.Scheduled") {
+						dtScheduledDate.datepicker('option', 'disabled', false);
+					}
+
+					ddlFromAliasBank.removeAttr('disabled');
+					ddlBankPaymentType.removeAttr('disabled');
+				}
+
 				$.each(response.obj, function (key, value) {
 					if (key == 'transactionNo')
 						transactionNo = value;
@@ -770,18 +783,6 @@ Account No : ` + accountNo);
 				if (!response.obj.allowApproval) {
 					btnApprove.remove();
 					btnReject.remove();
-				}
-
-				if (response.obj.allowApprovalEdit) {
-					isAllowEditApproval = true;
-					ddlExpectedTransfer.removeAttr('disabled');
-					
-					if (response.obj.expectedTransfer == "@ExpectedTransfer.Scheduled") {
-						dtScheduledDate.datepicker('option', 'disabled', false);
-					}
-
-					ddlFromAliasBank.removeAttr('disabled');
-					ddlBankPaymentType.removeAttr('disabled');
 				}
 			}
 			else {
