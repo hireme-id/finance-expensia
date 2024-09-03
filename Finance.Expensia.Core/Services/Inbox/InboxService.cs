@@ -59,6 +59,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 								TransactionNo = ibx.TransactionNo,
 								CompanyName = otp.CompanyName,
 								RequestDate = otp.RequestDate,
+								ScheduledDate = otp.ScheduledDate,
 								Requestor = otp.Requestor,
 								TotalAmount = otp.TotalAmount,
 								Remark = otp.Remark,
