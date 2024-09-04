@@ -12,7 +12,6 @@ namespace Finance.Expensia.DataAccess.Models
         public string FullName { get; set; } = string.Empty;
         public string PhotoProfileUrl { get; set; } = string.Empty;
 
-        public virtual List<UserRole> UserRoles { get; set; } = [];
         public virtual List<UserCompany> UserCompanies { get; set; } = [];
     }
 }

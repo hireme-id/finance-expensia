@@ -11,11 +11,11 @@
         <div class="row mb-3">
             <div class="col-lg-4">
                 <label>Company</label>
-                <select class="form-control select2" id="ddlCompany" name="companyId"></select>
+                <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
             </div>
             <div class="col-lg-4">
                 <label>Status</label>
-                <select class="form-control select2" id="ddlApprovalStatus">
+                <select class="form-control select2" id="ddlApprovalStatus" name="approvalStatus" bind-name="approvalStatus" bind-trigger="change">
                     <option value="">&nbsp</option>
                     @foreach (var item in Enum.GetValues(typeof(ApprovalStatus)))
                     {
@@ -25,7 +25,7 @@
             </div>
             <div class="col-lg-4">
                 <label>From Bank Alias</label>
-                <select class="form-control select2" id="ddlFromBankAlias"></select>
+                <select class="form-control select2" id="ddlFromBankAlias" name="fromBankAliasId" bind-name="fromBankAliasId" bind-trigger="change"></select>
             </div>
         </div>
         <div class="row mb-3">
@@ -33,7 +33,10 @@
                 <label>StartDate</label>
                 <div style="d-flex flex-column">
                     <div class="input-group date mb-2">
-                        <input type="text" class="form-control datepicker" id="dtStartDate" autocomplete="off">
+                        <input 
+                            type="text" class="form-control datepicker" 
+                            id="dtStartDate" name="startDate" bind-name="startDate" bind-type="datetime"
+                            autocomplete="off">
                         <div class="input-group-append">
                             <span class="input-group-text">
                                 <i class="fa fa-calendar"></i>
@@ -46,7 +49,10 @@
                 <label>EndDate</label>
                 <div style="d-flex flex-column">
                     <div class="input-group date mb-2">
-                        <input type="text" class="form-control datepicker" id="dtEndDate" autocomplete="off">
+                        <input 
+                            type="text" class="form-control datepicker"
+                               id="dtEndDate" name="endDate" bind-name="endDate" bind-type="datetime"
+                               autocomplete="off">
                         <div class="input-group-append">
                             <span class="input-group-text">
                                 <i class="fa fa-calendar"></i>
@@ -57,7 +63,7 @@
             </div>
             <div class="col-lg-4">
                 <label>Search</label>
-                <input type="text" class="form-control" id="txtSearch" />
+                <input type="text" class="form-control" id="txtSearch" name="searchKey" bind-name="searchKey" />
             </div>
         </div>
         <div class="row">

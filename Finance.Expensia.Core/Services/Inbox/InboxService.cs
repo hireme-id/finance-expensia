@@ -29,14 +29,16 @@ namespace Finance.Expensia.Core.Services.Inbox
             var searchKey = string.IsNullOrEmpty(input.SearchKey) ? string.Empty : input.SearchKey.ToLower();
 
 			var dataInbox = from ibx in _dbContext.ApprovalInboxes
-							join ur in _dbContext.UserRoles.Where(d => d.UserId.Equals(userId)) on ibx.ApprovalRoleCode equals ur.Role.RoleCode
-							join otp in _dbContext.OutgoingPayments on ibx.TransactionNo equals otp.TransactionNo
+							join ucr in _dbContext.UserCompanyRoles.Where(d => d.UserCompany.UserId.Equals(userId)) 
+								on ibx.ApprovalRoleCode equals ucr.Role.RoleCode
+							join otp in _dbContext.OutgoingPayments 
+								on new { ibx.TransactionNo, ucr.UserCompany.CompanyId } equals new { otp.TransactionNo, otp.CompanyId }
 							join tt in _dbContext.TransactionTypes on otp.TransactionTypeId equals tt.Id
 							join uc in _dbContext.UserCompanies.Where(d => d.UserId.Equals(userId)) on otp.CompanyId equals uc.CompanyId
 							where
                                 (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
 								&& (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
-								&& (!input.RoleId.HasValue || ur.RoleId.Equals(input.RoleId))
+								&& (!input.RoleId.HasValue || ucr.RoleId.Equals(input.RoleId))
 								&& (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
 								&& (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
 								&& (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
@@ -104,9 +106,10 @@ namespace Finance.Expensia.Core.Services.Inbox
 			var currentRoleApproval = approvalDocument.ApprovalRoleCode;
 
 			#region Cek apakah user memiliki akses untuk approval
-			var dataRoles = await _dbContext.UserRoles
-											.Include(ur => ur.Role)
-											.Where(d => d.UserId.Equals(currentUserAccessor.Id))
+			var dataRoles = await _dbContext.UserCompanyRoles
+											.Include(ucr => ucr.Role)
+                                            .Include(ucr => ucr.UserCompany)
+                                            .Where(d => d.UserCompany.UserId.Equals(currentUserAccessor.Id))
 											.ToListAsync();
 			if (!dataRoles.Any(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode, StringComparison.OrdinalIgnoreCase)))
 				return new ResponseBase("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
@@ -141,19 +144,23 @@ namespace Finance.Expensia.Core.Services.Inbox
 					{
 						input.Remark = $"{input.Remark}<br/><br/>{diffExpectedTransfer}";
 						outgoingPayment.ExpectedTransfer = input.ExpectedTransfer.Value;
-					}
-						
+
+						if (outgoingPayment.ExpectedTransfer != ExpectedTransfer.Scheduled)
+							outgoingPayment.ScheduledDate = null;
+					}	
 				}
 
-				// Cek menggunakan CheckDifferentData untuk ScheduledDate antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark
-				var diffScheduledDate = CheckDifferentData(outgoingPayment.ScheduledDate, input.ScheduledDate, "Scheduled Date");
-				if (!string.IsNullOrEmpty(diffScheduledDate))
+				if (input.ScheduledDate != null)
 				{
-					input.Remark = $"{input.Remark}<br/><br/>{diffScheduledDate}";
-					outgoingPayment.ScheduledDate = input.ScheduledDate;
-				}
+                    // Cek menggunakan CheckDifferentData untuk ScheduledDate antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark
+                    var diffScheduledDate = CheckDifferentData(outgoingPayment.ScheduledDate, input.ScheduledDate, "Scheduled Date");
+                    if (!string.IsNullOrEmpty(diffScheduledDate))
+                    {
+                        input.Remark = $"{input.Remark}<br/><br/>{diffScheduledDate}";
+                        outgoingPayment.ScheduledDate = input.ScheduledDate;
+                    }
+                }
 					
-
 				if (input.FromBankAliasId != null)
 				{
 					// Cek menggunakan CheckDifferentData untuk FromBankAlias antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark

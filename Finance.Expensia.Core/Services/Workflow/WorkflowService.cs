@@ -15,9 +15,10 @@ namespace Finance.Expensia.Core.Services.Workflow
 	{
 		public async Task<(bool, string)> CreateApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
 		{
-			var dataRoleCodes = await _dbContext.UserRoles
-												.Include(ur => ur.Role)
-												.Where(d => d.UserId.Equals(currentUserAccessor.Id))
+			var dataRoleCodes = await _dbContext.UserCompanyRoles
+												.Include(ucr => ucr.UserCompany)
+												.Include(ucr => ucr.Role)
+												.Where(d => d.UserCompany.UserId.Equals(currentUserAccessor.Id))
 												.Select(d => d.Role.RoleCode)
 												.ToListAsync();
 
@@ -79,7 +80,11 @@ namespace Finance.Expensia.Core.Services.Workflow
 			if (dataInbox == null)
 				return false;
 
-			var dataRole = await _dbContext.UserRoles.Include(x => x.Role).AsNoTracking().FirstOrDefaultAsync(x => x.UserId == currentUserAccessor.Id);
+			var dataRole = await _dbContext.UserCompanyRoles
+										   .Include(x => x.Role)
+                                           .Include(x => x.UserCompany)
+                                           .AsNoTracking()
+										   .FirstOrDefaultAsync(x => x.UserCompany.UserId == currentUserAccessor.Id);
 
 			if (dataRole == null)
 				return false;
@@ -110,8 +115,9 @@ namespace Finance.Expensia.Core.Services.Workflow
 
 		public async Task SendEmailToApprover(SendEmailDto input, ApprovalStatus status)
 		{
-			var dataUsers = await _dbContext.UserRoles
-											.Include(x => x.User)
+			var dataUsers = await _dbContext.UserCompanyRoles
+											.Include(x => x.UserCompany)
+												.ThenInclude(x => x.User)
 											.Include(x => x.Role)
 											.Where(x => x.Role.RoleCode == input.RoleCodeReceiver)
 											.ToListAsync();
@@ -171,7 +177,7 @@ namespace Finance.Expensia.Core.Services.Workflow
 
 				foreach (var user in dataUsers)
 				{
-					emailDataInput.MultiRecievers.Add(new MailAddress(user.User.Email, user.User.FullName));
+					emailDataInput.MultiRecievers.Add(new MailAddress(user.UserCompany.User.Email, user.UserCompany.User.FullName));
 				}
 
 				EmailHelper.SendEmailMultiReceiver(emailDataInput);

@@ -14,9 +14,10 @@ namespace Finance.Expensia.Core.Services.Account
     {
         public async Task<ResponseObject<List<RoleDto>>> RetrieveRole(CurrentUserAccessor currentUserAccessor)
         {
-            var dataRoles = await _dbContext.UserRoles
-                                            .Include(ur => ur.Role)
-                                            .Where(d => d.UserId == currentUserAccessor.Id)
+            var dataRoles = await _dbContext.UserCompanyRoles
+                                            .Include(ucr => ucr.Role)
+                                            .Include(ucr => ucr.UserCompany)
+                                            .Where(d => d.UserCompany.UserId == currentUserAccessor.Id)
                                             .Select(d => _mapper.Map<RoleDto>(d.Role))
                                             .Distinct()
                                             .ToListAsync();

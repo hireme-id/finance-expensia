@@ -78,7 +78,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             // Ambil data user berserta relasi sampai dengan data permission
             var dataUser = await _dbContext.Users
-                                           .Include(d => d.UserRoles)
+										   .Include(d => d.UserCompanies)
+											.ThenInclude(d => d.UserRoles)
 												.ThenInclude(d => d.Role)
                                                     .ThenInclude(d => d.RolePermissions)
                                                         .ThenInclude(d => d.Permission)
@@ -87,10 +88,11 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             if (dataUser != null)
 			{
 				// Ambil semua permission yang dimiliki user
-				var dataPermissions = dataUser.UserRoles.Where(d => d.Role.RoleCode == currentRoleApproval)
-														.SelectMany(d => d.Role.RolePermissions
-														.Select(e => e.Permission.PermissionCode))
-														.Distinct();
+				var dataPermissions = dataUser.UserCompanies.SelectMany(d => d.UserRoles)
+															.Where(d => d.Role.RoleCode == currentRoleApproval)
+															.SelectMany(d => d.Role.RolePermissions
+															.Select(e => e.Permission.PermissionCode))
+															.Distinct();
 
 				// Cek apakah user memiliki permission ApprovalEditInformation
 				dataOutgoingPayDto.AllowApprovalEdit = dataPermissions.Contains(PermissionConstants.ApprovalInbox.ApprovalEditInformation);

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Finance.Expensia.DataAccess.Builders
 {
-    public class UserRoleEntityBuilder : EntityBaseBuilder<UserRole>
+    public class UserCompanyRoleEntityBuilder : EntityBaseBuilder<UserCompanyRole>
     {
-        public override void Configure(EntityTypeBuilder<UserRole> builder)
+        public override void Configure(EntityTypeBuilder<UserCompanyRole> builder)
         {
             base.Configure(builder);
         }

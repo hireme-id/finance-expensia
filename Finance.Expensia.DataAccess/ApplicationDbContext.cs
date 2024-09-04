@@ -11,7 +11,7 @@ namespace Finance.Expensia.DataAccess
 		#region UserManagement
 		public virtual DbSet<User> Users { get; set; }
 		public virtual DbSet<Role> Roles { get; set; }
-		public virtual DbSet<UserRole> UserRoles { get; set; }
+		public virtual DbSet<UserCompanyRole> UserCompanyRoles { get; set; }
 		public virtual DbSet<Permission> Permissions { get; set; }
 		public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
@@ -49,7 +49,7 @@ namespace Finance.Expensia.DataAccess
 			#region UserManagement
 			new UserEntityBuilder().Configure(modelBuilder.Entity<User>());
 			new RoleEntityBuilder().Configure(modelBuilder.Entity<Role>());
-			new UserRoleEntityBuilder().Configure(modelBuilder.Entity<UserRole>());
+			new UserCompanyRoleEntityBuilder().Configure(modelBuilder.Entity<UserCompanyRole>());
 			new PermissionEntityBuilder().Configure(modelBuilder.Entity<Permission>());
 			new RolePermissionEntityBuilder().Configure(modelBuilder.Entity<RolePermission>());
 

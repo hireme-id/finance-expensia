@@ -2,12 +2,12 @@
 
 namespace Finance.Expensia.DataAccess.Models
 {
-    public partial class UserRole : EntityBase
+    public partial class UserCompanyRole : EntityBase
     {
-        public Guid UserId { get; set; }
+        public Guid UserCompanyId { get; set; }
         public Guid RoleId { get; set; }
 
-        public virtual User User { get; set; } = null!;
+        public virtual UserCompany UserCompany { get; set; } = null!;
         public virtual Role Role { get; set; } = null!;
     }
 }
