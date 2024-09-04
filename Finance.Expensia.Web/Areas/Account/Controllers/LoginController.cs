@@ -11,9 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace rapid.Areas.Account.Controllers
 {
-    public class LoginController(UserService userService, GoogleAuthService googleAuthService, CurrentUserAccessor currentUserAccessor) : BaseController
+    public class LoginController(AccessControlService userService, GoogleAuthService googleAuthService, CurrentUserAccessor currentUserAccessor) : BaseController
     {
-        private readonly UserService _userService = userService;
+        private readonly AccessControlService _userService = userService;
         private readonly CurrentUserAccessor _currentUserAccessor = currentUserAccessor;
         private readonly GoogleAuthService _googleAuthService = googleAuthService;
 

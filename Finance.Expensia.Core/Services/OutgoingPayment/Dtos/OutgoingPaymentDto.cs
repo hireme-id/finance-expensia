@@ -33,6 +33,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
 		public bool IsBtnCancelHidden { get; set; } = false;
 		public bool AllowApproval { get; set; } = false;
 		public bool AllowApprovalEdit { get; set; } = false;
+		public string RoleCodeInCharge { get; set; } = string.Empty;
 		public List<OutgoingPaymentDetailDto> OutgoingPaymentDetails { get; set; } = [];
 		public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
 	}

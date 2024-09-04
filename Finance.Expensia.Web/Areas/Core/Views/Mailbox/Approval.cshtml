@@ -19,6 +19,12 @@
     <div class="card-body">
         <div class="row mb-3">
             <div class="col-lg-6">
+                <label>Role</label>
+                <input type="text" class="form-control" id="txtRoleCodeInCharge" bind-name="roleCodeInCharge" disabled />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-lg-6">
                 <label>Transaction Type <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlTransactionType" name="transactionTypeId" bind-name="transactionTypeId" bind-trigger="change"></select>
             </div>

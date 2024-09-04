@@ -138,6 +138,13 @@ namespace Finance.Expensia.DataAccess.Builders
                     new Permission { Id = new Guid("24c5e9ff-ebab-477f-8177-02a65fcc00fd"), PermissionCode = PermissionConstants.WorkflowHistory.WorkflowHistoryView, PermissionDescription = "Akses untuk view data workflow history", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
                 );
             #endregion
-		}
-	}
+
+            #region User Management
+            builder
+                .HasData(
+                    new Permission { Id = new Guid("31410ff2-6c2a-457d-bb50-a926d5f90396"), PermissionCode = PermissionConstants.UserManagement.RoleView, PermissionDescription = "Akses untuk view data role", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
+                );
+            #endregion
+        }
+    }
 }

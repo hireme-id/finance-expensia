@@ -36,6 +36,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 							where
                                 (!input.StartDate.HasValue || otp.RequestDate >= input.StartDate)
 								&& (!input.EndDate.HasValue || otp.RequestDate >= input.EndDate)
+								&& (!input.RoleId.HasValue || ur.RoleId.Equals(input.RoleId))
 								&& (!input.CompanyId.HasValue || input.CompanyId.Equals(otp.CompanyId))
 								&& (!input.TransactionTypeId.HasValue || input.TransactionTypeId.Equals(otp.TransactionTypeId))
 								&& (!input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(otp.FromBankAliasId))
@@ -54,8 +55,8 @@ namespace Finance.Expensia.Core.Services.Inbox
                             orderby otp.TotalAmount descending
 							select new ListInboxDto
 							{
-								TransactionTypeDescription = tt.Description,
-								OutgoingPaymentId = otp.Id,
+                                OutgoingPaymentId = otp.Id,
+                                TransactionTypeDescription = tt.Description,
 								TransactionNo = ibx.TransactionNo,
 								CompanyName = otp.CompanyName,
 								RequestDate = otp.RequestDate,
@@ -63,12 +64,13 @@ namespace Finance.Expensia.Core.Services.Inbox
 								Requestor = otp.Requestor,
 								TotalAmount = otp.TotalAmount,
 								Remark = otp.Remark,
-								BankPaymentType = string.Empty,
+								BankPaymentType = otp.BankPaymentType,
 								FromBankAliasName = otp.FromBankAliasName,
 								ToBankAliasName = otp.ToBankAliasName,
 								ApprovalStatus = otp.ApprovalStatus,
 								AllowApproval = uc.AllowApproval,
-								OutgoingPaymentTaggings = _mapper.Map<List<OutgoingPaymentTaggingDto>>(otp.OutgoingPaymentTaggings.OrderBy(d => d.Created))
+                                RoleCodeInCharge = ibx.ApprovalRoleCode,
+                                OutgoingPaymentTaggings = _mapper.Map<List<OutgoingPaymentTaggingDto>>(otp.OutgoingPaymentTaggings.OrderBy(d => d.Created))
                             };
 
             retVal.ApplyPagination(input.Page, input.PageSize, dataInbox);
