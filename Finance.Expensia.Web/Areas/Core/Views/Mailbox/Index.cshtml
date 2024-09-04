@@ -7,19 +7,19 @@
         <div class="row mb-3">
             <div class="col-lg-3">
                 <label>Role</label>
-                <select class="form-control select2" id="ddlRole"></select>
+                <select class="form-control select2" id="ddlRole" name="roleId" bind-name="roleId" bind-trigger="change"></select>
             </div>
             <div class="col-lg-3">
                 <label>Transaction Type</label>
-                <select class="form-control select2" id="ddlTransactionType"></select>
+                <select class="form-control select2" id="ddlTransactionType" name="transactionTypeId" bind-name="transactionTypeId" bind-trigger="change"></select>
             </div>
             <div class="col-lg-3">
                 <label>Company</label>
-                <select class="form-control select2" id="ddlCompany"></select>
+                <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
             </div>
             <div class="col-lg-3">
                 <label>From Bank Alias</label>
-                <select class="form-control select2" id="ddlFromBankAlias"></select>
+                <select class="form-control select2" id="ddlFromBankAlias" name="fromBankAliasId" bind-name="fromBankAliasId" bind-trigger="change"></select>
             </div>
         </div>
         <div class="row mb-3">
@@ -27,7 +27,10 @@
                 <label>StartDate</label>
                 <div style="d-flex flex-column">
                     <div class="input-group date mb-2">
-                        <input type="text" class="form-control datepicker" id="dtStartDate" autocomplete="off">
+                        <input 
+                            type="text" class="form-control datepicker" 
+                            id="dtStartDate" name="startDate" bind-name="startDate" bind-type="datetime" 
+                            autocomplete="off">
                         <div class="input-group-append">
                             <span class="input-group-text">
                                 <i class="fa fa-calendar"></i>
@@ -41,7 +44,10 @@
                 <label>EndDate</label>
                 <div style="d-flex flex-column">
                     <div class="input-group date mb-2">
-                        <input type="text" class="form-control datepicker" id="dtEndDate" autocomplete="off">
+                        <input 
+                            type="text" class="form-control datepicker" 
+                            id="dtEndDate" name="endDate" bind-name="endDate" bind-type="datetime"
+                            autocomplete="off">
                         <div class="input-group-append">
                             <span class="input-group-text">
                                 <i class="fa fa-calendar"></i>
@@ -53,7 +59,7 @@
             </div>
             <div class="col-lg-3">
                 <label>Search</label>
-                <input type="text" class="form-control" id="txtSearch" />
+                <input type="text" class="form-control" id="txtSearch" name="searchKey" bind-name="searchKey" />
             </div>
         </div>
         <div class="row">

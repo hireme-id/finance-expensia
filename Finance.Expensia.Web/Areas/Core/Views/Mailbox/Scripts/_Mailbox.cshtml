@@ -281,6 +281,15 @@
                 });
 
                 btnFilter.click(function () {
+                    let formDataArray = $('.card-body :input:not(#dt-length-0)').serializeArray();
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        formDataObject[field.name] = field.value;
+                    });
+
+                    history.pushState({ filter: formDataObject }, '', '?mode=' + generateUUID());
+
                     gridMailbox.search(txtSearch.val()).draw();
                 })
 
@@ -299,11 +308,11 @@
             InitValidation: function () {
             },
             InitLoad: async function () {
-                SetFormView();
                 await RefreshDdlCompany();
                 await RefreshDdlTransactionType();
                 await RefreshDdlFromAliasBank();
                 await RefreshDdlRole();
+                SetFormView();
             }
         }
     };
@@ -317,6 +326,31 @@
                 $taggingsCell.addClass('large-width').removeClass('small-width');
             }
         });
+
+        if (history.state != null) {
+            let filter = history.state.filter;
+            
+            $.each(filter, function (key, value) {
+                let input = $('[bind-name="' + key + '"]');
+
+                if (input.length > 0) {
+                    let bindTrigger = input.attr('bind-trigger');
+                    let bindType = input.attr('bind-type');
+
+                    if (bindType == 'datetime' && value != null) {
+                        value = value.split('T')[0];
+                    }
+
+                    input.val(value);
+
+                    if (bindTrigger != undefined) {
+                        input.trigger(bindTrigger);
+                    }
+                }
+            });
+
+            gridMailbox.search(txtSearch.val()).draw();
+        }
     }
 
     async function RefreshDdlCompany() {
