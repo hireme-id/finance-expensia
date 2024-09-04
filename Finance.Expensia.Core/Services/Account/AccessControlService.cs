@@ -60,17 +60,18 @@ namespace Finance.Expensia.Core.Services.Account
             var myPermission = new MyPermissionDto();
 
             var data = await _dbContext.Users
-                                       .Include(u => u.UserRoles)
-                                        .ThenInclude(ur => ur.Role)
-                                            .ThenInclude(r => r.RolePermissions)
-                                                .ThenInclude(rp => rp.Permission)
+                                       .Include(u => u.UserCompanies)
+                                        .ThenInclude(uc => uc.UserRoles)
+                                            .ThenInclude(ur => ur.Role)
+                                                .ThenInclude(r => r.RolePermissions)
+                                                    .ThenInclude(rp => rp.Permission)
                                        .FirstOrDefaultAsync(d => d.Id.Equals(userId));
 
             if (data == null)
                 return new ResponseObject<MyPermissionDto>("Data user tidak valid", ResponseCode.NotFound);
 
-			myPermission.RoleCode = string.Join(",", data.UserRoles.Select(d => d.Role.RoleCode));
-			myPermission.Permissions = [.. data.UserRoles.SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().OrderBy(d => d)];
+			myPermission.RoleCode = string.Join(",", data.UserCompanies.SelectMany(d => d.UserRoles).Select(d => d.Role.RoleCode).Distinct());
+			myPermission.Permissions = [.. data.UserCompanies.SelectMany(d => d.UserRoles).SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().OrderBy(d => d)];
 
 			return new ResponseObject<MyPermissionDto>(responseCode: ResponseCode.Ok)
             {
@@ -96,12 +97,13 @@ namespace Finance.Expensia.Core.Services.Account
         private async Task<TokenDto> GenerateAccessToken(User dataUser)
         {
             var dataPermissions = await (from u in _dbContext.Users
-                                         join ur in _dbContext.UserRoles on u.Id equals ur.UserId
+                                         join uc in _dbContext.UserCompanies on u.Id equals uc.UserId
+                                         join ur in _dbContext.UserCompanyRoles on uc.Id equals ur.UserCompanyId
                                          join r in _dbContext.Roles on ur.RoleId equals r.Id
                                          join rp in _dbContext.RolePermissions on r.Id equals rp.RoleId
                                          join p in _dbContext.Permissions on rp.PermissionId equals p.Id
                                          where u.Username.Equals(dataUser.Username)
-                                         select p.PermissionCode).ToListAsync();
+                                         select p.PermissionCode).Distinct().ToListAsync();
 
             return await _tokenService.GenerateToken(dataUser.Username, dataUser.Id, dataUser.FullName, dataPermissions);
         }

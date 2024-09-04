@@ -7,7 +7,7 @@ namespace Finance.Expensia.DataAccess.Models
         public required string RoleCode { get; set; }
         public required string RoleDescription { get; set; }
 
-        public virtual List<UserRole>? UserRoles { get; set; }
+        public virtual List<UserCompanyRole>? UserRoles { get; set; }
         public virtual List<RolePermission> RolePermissions { get; set; } = [];
     }
 }

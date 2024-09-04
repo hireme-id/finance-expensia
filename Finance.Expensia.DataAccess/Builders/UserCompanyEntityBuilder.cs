@@ -1,5 +1,6 @@
 ﻿using Finance.Expensia.DataAccess.Bases;
 using Finance.Expensia.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Finance.Expensia.DataAccess.Builders
@@ -9,6 +10,12 @@ namespace Finance.Expensia.DataAccess.Builders
         public override void Configure(EntityTypeBuilder<UserCompany> builder)
         {
             base.Configure(builder);
+
+            builder
+                .HasMany(e => e.UserRoles)
+                .WithOne(e => e.UserCompany)
+                .HasForeignKey(e => e.UserCompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
