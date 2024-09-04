@@ -2,6 +2,7 @@
 @using Finance.Expensia.Shared.Helpers
 @{
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var ddlBankAliasUrl = Url.Action("RetrieveFromBankAlias", "BankAlias");
     var gridListOutgoingPayment = Url.Action("GetListOutgoingPayment", "OutgoingPayment");
     var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
     var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();
@@ -16,7 +17,7 @@
     const gridOutgoingPaymentDetail = $('#gridOutgoingPaymentDetail');
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
     const dtsdDownload = $("#dtsdDownload"), dtedDownload = $("#dtedDownload");
-    const ddlCompany = $("#ddlCompany"), ddlApprovalStatus = $('#ddlApprovalStatus');
+    const ddlCompany = $("#ddlCompany"), ddlApprovalStatus = $('#ddlApprovalStatus'), ddlFromBankAlias = $('#ddlFromBankAlias');
     const txtSearch = $("#txtSearch");
     const vdStartDateDownload = $("#sdmessage"), vdEndDateDownload = $("#edmessage");
     const btnFilter = $("#btnFilter"), btnCreate = $('#btnCreate'), btnReset = $("#btnReset");
@@ -51,6 +52,7 @@
                         data: function (d) {
                             return JSON.stringify({
                                 "companyId": ddlCompany.val() == '' ? null : ddlCompany.val(),
+                                "fromBankAliasId": ddlFromBankAlias.val() == '' ? null : ddlFromBankAlias.val(),
                                 "startDate": dtStartDate.val() == '' ? null : dtStartDate.val(),
                                 "endDate": dtEndDate.val() == '' ? null : dtEndDate.val(),
                                 "approvalStatus": ddlApprovalStatus.val() == '' ? null : ddlApprovalStatus.val(),
@@ -319,6 +321,7 @@
             InitLoad: function () {
                 SetFormView();
                 RefreshDdlCompany();
+                RefreshDdlFromAliasBank();
             }
         }
     };
@@ -386,6 +389,36 @@
                 for (let i = 0; i < response.obj.length; i++) {
                     const data = response.obj[i];
                     ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    async function RefreshDdlFromAliasBank() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlBankAliasUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlFromBankAlias.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlFromBankAlias.append(
+                        `<option
+                                    value="` + data.bankAliasId + `"
+                                    data-bank-name="` + data.bankName + `"
+                                    data-account-no="` + data.accountNo + `"
+                                    data-account-name="` + data.accountName + `"
+                                    >` + data.aliasName +
+                        `</option>`);
                 }
             }
             else {

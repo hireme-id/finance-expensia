@@ -33,7 +33,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			var dataOutgoingPayments = _dbContext.OutgoingPayments
 												 .Where(d => userCompanyIds.Contains(d.CompanyId))
 												 .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
-												 .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
+                                                 .Where(d => !input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(d.FromBankAliasId))
+                                                 .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
 												 .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
 												 .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
 												 .Where(d =>
