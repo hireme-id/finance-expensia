@@ -76,5 +76,10 @@
         {
             public const string WorkflowHistoryView = "WorkflowHistory.View";
         }
+
+        public static class UserManagement
+        {
+            public const string RoleView = "UserManagement.Role.View";
+        }
     }
 }

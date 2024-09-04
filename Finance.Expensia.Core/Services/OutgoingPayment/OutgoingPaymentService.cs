@@ -73,6 +73,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             // Cari role yang sedang di assign pada dokumen outgoing payment ini menggunakan method WorkflowService.GetCurrentRoleApproval
 			var currentRoleApproval = await _workflowService.GetCurrentRoleApproval(dataOutgoingPayDto.TransactionNo);
+            dataOutgoingPayDto.RoleCodeInCharge = currentRoleApproval;
 
             // Ambil data user berserta relasi sampai dengan data permission
             var dataUser = await _dbContext.Users

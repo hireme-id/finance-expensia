@@ -23,7 +23,8 @@ namespace Finance.Expensia.Core
             services.Configure<GoogleConfig>(options => configuration.Bind(nameof(GoogleConfig), options));
 			services.Configure<StorageConfig>(options => configuration.Bind(nameof(StorageConfig), options));
 
-			services.AddScoped<UserService>();
+			services.AddScoped<AccessControlService>();
+            services.AddScoped<UserManagementService>();
             services.AddScoped<TokenService>();
             services.AddScoped<OutgoingPaymentService>();
             services.AddScoped<GoogleAuthService>();

@@ -11,8 +11,8 @@ using System.Data;
 
 namespace Finance.Expensia.Core.Services.Account
 {
-    public class UserService(ApplicationDbContext dbContext, IMapper mapper, ILogger<UserService> logger, TokenService tokenService)
-        : BaseService<UserService>(dbContext, mapper, logger)
+    public class AccessControlService(ApplicationDbContext dbContext, IMapper mapper, ILogger<AccessControlService> logger, TokenService tokenService)
+        : BaseService<AccessControlService>(dbContext, mapper, logger)
     {
         private readonly TokenService _tokenService = tokenService;
 

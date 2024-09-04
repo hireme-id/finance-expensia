@@ -4,6 +4,7 @@
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
     var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
     var ddlBankAliasUrl = Url.Action("RetrieveFromBankAlias", "BankAlias");
+    var ddlRoleUrl = Url.Action("RetrieveRole", "UserManagement");
     var gridListMailbox = Url.Action("GetListInbox", "Mailbox");
     var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
     var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();
@@ -18,7 +19,7 @@
     
     //Variable for control
     const dtStartDate = $("#dtStartDate"), dtEndDate = $("#dtEndDate");
-    const ddlCompany = $("#ddlCompany"), ddlTransactionType = $("#ddlTransactionType"), ddlFromBankAlias = $("#ddlFromBankAlias");
+    const ddlRole = $("#ddlRole"), ddlCompany = $("#ddlCompany"), ddlTransactionType = $("#ddlTransactionType"), ddlFromBankAlias = $("#ddlFromBankAlias");
     const txtSearch = $("#txtSearch");
     const btnFilter = $("#btnFilter"), btnReset = $("#btnReset");
 
@@ -47,6 +48,7 @@
                         url: "@gridListMailbox",
                         data: function (d) {
                             return JSON.stringify({
+                                "roleId": ddlRole.val() == '' ? null : ddlRole.val(),
                                 "companyId": ddlCompany.val() == '' ? null : ddlCompany.val(),
                                 "transactiontypeId": ddlTransactionType.val() == '' ? null : ddlTransactionType.val(),
                                 "fromBankAliasId": ddlFromBankAlias.val() == '' ? null : ddlFromBankAlias.val(),
@@ -83,7 +85,12 @@
 
                             orderable: false
                         },
-                        { title: "Transaction Type", data: "transactionTypeDescription" },
+                        { 
+                            title: "Transaction Type",
+                            render: function (data, type, row) {
+                                return `${row.transactionTypeDescription}<br /><br />Role: <b class="text-nowrap">${row.roleCodeInCharge}</b>`;
+                            }
+                        },
                         {
                             title: "Transaction Info", 
                             render: function (data, type, row) {
@@ -106,8 +113,8 @@
                         {
                             title: "Remark",
                             render: function (data, type, row) {
-                                var schDate = '';
-                                var elem;
+                                let schDate = '';
+                                let elem;
                                 if (row.scheduledDate != null) {
                                     schDate = fmtDate4(row.scheduledDate);
                                     elem = `<b class="text-nowrap">Scheduled - ${schDate} </b> <br /> ${row.remark}`;
@@ -291,11 +298,12 @@
             },
             InitValidation: function () {
             },
-            InitLoad: function () {
+            InitLoad: async function () {
                 SetFormView();
-                RefreshDdlCompany();
-                RefreshDdlTransactionType();
-                RefreshDdlFromAliasBank();
+                await RefreshDdlCompany();
+                await RefreshDdlTransactionType();
+                await RefreshDdlFromAliasBank();
+                await RefreshDdlRole();
             }
         }
     };
@@ -377,6 +385,30 @@
                                 data-account-name="` + data.accountName + `"
                                 >` + data.aliasName +
                         `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    async function RefreshDdlRole() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlRoleUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlRole.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlRole.append(
+                        `<option value="` + data.roleId + `">` + data.roleCode + `</option>`);
                 }
             }
             else {
