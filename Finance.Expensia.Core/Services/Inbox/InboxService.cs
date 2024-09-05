@@ -136,18 +136,22 @@ namespace Finance.Expensia.Core.Services.Inbox
 				if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
 					return new ResponseBase("Schedule date harus diisi");
 
-				if (input.ExpectedTransfer != null)
+				string breakLine = "<br/><br/>";
+
+                if (input.ExpectedTransfer != null)
 				{
 					// Cek menggunakan CheckDifferentData untuk ExpectedTransfer antara input dan outgoingPayment, jika berbeda maka tambahkan ke input.Remark
 					var diffExpectedTransfer = CheckDifferentData(outgoingPayment.ExpectedTransfer, input.ExpectedTransfer, "Expected Transfer");
 					if (!string.IsNullOrEmpty(diffExpectedTransfer))
 					{
-						input.Remark = $"{input.Remark}<br/><br/>{diffExpectedTransfer}";
+						input.Remark = $"{input.Remark}{breakLine}{diffExpectedTransfer}";
 						outgoingPayment.ExpectedTransfer = input.ExpectedTransfer.Value;
 
 						if (outgoingPayment.ExpectedTransfer != ExpectedTransfer.Scheduled)
 							outgoingPayment.ScheduledDate = null;
-					}	
+
+						breakLine = "<br/>";
+                    }	
 				}
 
 				if (input.ScheduledDate != null)
@@ -156,8 +160,10 @@ namespace Finance.Expensia.Core.Services.Inbox
                     var diffScheduledDate = CheckDifferentData(outgoingPayment.ScheduledDate, input.ScheduledDate, "Scheduled Date");
                     if (!string.IsNullOrEmpty(diffScheduledDate))
                     {
-                        input.Remark = $"{input.Remark}<br/><br/>{diffScheduledDate}";
+                        input.Remark = $"{input.Remark}{breakLine}{diffScheduledDate}";
                         outgoingPayment.ScheduledDate = input.ScheduledDate;
+
+                        breakLine = "<br/>";
                     }
                 }
 					
@@ -167,9 +173,11 @@ namespace Finance.Expensia.Core.Services.Inbox
 					var diffFromBankAliasId = CheckDifferentData(outgoingPayment.FromBankAliasId, input.FromBankAliasId, "From Bank Alias");
 					if (!string.IsNullOrEmpty(diffFromBankAliasId))
 					{
-						input.Remark = $"{input.Remark}<br/><br/>{diffFromBankAliasId}";
+						input.Remark = $"{input.Remark}{breakLine}{diffFromBankAliasId}";
 						outgoingPayment.FromBankAliasId = input.FromBankAliasId.Value;
-					}
+
+                        breakLine = "<br/>";
+                    }
 						
 				}
 
@@ -179,10 +187,11 @@ namespace Finance.Expensia.Core.Services.Inbox
 					var diffBankPaymentType = CheckDifferentData(outgoingPayment.BankPaymentType, input.BankPaymentType, "Bank Payment Type");
 					if (!string.IsNullOrEmpty(diffBankPaymentType))
 					{
-						input.Remark = $"{input.Remark}<br/><br/>{diffBankPaymentType}";
+						input.Remark = $"{input.Remark}{breakLine}{diffBankPaymentType}";
 						outgoingPayment.BankPaymentType = input.BankPaymentType.Value;
-					}
-						
+
+                        breakLine = "<br/>";
+                    }
 				}
 			}
 

@@ -24,7 +24,7 @@
 	const txtTransactionNo = $("#txtTransactionNo");
 	const txtDocumentStatus = $("#txtDocumentStatus"), txtTotalAmount = $("#txtTotalAmount"); txtFromBankName = $("#txtFromBankName");
 	const txtToBankName = $("#txtToBankName");
-	const btnApprove = $("#btnApprove"), btnReject = $("#btnReject"), btnHistory = $("#btnHistory");
+	const btnApprove = $("#btnApprove"), btnReject = $("#btnReject");
 	const divHistory = $("#dvHistoryApproval");
 
 	let indexRowEdit = -1, isAllowEditApproval = false;
@@ -433,78 +433,6 @@ Account No : ` + accountNo);
 					});
 				});
 
-				btnHistory.click(function () {
-					let html;
-					let bgstatus;
-					let iconstatus;
-					let remark;
-					let dateHist;
-					var reqBody = {
-						'TransactionNo': transactionNo
-					};
-
-					$.ajax(Object.assign({}, glbBaseRequest, {
-						method: "POST",
-						url: "@getHistoryApproval",
-						data: JSON.stringify(reqBody),
-						contentType: "application/json",
-						beforeSend: function () {
-							html = '<div style="text-align: center;">' +
-								'<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i><span>Loading...</span>' +
-								'</div>';
-							divHistory.html(html);
-						},
-					})).done(function (response) {
-						if (response.succeeded) {
-							if (response.obj.length == 0) {
-								html = '<div class="text-center"><span> Tidak ada history</span></div>';
-								divHistory.html(html);
-							}
-							else {
-								html = `<div class="col-md-12">
-												<div class="timeline">`
-								for (var item of response.obj) {
-									dateHist = fmtDate3(item.created);
-									var objIcon = bgIconHistory.find(function (bgitem) {
-										return bgitem.key === item.approvalStatusText.toLowerCase();
-									});
-
-									bgstatus = objIcon ? objIcon.background : 'bg-grey';
-									iconstatus = objIcon ? objIcon.icon : 'fa-dot-circle';
-
-									if (item.remark != "") {
-										remark = `<br /><i>Remark: </i>${item.remark}`;
-									}
-									else {
-										remark = '';
-									}
-
-									html += `<div>
-													<i class="fa ${iconstatus} ${bgstatus}"></i>
-													<div class="timeline-item">
-														<span class="time">${dateHist}</span>
-														<h3 class="timeline-header font-weight-bold">${item.approvalStatusText}</h3>
-														<div class="timeline-body">
-															By ${item.executorName} (${item.executorRoleDesc}) ${remark}
-														</div>
-													</div>
-												</div>`;
-								}
-								html += `	</div>
-											</div>`;
-								divHistory.html(html);
-							}
-						}
-						else {
-							let errhtml;
-							errhtml = '<div style="text-align: center;">' +
-								'<i class="fa fa-warning"></i><span> Data gagal untuk dimuat</span>' +
-								'</div>';
-							divHistory.html(errhtml);
-						}
-					});
-				});
-
 				ddlExpectedTransfer.on("change", function (e) {
 					if (isAllowEditApproval) {
 						if (ddlExpectedTransfer.val() == "@ExpectedTransfer.Scheduled") {
@@ -531,7 +459,6 @@ Account No : ` + accountNo);
 	};
 
 	function SetFormForView() {
-		btnHistory.prop('disabled', true);
 		$('select').removeClass('select2');
 		$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
 		$('input, textarea, select').addClass('shimmerBG');
@@ -683,8 +610,7 @@ Account No : ` + accountNo);
 		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "GET",
 			url: "@gridDetailOutgoingPayment" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
-		})).done(function (response) {
-			btnHistory.prop('disabled', false);
+		})).done(async function (response) {
 			$("#btnloader").addClass("d-none");
 			if (response.succeeded) {
 				if (response.obj.allowApprovalEdit) {
@@ -784,6 +710,72 @@ Account No : ` + accountNo);
 					btnApprove.remove();
 					btnReject.remove();
 				}
+
+				let html;
+				let bgstatus;
+				let iconstatus;
+				let remark;
+				let dateHist;
+				var reqBody = {
+					'TransactionNo': transactionNo
+				};
+
+				await $.ajax(Object.assign({}, glbBaseRequest, {
+					method: "POST",
+					url: "@getHistoryApproval",
+					data: JSON.stringify(reqBody),
+					contentType: "application/json",
+					beforeSend: function () {
+						html = '<div style="text-align: center;">' +
+							'<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i><span>Loading...</span>' +
+							'</div>';
+						divHistory.html(html);
+					},
+				})).done(function (response) {
+					if (response.succeeded) {
+						if (response.obj.length == 0) {
+							html = '<div class="text-center"><span> Tidak ada history</span></div>';
+							divHistory.html(html);
+						}
+						else {
+							html = `<div class="col-md-12">
+										<div class="timeline">`
+							for (var item of response.obj) {
+								dateHist = fmtDate3(item.created);
+								var objIcon = bgIconHistory.find(function (bgitem) {
+									return bgitem.key === item.approvalStatusText.toLowerCase();
+								});
+
+								bgstatus = objIcon ? objIcon.background : 'bg-grey';
+								iconstatus = objIcon ? objIcon.icon : 'fa-dot-circle';
+
+								remark = item.remark == '' ? '-' : item.remark;
+								executorRoleCode = item.executorRoleCode == '' ? `` : `sebagai ${item.executorRoleCode}`
+
+								html += `	<div>
+												<i class="fa ${iconstatus} ${bgstatus}"></i>
+												<div class="timeline-item">
+													<span class="time">${dateHist}</span>
+													<h3 class="timeline-header"><b>${item.approvalStatusText}</b> oleh <b>${item.executorName}</b> ${executorRoleCode}</h3>
+													<div class="timeline-body">
+														<i>Remark: </i>${remark}
+													</div>
+												</div>
+											</div>`;
+							}
+							html += `	</div>
+									</div>`;
+							divHistory.html(html);
+						}
+					}
+					else {
+						let errhtml;
+						errhtml = '<div style="text-align: center;">' +
+							'<i class="fa fa-warning"></i><span> Data gagal untuk dimuat</span>' +
+							'</div>';
+						divHistory.html(errhtml);
+					}
+				});
 			}
 			else {
 				Swal.fire({
