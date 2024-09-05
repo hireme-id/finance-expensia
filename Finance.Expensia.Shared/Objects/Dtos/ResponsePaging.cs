@@ -15,12 +15,12 @@ namespace Finance.Expensia.Shared.Objects.Dtos
         public bool HasNext => Page < TotalPage && TotalPage > 1;
         public bool HasPrevious => Page > 1;
 
-        public void ApplyPagination(int page, int pageSize, IQueryable<T> obj, string? message = null)
+        public void ApplyPagination(int page, int pageSize, IQueryable<T>? obj, string? message = null)
         {
             Page = page;
             PageSize = pageSize;
-            RecordsFiltered = obj.Count();
-            RecordsTotal = obj.Count();
+            RecordsFiltered = obj?.Count() ?? 0;
+            RecordsTotal = obj?.Count() ?? 0;
             TotalPage = PagingHelper.CalculateTotalPage(RecordsTotal, PageSize);
             Data = obj.PaginateQuery(Page, pageSize);
 

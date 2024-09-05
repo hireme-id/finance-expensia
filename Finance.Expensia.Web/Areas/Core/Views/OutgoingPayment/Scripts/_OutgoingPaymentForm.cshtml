@@ -77,6 +77,8 @@
 							type: "date",
 							width: "140px",
 							render: function (data, type, row, meta) {
+								if (data == "") return "";
+
 								var value = new Date(data).toISOString().split('T')[0];
 
 								if (meta.row == indexRowEdit) {
@@ -657,8 +659,8 @@ Account No : ` + accountNo);
 						dataOutgoingPaymentDetails.forEach(function (v, i, a) {
 							formDataObject.outgoingPaymentDetails.push({
 								id: v.id,
-								invoiceDate: v.invoiceDate,
-								partnerId: v.partner.partnerId,
+								invoiceDate: v.invoiceDate == "" ? "0001-01-01T00:00:00" : v.invoiceDate,
+								partnerId: v.partner.partnerId == "" ? "00000000-0000-0000-0000-000000000000" : v.partner.partnerId,
 								description: v.description,
 								chartOfAccountId: v.coa.coaId,
 								costCenterId: v.costCenter.costCenterId == "" ? "00000000-0000-0000-0000-000000000000" : v.costCenter.costCenterId,
