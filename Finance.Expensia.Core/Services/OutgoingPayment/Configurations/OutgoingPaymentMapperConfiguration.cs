@@ -2,18 +2,23 @@
 using Finance.Expensia.Core.Services.OutgoingPayment.Dtos;
 using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess.Models;
+using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Helpers;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment.Configurations
 {
-	public class OutgoingPaymentMapperConfiguration : Profile
+    public class OutgoingPaymentMapperConfiguration : Profile
     {
         public OutgoingPaymentMapperConfiguration()
         {
             CreateMap<DataAccess.Models.OutgoingPayment, ListOutgoingPaymentDto>()
                 .ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FromBankAlias, opt => opt.MapFrom(src => src.FromBankAliasName))
-                .ForMember(dest => dest.ToBankAlias, opt => opt.MapFrom(src => src.ToBankAliasName));
+                .ForMember(dest => dest.ToBankAlias, opt => opt.MapFrom(src => src.ToBankAliasName))
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.IsUserAllowEdit = dest.ApprovalStatus == ApprovalStatus.Draft && dest.CreatedBy == context.Items["UserId"].ToString();
+                });
 
             CreateMap<DataAccess.Models.OutgoingPayment, OutgoingPaymentDto>()
                 .ForMember(dest => dest.OutgoingPaymentId, opt => opt.MapFrom(src => src.Id))

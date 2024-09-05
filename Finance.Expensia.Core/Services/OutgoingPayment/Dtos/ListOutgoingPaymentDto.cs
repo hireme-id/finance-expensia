@@ -1,4 +1,5 @@
 ﻿using Finance.Expensia.Shared.Enums;
+using System.Text.Json.Serialization;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
 {
@@ -15,6 +16,9 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment.Dtos
 		public string FromBankAlias { get; set; } = string.Empty;
 		public string ToBankAlias { get; set; } = string.Empty;
 		public ApprovalStatus ApprovalStatus { get; set; }
-		public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
+		[JsonIgnore]
+		public string CreatedBy { get; set; } = string.Empty;
+        public bool IsUserAllowEdit { get; set; }
+        public List<OutgoingPaymentTaggingDto> OutgoingPaymentTaggings { get; set; } = [];
 	}
 }

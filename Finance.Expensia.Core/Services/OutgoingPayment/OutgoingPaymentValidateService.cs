@@ -1,7 +1,6 @@
 ﻿using Finance.Expensia.Core.Services.OutgoingPayment.Inputs;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
-using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +8,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 {
     public partial class OutgoingPaymentService
     {
-        private static (ResponseCode validateInputStatus, string validateInputMessage) ValidateUpsertOutgoingPaymentInput(BaseOutgoingPaymentInput input, List<BaseOutgoingPaymentDetailInput> details)
+        private static (ResponseCode validateInputStatus, string validateInputMessage) ValidateUpsertOutgoingPaymentInput
+            (BaseOutgoingPaymentInput? input, List<BaseOutgoingPaymentDetailInput> details)
         {
             if (input == null)
                 return (ResponseCode.NotFound, "Tolong lengkapi informasi yang mandatory");
@@ -78,14 +78,23 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
             try
             {
+                if (input.InvoiceDate == DateTime.MinValue)
+                    throw new CustomValidationException(ResponseCode.NotFound, "Data date tidak valid");
+
                 if (dataPartner == null)
-                    throw new CustomValidationException(ResponseCode.NotFound, "Data partner tidak valid");
+                    throw new CustomValidationException(ResponseCode.NotFound, "Data tenant tidak valid");
+
+                if (string.IsNullOrEmpty(input.Description))
+                    throw new CustomValidationException(ResponseCode.NotFound, "Data description tidak valid");
 
                 if (dataCoa == null)
                     throw new CustomValidationException(ResponseCode.NotFound, "Data chart of account tidak valid");
 
                 if (dataPostingAccount == null)
-                    throw new CustomValidationException(ResponseCode.NotFound, "Data posting account tidak valid");
+                    throw new CustomValidationException(ResponseCode.NotFound, "Data consumer account tidak valid");
+
+                if (input.Amount <= 0)
+                    throw new CustomValidationException(ResponseCode.NotFound, "Data amount tidak valid");
             }
             catch (CustomValidationException ex)
             {

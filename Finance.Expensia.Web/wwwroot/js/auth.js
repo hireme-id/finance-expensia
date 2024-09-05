@@ -30,7 +30,22 @@ function Logout() {
         },
         icon: "warning"
     }).then((result) => {
-        if (result.isConfirmed)
-            RedirectToLogin();
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: "Keluar dari aplikasi",
+                html: "Anda telah berhasil keluar dari aplikasi",
+                showCancelButton: false,
+                confirmButtonText: "Ok",
+                confirmButtonColor: "#D92D20",
+                customClass: {
+                    actions: 'my-actions',
+                    cancelButton: 'order-1 right-gap',
+                    confirmButton: 'order-2',
+                },
+                icon: "info"
+            }).then((result) => {
+                RedirectToLogin();
+            })
+        }
     });
 }

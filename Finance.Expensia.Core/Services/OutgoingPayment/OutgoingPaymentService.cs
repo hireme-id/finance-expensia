@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Finance.Expensia.Core.Services.OutgoingPayment
 {
-	public partial class OutgoingPaymentService(
+    public partial class OutgoingPaymentService(
 		ApplicationDbContext dbContext, IMapper mapper, ILogger<OutgoingPaymentService> logger, DocumentNumberingService documentNumberingService, WorkflowService workflowService)
 		: BaseService<OutgoingPaymentService>(dbContext, mapper, logger)
 	{
@@ -33,8 +33,8 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			var dataOutgoingPayments = _dbContext.OutgoingPayments
 												 .Where(d => userCompanyIds.Contains(d.CompanyId))
 												 .Where(d => !input.CompanyId.HasValue || input.CompanyId.Equals(d.CompanyId))
-                                                 .Where(d => !input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(d.FromBankAliasId))
-                                                 .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
+												 .Where(d => !input.FromBankAliasId.HasValue || input.FromBankAliasId.Equals(d.FromBankAliasId))
+												 .Where(d => !input.ApprovalStatus.HasValue || input.ApprovalStatus.Equals(d.ApprovalStatus))
 												 .Where(d => !input.StartDate.HasValue || d.RequestDate >= input.StartDate)
 												 .Where(d => !input.EndDate.HasValue || d.RequestDate <= input.EndDate)
 												 .Where(d =>
@@ -44,10 +44,17 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 													|| d.OutgoingPaymentTaggings.Any(t => EF.Functions.Like(t.TagValue, $"%{input.SearchKey}%")))
 												 .Where(d => !onlyMyDocument || EF.Functions.Like(d.CreatedBy, $"{currentUserAccessor.Id}"))
 												 .Include(x => x.OutgoingPaymentTaggings.OrderBy(d => d.Created))
-												 .OrderByDescending(d => d.Modified ?? d.Created)
-												 .Select(d => _mapper.Map<ListOutgoingPaymentDto>(d));
+												 .OrderByDescending(d => d.Modified ?? d.Created);
 
-			retVal.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
+			var dataOutgoingPaymentsPaging = new ResponsePaging<DataAccess.Models.OutgoingPayment>();
+			dataOutgoingPaymentsPaging.ApplyPagination(input.Page, input.PageSize, dataOutgoingPayments);
+
+            // Need store temporary in dataOutgoingPaymentsPaging because o => o.Items .... error on LINQ Expression
+            var retValData = dataOutgoingPaymentsPaging.Data?.ToList()
+															 .AsQueryable()
+															 .Select(d => 
+																_mapper.Map<ListOutgoingPaymentDto>(d, o => o.Items.Add("UserId", currentUserAccessor.Id)));
+            retVal.ApplyPagination(input.Page, input.PageSize, retValData);
 
 			return await Task.FromResult(retVal);
 		}
@@ -125,12 +132,15 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 
 		public async Task<ResponseBase> CreateOutgoingPayment(CreateOutgoingPaymentInput input, CurrentUserAccessor currentUserAccessor)
 		{
-			var (validateInputStatus, validateInputMessage) = ValidateUpsertOutgoingPaymentInput(input, input.OutgoingPaymentDetails.Select(_mapper.Map<BaseOutgoingPaymentDetailInput>).ToList());
+			var (validateInputStatus, validateInputMessage) = 
+				ValidateUpsertOutgoingPaymentInput(input, input?.OutgoingPaymentDetails.Select(_mapper.Map<BaseOutgoingPaymentDetailInput>).ToList() ?? []);
+
 			if (validateInputStatus != ResponseCode.Ok)
 				return new ResponseBase(validateInputMessage, validateInputStatus);
 
             var (validateDataStatus, validateDataMessage, dataCompany, dataFromBankAlias, dataToBankAlias, dataTransactionType) = 
-				await ValidateUpsertOutgoingPaymentReferenceData(input);
+				await ValidateUpsertOutgoingPaymentReferenceData(input!);
+
             if (validateDataStatus != ResponseCode.Ok)
                 return new ResponseBase(validateDataMessage, validateDataStatus);
 
@@ -145,7 +155,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			dataOutgoingPayment.RequestDate = dateNow.Date;
 			dataOutgoingPayment.CompanyName = dataCompany.CompanyName;
 			dataOutgoingPayment.TransactionTypeCode = dataTransactionType.TransactionTypeCode;
-			dataOutgoingPayment.ApprovalStatus = input.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
+			dataOutgoingPayment.ApprovalStatus = input!.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
 
 			dataOutgoingPayment.FromBankAliasName = dataFromBankAlias.AliasName;
 			dataOutgoingPayment.FromBankName = dataFromBankAlias.BankName;

@@ -20,7 +20,7 @@
     const ddlCompany = $("#ddlCompany"), ddlApprovalStatus = $('#ddlApprovalStatus'), ddlFromBankAlias = $('#ddlFromBankAlias');
     const txtSearch = $("#txtSearch");
     const vdStartDateDownload = $("#sdmessage"), vdEndDateDownload = $("#edmessage");
-    const btnFilter = $("#btnFilter"), btnCreate = $('#btnCreate'), btnReset = $("#btnReset");
+    const btnFilter = $("#btnFilter"), btnReset = $("#btnReset");
     const btnDownload = $("#btnDownload"), btnCancel = $('#btnCancel'), btnloader = $('#btnloader');
     const mdDownloadDetail = $("#mdDownloadDetail");
 
@@ -134,7 +134,7 @@
                                 let isdisabled = '';
                                 let linkedit = '';
                                 linkedit = `../Core/OutgoingPayment/Edit/${row.outgoingPaymentId}`;
-                                if (row.approvalStatus > 0){
+                                if (!row.isUserAllowEdit) {
                                     isdisabled = 'adisabled';
                                     linkedit = '#';
                                 }
@@ -151,9 +151,15 @@
                                 menu: [10, 25, 50, 100]
                             }
                         },
-                        topEnd: null,
+                        topEnd: function() {
+                            let toolbar = document.createElement('div');
+                            let buttons = '<button type="button" class="btn btn-md btn-primary ml-2" id="btnCreate" style="min-width:150px">Create</button>'
+                            toolbar.innerHTML = buttons;
+
+                            return toolbar;
+                        },
                         bottomStart: 'info',
-                        bottom2Start: function () {
+                        bottom2Start: function() {
                             let toolbar = document.createElement('div');
                             let buttons = '<button class="btn btn-sm btn-outline-primary mr-2" data-toggle="modal" data-target="#mdDownloadDetail">Download Detail</button>'
                             toolbar.innerHTML = buttons;
@@ -161,7 +167,7 @@
                             return toolbar;
                         },
                         bottomEnd: 'paging',
-                        bottom2End: function () {
+                        bottom2End: function() {
                             let toolbar = document.createElement('div');
                             toolbar.classList.add("row");
                             let elem = '<label>Jump to page:</label>' +
@@ -278,18 +284,22 @@
                     gridOutgoingPayment.search(txtSearch.val()).draw();
                 })
 
-                btnCreate.click(function () {
+                $('#btnCreate').click(function () {
                     window.location.href = '@createOutgoingPaymentUrl';
                 })
 
                 btnReset.click(function () {
-                    RefreshDdlCompany();
+                    ddlCompany.val('').change();
                     ddlApprovalStatus.val('').change();
+                    ddlFromBankAlias.val('').change();
                     txtSearch.val('');
                     dtStartDate.val('');
                     dtStartDate.datepicker("option", "maxDate", null);
                     dtEndDate.val('');
                     dtEndDate.datepicker("option", "minDate", null);
+
+                    history.pushState(null, '', '?reset');
+
                     gridOutgoingPayment.search(txtSearch.val()).draw();
                 })
 
