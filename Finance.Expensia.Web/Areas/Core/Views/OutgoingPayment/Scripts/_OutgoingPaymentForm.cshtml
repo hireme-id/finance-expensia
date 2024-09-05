@@ -778,7 +778,7 @@ Account No : ` + accountNo);
 							}
 							else {
 								html = `<div class="col-md-12">
-												<div class="timeline">`
+											<div class="timeline">`
 								for (var item of response.obj) {
 									dateHist = fmtDate3(item.created);
 									var objIcon = bgIconHistory.find(function (bgitem) {
@@ -788,26 +788,22 @@ Account No : ` + accountNo);
 									bgstatus = objIcon ? objIcon.background : 'bg-grey';
 									iconstatus = objIcon ? objIcon.icon : 'fa-dot-circle';
 
-									if (item.remark != "") {
-										remark = `<br /><i>Remark: </i>${item.remark}`;
-									}
-									else {
-										remark = '';
-									}
+									remark = item.remark == '' ? '-' : item.remark;
+									executorRoleCode = item.executorRoleCode == '' ? `` : `sebagai ${item.executorRoleCode}`
 
-									html += `<div>
+									html += `	<div>
 													<i class="fa ${iconstatus} ${bgstatus}"></i>
 													<div class="timeline-item">
 														<span class="time">${dateHist}</span>
-														<h3 class="timeline-header font-weight-bold">${item.approvalStatusText}</h3>
+														<h3 class="timeline-header"><b>${item.approvalStatusText}</b> oleh <b>${item.executorName}</b> ${executorRoleCode}</h3>
 														<div class="timeline-body">
-															By ${item.executorName} (${item.executorRoleDesc}) ${remark}
+															<i>Remark: </i>${remark}
 														</div>
 													</div>
 												</div>`;
 								}
 								html += `	</div>
-											</div>`;
+										</div>`;
 								divHistory.html(html);
 							}
 						}
