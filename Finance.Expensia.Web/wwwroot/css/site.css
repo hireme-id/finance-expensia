@@ -74,11 +74,11 @@
     }
 }
 
-@media (min-width: 576px) {
+/*@media (min-width: 576px) {
     .modal-dialog {
         max-width: 650px !important;
     }
-}
+}*/
 
 @media (min-width: 576px ) and (max-width: 1200px) {
     .md-large {
@@ -89,6 +89,10 @@
 @media (min-width: 1200px ) and (max-width: 1500px) {
     .md-large {
         max-width: 1050px !important;
+    }
+
+    .modal-xl {
+        max-width: 1140px !important;
     }
 }
 

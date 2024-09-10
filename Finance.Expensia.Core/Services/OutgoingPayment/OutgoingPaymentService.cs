@@ -54,7 +54,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 															 .AsQueryable()
 															 .Select(d => 
 																_mapper.Map<ListOutgoingPaymentDto>(d, o => o.Items.Add("UserId", currentUserAccessor.Id)));
-            retVal.ApplyPagination(input.Page, input.PageSize, retValData);
+            retVal.CopyPaginationInfo(dataOutgoingPaymentsPaging, retValData);
 
 			return await Task.FromResult(retVal);
 		}
@@ -86,7 +86,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             // Ambil data user berserta relasi sampai dengan data permission
             var dataUser = await _dbContext.Users
 										   .Include(d => d.UserCompanies)
-											.ThenInclude(d => d.UserRoles)
+											.ThenInclude(d => d.UserCompanyRoles)
 												.ThenInclude(d => d.Role)
                                                     .ThenInclude(d => d.RolePermissions)
                                                         .ThenInclude(d => d.Permission)
@@ -95,7 +95,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             if (dataUser != null)
 			{
 				// Ambil semua permission yang dimiliki user
-				var dataPermissions = dataUser.UserCompanies.SelectMany(d => d.UserRoles)
+				var dataPermissions = dataUser.UserCompanies.SelectMany(d => d.UserCompanyRoles)
 															.Where(d => d.Role.RoleCode == currentRoleApproval)
 															.SelectMany(d => d.Role.RolePermissions
 															.Select(e => e.Permission.PermissionCode))

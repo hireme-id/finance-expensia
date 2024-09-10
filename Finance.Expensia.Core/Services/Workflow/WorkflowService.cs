@@ -179,6 +179,7 @@ namespace Finance.Expensia.Core.Services.Workflow
 				{
 					emailDataInput.MultiRecievers.Add(new MailAddress(user.UserCompany.User.Email, user.UserCompany.User.FullName));
 				}
+                emailDataInput.MultiRecievers = emailDataInput.MultiRecievers.Distinct().ToList();
 
 				EmailHelper.SendEmailMultiReceiver(emailDataInput);
 
@@ -267,6 +268,7 @@ namespace Finance.Expensia.Core.Services.Workflow
                     SubjectEmail = "Outgoing Payment Notification",
                     MultiRecievers = [new MailAddress(dataUser.Email, dataUser.FullName)]
                 };
+                emailDataInput.MultiRecievers = emailDataInput.MultiRecievers.Distinct().ToList();
 
                 EmailHelper.SendEmailMultiReceiver(emailDataInput);
 

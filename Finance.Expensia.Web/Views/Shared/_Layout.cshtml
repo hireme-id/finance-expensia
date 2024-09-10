@@ -9,6 +9,7 @@
     var masterCoa = Url.Action("Index", "Coa", new { area = "MasterData" });
     var menuApprovalRule = Url.Action("Index", "ApprovalRule", new { area = "Rule" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
+    var manageUser = Url.Action("ManageUser", "UserManagement", new { area = "Account" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
     var myPermissionUrl = Url.Action("GetMyPermission", "Login");
@@ -66,6 +67,23 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true">
+                        <li id="menuUserManagement" class="nav-item" style="display:none">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-users-cog"></i>
+                                <p>
+                                    User Management
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview pl-2">
+                                <li id="menuManageUser" class="nav-item" style="display:none">
+                                    <a href="@manageUser" class="nav-link">
+                                        <i class="fas fa-id-card nav-icon"></i>
+                                        <p>Manage User</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li id="menuMaster" class="nav-item" style="display:none">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-database"></i>
@@ -243,6 +261,11 @@
             })
                 .done(function (response) {
                     if (response.succeeded) {
+                        if (response.obj.permissions.includes("@PermissionConstants.UserManagement.ManageUser.ManageUserView")) {
+                            $('#menuUserManagement').show();
+                            $('#menuManageUser').show();
+                        }
+
                         if (response.obj.permissions.includes("@PermissionConstants.MasterData.Partner.PartnerUpsert")) {
                             $('#menuMaster').show();
                             $('#menuPartner').show();
