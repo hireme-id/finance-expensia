@@ -4,7 +4,7 @@
     var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
     var ddlTransactionTypeUrl = Url.Action("RetrieveTransactionTypeDatas", "TransactionType");
     var ddlBankAliasUrl = Url.Action("RetrieveFromBankAlias", "BankAlias");
-    var ddlRoleUrl = Url.Action("RetrieveRole", "UserManagement");
+    var ddlRoleUrl = Url.Action("RetrieveRoleByUserId", "UserManagement");
     var gridListMailbox = Url.Action("GetListInbox", "Mailbox");
     var statusApproval = Enum.GetValues(typeof(ApprovalStatus));
     var statusList = statusApproval.Cast<ApprovalStatus>().Select(s => s.GetDescription()).ToList();

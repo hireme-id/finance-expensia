@@ -1,0 +1,469 @@
+﻿@{
+    var getListUserUrl = Url.Action("GetListUser", "UserManagement");
+    var getDetailUserUrl = Url.Action("GetDetailUser", "UserManagement");
+    var getListRoleUrl = Url.Action("GetListRole", "UserManagement");
+    var getListCompanyUrl = Url.Action("RetrieveCompany", "Company");
+    var updateUserUrl = Url.Action("UpdateUser", "UserManagement");
+}
+
+<script type="text/javascript">
+    const mdUser = $('#manageUserForm'), dmButton = $('#dvModalManageUser button');
+	const gridUserCompany = $('#gridUserCompany');
+    const btnSubmit = $('#btnSubmit');
+
+    let currentDraw = 0;
+    let glbUserId, roles = [], companies = [];
+
+    $(function () {
+        ManageUser = new ManageUser();
+        ManageUser.InitManagement();
+    });
+
+    function ManageUser() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridUser = $('#gridUser').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@getListUserUrl",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { title: "Google Account", data: "username" },
+                        { title: "Full Name", data: "fullName" },
+                        { title: "Email", data: "email" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                let id = row.userId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" role="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" role="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+
+				gridUserCompany.dataTable({
+					ordering: false,
+					paging: false,
+					searching: false,
+                    info: false,
+                    autoWidth: false,
+					initComplete: function (settings, json) {
+						$('.dt-scroll-head').css({ visibility: 'collapse' });
+					},
+					language: {
+						emptyTable: 'Belum ada data'
+					},
+					columns: [
+						{
+							data: "company.companyName",
+                            title: "Company",
+                            width: "25%"
+						},
+                        {
+                            data: "allowApproval",
+                            title: "Approval",
+                            width: "10%",
+                            render: function (data, type, row, meta) {
+                                let checked = data ? 'checked' : '';
+                                let labelText = data ? 'on' : 'off';
+                                let component = `<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                                    <input
+                                                        id="${row.userCompanyId}" role="allowapproval" type="checkbox" class="custom-control-input"
+                                                        data-id="${row.userCompanyId}" ${checked} data-row-index=${meta.row}>
+                                                    <label class="custom-control-label" for="${row.userCompanyId}">${labelText}</label>
+                                                </div>`;
+                                
+                                return component;
+                            }
+                        },
+						{
+                            data: "userCompanyRoles",
+                            title: "Role",
+							render: function (data, type, row, meta) {
+                                let options = ``;
+                                roles.forEach(function (data, index, obj) {
+                                    let existRole = row.userCompanyRoles.find(d => d.role.roleId == data.roleId);
+                                    let selected = existRole == undefined ? '' : 'selected="selected"';
+                                    options += `<option value="${data.roleId}" ${selected}>${data.roleCode}</option>`
+                                });
+
+                                let component = `<select 
+                                                    class="select2" role="listroles" multiple="multiple" data-row-index=${meta.row}
+                                                    style="width: 400px!important;">
+                                                    ${options}
+                                                </select>`;
+
+								return component;
+							}
+						},
+                        {
+                            title: "Action",
+                            width: "6%",
+							render: function (data, type, full, meta) {
+								return (`<a class="btn pr-0 pl-0"><i data-row-index="` + meta.row + `" class="fas fa-trash"></i></a>`);
+							}
+						}
+					],
+					layout: {
+						top1End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.className = "d-flex justify-content-start";
+                            toolbar.style = "width:350px";
+                            let dropdown = `<select id="ddlCompany" class="select2"></select>`
+							let buttons = `<button id="btnAddMapping" class="btn btn-sm btn-outline-primary mr-2 ml-2" style="width:150px">Add Mapping</button>`
+							toolbar.innerHTML = dropdown + buttons;
+
+							return toolbar;
+						}
+					},
+					"fnDrawCallback": function () {
+						$(".select2").select2();
+					},
+				});
+            },
+            InitHandlers: function () {
+                $('#txtJump').on('keyup change', function () {
+                    let debouncedAjaxRequest;
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridUser.page.info().pages) {
+                                gridUser.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                $(document).on('click', '[role="editbutton"]', async function () {
+                    glbUserId = $(this).data('id');
+                    await LoadUserData(glbUserId);
+
+                    dmButton.show();
+                });
+
+                $(document).on('click', '[role="detailbutton"]', async function () {
+                    glbUserId = $(this).data('id');
+                    await LoadUserData(glbUserId);
+
+                    const dmInput = $('#dvModalManageUser input'), dmSelect = $('#dvModalManageUser select');
+
+                    dmInput.add(dmSelect).attr('disabled', true);
+                    dmButton.hide();                    
+                });
+
+                $(document).on('change', '[role="allowapproval"]', function () {
+                    let el = $(this);
+                    let indexRowEdit = parseInt($(this).attr('data-row-index'));
+                    let rowData = gridUserCompany.api().row(indexRowEdit).data();
+                    let labelText = $(`label[for="${el[0].id}"]`).text();
+
+                    rowData.allowApproval = $(this).prop('checked');
+                    gridUserCompany.api().row(indexRowEdit).data(rowData).draw();
+                    $(`label[for="${el[0].id}"]`).text(labelText == "on" ? "off" : "on");
+                });
+
+                $(document).on('select2:select select2:unselect', '[role="listroles"]', function (e) {
+                    let indexRowEdit = parseInt($(this).attr('data-row-index'));
+                    let rowData = gridUserCompany.api().row(indexRowEdit).data();
+                    let changeData = e.params.data;
+
+                    if (changeData.selected) {
+                        rowData.userCompanyRoles.push({
+                            "userCompanyRoleId": null,
+                            "role": {
+                                "roleId": changeData.id,
+                                "roleCode": changeData.text
+                            }
+                        })
+                    }
+                    else {
+                        var index = rowData.userCompanyRoles.findIndex(d => d.role.roleId == changeData.id)
+                        if (index != -1)
+                            rowData.userCompanyRoles.splice(index, 1);
+
+                        e.params.originalEvent.stopPropagation();
+                    }
+
+                    gridUserCompany.api().row(indexRowEdit).data(rowData).draw();                 
+                });
+
+                gridUserCompany.on("click", "td .fas.fa-trash", function (e) {
+                    let indexRowDelete = parseInt($(this).attr('data-row-index'));
+
+                    Swal.fire({
+                        title: "Hapus Data",
+                        html: "Apakah anda yakin ingin meghapus data ini?",
+                        showCancelButton: true,
+                        confirmButtonText: "Hapus",
+                        confirmButtonColor: "#D92D20",
+                        customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                        },
+                        icon: "warning"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            gridUserCompany.api().row(indexRowDelete).remove().draw();
+                        }
+                    });
+                });
+
+                $('#ddlCompany').on('select2:opening', function (e) {
+                    let el = $(this);
+                    let alreadyAddedCompanies = gridUserCompany.api().rows().data().toArray();
+
+                    el.empty().append(`<option value="">&nbsp</option>`);
+                    companies.forEach(function (d, i, a) {
+                        if (alreadyAddedCompanies.find(dd => dd.company.companyId == d.companyId) == undefined) {
+                            el.append(`<option value="` + d.companyId + `">` + d.companyName + `</option>`);
+                        }
+                    });
+                });
+
+                $('#btnAddMapping').on('click', function (e) {
+                    if ($('#ddlCompany').val() == null || $('#ddlCompany').val() == '') {
+                        Swal.fire({
+                            title: "Error",
+                            text: "Pilih company terlebih dahulu",
+                            icon: "error"
+                        });
+
+                        return false;
+                    }
+
+                    gridUserCompany.api().row.add({
+                        "userCompanyId": null,
+                        "company": {
+                            "companyId": $('#ddlCompany').val(),
+                            "companyName": $('#ddlCompany option:selected').text()
+                        },
+                        "allowApproval": false,
+                        "userCompanyRoles": []
+                    });
+
+                    gridUserCompany.api().draw();
+                    $('#ddlCompany').empty();
+                });
+
+                btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('#dvModalManageUser :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataObject.userId = glbUserId;
+                    formDataArray.forEach(function (field) {
+                        formDataObject[field.name] = field.value;
+                    });
+
+                    formDataObject.userCompanies = gridUserCompany.api().data().toArray();
+
+                    document.body.classList.remove('loaded');
+
+                    console.log(formDataObject);
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@updateUserUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        document.body.classList.add('loaded');
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    }).fail(function () {
+                        document.body.classList.add('loaded');
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                LoadListRole();
+                LoadListCompany();
+            }
+        }
+    };
+
+    function LoadUserData(userId) {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getDetailUserUrl" + "?userId=" + userId
+            })).done(function (response) {
+                if (response.succeeded) {
+                    $.each(response.obj, function (key, value) {
+                        let input = $('[bind-name="' + key + '"]');
+
+                        if (input.length > 0) {
+                            let bindTrigger = input.attr('bind-trigger');
+
+                            input.val(value);
+
+                            if (bindTrigger != undefined) {
+                                input.trigger(bindTrigger);
+                            }
+                        }
+                    });
+
+                    gridUserCompany.api().rows().remove();
+
+                    $.each(response.obj.userCompanies, function (key, value) {
+                        let existingRoles = [];
+                        $.each(value.userCompanyRoles, function (cKey, cValue) {
+                            existingRoles.push({
+                                "userCompanyRoleId": cValue.userCompanyRoleId,
+                                "role": {
+                                    "roleId": cValue.role.roleId,
+                                    "roleCode": cValue.role.roleCode
+                                }
+                            });
+                        });
+
+                        let dataUserCompanies = {
+                            "userCompanyId": value.userCompanyId,
+                            "company": {
+                                "companyId": value.company.companyId,
+                                "companyName": value.company.companyName
+                            },
+                            "allowApproval": value.allowApproval,
+                            "userCompanyRoles": existingRoles
+                        };
+
+                        gridUserCompany.api().row.add(dataUserCompanies);
+                    });
+
+                    gridUserCompany.api().draw();
+
+                    mdUser.modal('show');
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+
+    function LoadListRole() {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getListRoleUrl"
+            })).done(function (response) {
+                if (response.succeeded) {
+                    roles = response.obj;
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+
+    function LoadListCompany() {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getListCompanyUrl"
+            })).done(function (response) {
+                if (response.succeeded) {
+                    companies = response.obj;
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+</script>

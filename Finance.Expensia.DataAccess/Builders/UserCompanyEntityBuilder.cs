@@ -12,7 +12,7 @@ namespace Finance.Expensia.DataAccess.Builders
             base.Configure(builder);
 
             builder
-                .HasMany(e => e.UserRoles)
+                .HasMany(e => e.UserCompanyRoles)
                 .WithOne(e => e.UserCompany)
                 .HasForeignKey(e => e.UserCompanyId)
                 .OnDelete(DeleteBehavior.Restrict);

@@ -10,6 +10,6 @@ namespace Finance.Expensia.DataAccess.Models
 
         public virtual User User { get; set; } = null!;
         public virtual Company Company { get; set; } = null!;
-        public virtual List<UserCompanyRole> UserRoles { get; set; } = [];
+        public virtual List<UserCompanyRole> UserCompanyRoles { get; set; } = [];
     }
 }

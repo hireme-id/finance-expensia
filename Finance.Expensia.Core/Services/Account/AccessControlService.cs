@@ -61,7 +61,7 @@ namespace Finance.Expensia.Core.Services.Account
 
             var data = await _dbContext.Users
                                        .Include(u => u.UserCompanies)
-                                        .ThenInclude(uc => uc.UserRoles)
+                                        .ThenInclude(uc => uc.UserCompanyRoles)
                                             .ThenInclude(ur => ur.Role)
                                                 .ThenInclude(r => r.RolePermissions)
                                                     .ThenInclude(rp => rp.Permission)
@@ -70,8 +70,8 @@ namespace Finance.Expensia.Core.Services.Account
             if (data == null)
                 return new ResponseObject<MyPermissionDto>("Data user tidak valid", ResponseCode.NotFound);
 
-			myPermission.RoleCode = string.Join(",", data.UserCompanies.SelectMany(d => d.UserRoles).Select(d => d.Role.RoleCode).Distinct());
-			myPermission.Permissions = [.. data.UserCompanies.SelectMany(d => d.UserRoles).SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().OrderBy(d => d)];
+			myPermission.RoleCode = string.Join(",", data.UserCompanies.SelectMany(d => d.UserCompanyRoles).Select(d => d.Role.RoleCode).Distinct());
+			myPermission.Permissions = [.. data.UserCompanies.SelectMany(d => d.UserCompanyRoles).SelectMany(d => d.Role.RolePermissions.Select(e => e.Permission.PermissionCode)).Distinct().OrderBy(d => d)];
 
 			return new ResponseObject<MyPermissionDto>(responseCode: ResponseCode.Ok)
             {

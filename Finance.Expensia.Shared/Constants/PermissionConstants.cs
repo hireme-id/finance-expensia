@@ -80,6 +80,12 @@
         public static class UserManagement
         {
             public const string RoleView = "UserManagement.Role.View";
+
+            public static class ManageUser
+            {
+				public const string ManageUserView = "UserManagement.ManageUser.View";
+				public const string ManageUserUpdate = "UserManagement.ManageUser.Update";
+			}
         }
     }
 }

@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240906062430_AddRoleAdministrator")]
+    partial class AddRoleAdministrator
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3013,7 +3016,7 @@ namespace Finance.Expensia.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("Finance.Expensia.DataAccess.Models.UserCompany", "UserCompany")
-                        .WithMany("UserCompanyRoles")
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserCompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -3072,7 +3075,7 @@ namespace Finance.Expensia.DataAccess.Migrations
 
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.UserCompany", b =>
                 {
-                    b.Navigation("UserCompanyRoles");
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

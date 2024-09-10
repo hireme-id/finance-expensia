@@ -16,6 +16,7 @@ namespace Finance.Expensia.DataAccess.Builders
             SeedingDataFinance(builder);
             SeedingDataApproval(builder);
             SeedingDataReleaser(builder);
+            SeedingDataAdministrator(builder);
         }
 
         private static void SeedingDataUser(EntityTypeBuilder<RolePermission> builder)
@@ -432,6 +433,15 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("5af2ec99-2f5b-4551-9782-f206a8dfc2d7"), RoleId = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), PermissionId = new Guid("31410ff2-6c2a-457d-bb50-a926d5f90396"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) }
             #endregion
                 );
+        }
+
+        private static void SeedingDataAdministrator(EntityTypeBuilder<RolePermission> builder)
+        {
+            builder
+                .HasData(
+					new RolePermission { Id = new Guid("b0093f1a-86c1-41af-978d-f33865390b51"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("a830d1d8-07af-46a7-bb51-ea157fe4f421"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("108aaa5e-c79d-4429-b140-fce72e1382e2"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("ed9a3de5-d557-46b1-9509-78fced8ad5c0"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) }
+				);
         }
     }
 }
