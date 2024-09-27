@@ -43,6 +43,7 @@
 
 	let indexRowEdit = -1, totalAmount = 0, outgoingPaymentId = null;
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas, ddlCompanyDatas;
+	const formMode = window.location.href.split('/')[5];
 
 	$(function () {
 		OutgoingPaymentFormManager = new OutgoingPaymentFormManager();
@@ -237,6 +238,7 @@
 							data: "id",
 							title: "Action",
 							width: "40px",
+							visible: formMode === 'Detail' ? false : true,
 							render: function (data, type, full, meta) {
 								if (meta.row == indexRowEdit) {
 									return (
@@ -254,7 +256,7 @@
 					layout: {
 						top1End: function () {
 							let toolbar = document.createElement('div');
-							let buttons = `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
+							let buttons = formMode === 'Detail' ? `` : `<button id="btnAddDetail" class="btn btn-sm btn-outline-primary mr-2 ml-2">Add Detail</button>`
 							toolbar.innerHTML = buttons;
 
 							return toolbar;
