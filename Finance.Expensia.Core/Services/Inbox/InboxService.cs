@@ -10,6 +10,7 @@ using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
+using Finance.Expensia.Shared.Objects.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -173,10 +174,22 @@ namespace Finance.Expensia.Core.Services.Inbox
 					var diffFromBankAliasId = CheckDifferentData(outgoingPayment.FromBankAliasId, input.FromBankAliasId, "From Bank Alias");
 					if (!string.IsNullOrEmpty(diffFromBankAliasId))
 					{
-						input.Remark = $"{input.Remark}{breakLine}{diffFromBankAliasId}";
-						outgoingPayment.FromBankAliasId = input.FromBankAliasId.Value;
+						var fromBankAliasData = await _dbContext.BankAliases.FirstOrDefaultAsync(d => d.Id.Equals(input.FromBankAliasId));
+						if (fromBankAliasData != null)
+						{
+							input.Remark = $"{input.Remark}{breakLine}{diffFromBankAliasId}";
+							outgoingPayment.FromBankAliasId = input.FromBankAliasId.Value;
+							outgoingPayment.FromBankAliasName = fromBankAliasData.AliasName;
+							outgoingPayment.FromBankName = fromBankAliasData.BankName;
+							outgoingPayment.FromAccountNo = fromBankAliasData.AccountNo;
+							outgoingPayment.FromAccountName = fromBankAliasData.AccountName;
 
-                        breakLine = "<br/>";
+							breakLine = "<br/>";
+						}
+						else
+						{
+							throw new CustomValidationException(ResponseCode.NotFound, "Data from bank alias tidak valid");
+						}
                     }
 						
 				}

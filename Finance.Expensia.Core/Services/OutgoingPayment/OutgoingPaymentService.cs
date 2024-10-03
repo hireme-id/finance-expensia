@@ -241,15 +241,18 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			existOutgoing.TransactionTypeCode = dataTransactionType.TransactionTypeCode;
 			existOutgoing.ApprovalStatus = input.IsSubmit ? ApprovalStatus.WaitingApproval : ApprovalStatus.Draft;
 
+			existOutgoing.FromBankAliasId = dataFromBankAlias.Id;
 			existOutgoing.FromBankAliasName = dataFromBankAlias.AliasName;
 			existOutgoing.FromBankName = dataFromBankAlias.BankName;
 			existOutgoing.FromAccountNo = dataFromBankAlias.AccountNo;
 			existOutgoing.FromAccountName = dataFromBankAlias.AccountName;
 
+			existOutgoing.ToBankAliasId = dataToBankAlias.Id;
 			existOutgoing.ToBankAliasName = dataToBankAlias.AliasName;
 			existOutgoing.ToBankName = dataToBankAlias.BankName;
 			existOutgoing.ToAccountNo = dataToBankAlias.AccountNo;
 			existOutgoing.ToAccountName = dataToBankAlias.AccountName;
+
 			existOutgoing.ExpectedTransfer = input.ExpectedTransfer;
 			existOutgoing.BankPaymentType = input.BankPaymentType;
 			existOutgoing.Remark = input.Remark;
