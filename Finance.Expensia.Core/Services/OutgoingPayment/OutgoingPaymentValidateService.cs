@@ -20,6 +20,10 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
             //if (input.ScheduledDate.HasValue && input.ScheduledDate.Value.Date < DateTime.Now.Date)
             //    return (ResponseCode.BadRequest, "Schedule date tidak boleh lebih kecil dari hari ini");
 
+            input.Remark = string.Join(" ", input.Remark.Split(" ", StringSplitOptions.RemoveEmptyEntries));
+            if (string.IsNullOrEmpty(input.Remark) || input.Remark.Length <= 10)
+                return (ResponseCode.BadRequest, "Remark harus diisi dan minimal 10 huruf");
+
             if (details.Count == 0 && input.IsSubmit)
                 return (ResponseCode.NotFound, "Belum ada data detail");
 
