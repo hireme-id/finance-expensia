@@ -428,7 +428,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			return new ResponseBase("Berhasil menghapus data", ResponseCode.Ok);
 		}
 
-		public async Task<ResponseBase> CancelOutgoingPayment(Guid outgoingPaymentId, CurrentUserAccessor currentUserAccessor)
+		public async Task<ResponseBase> CancelOutgoingPayment(Guid outgoingPaymentId, string remark, CurrentUserAccessor currentUserAccessor)
 		{
 			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.Id.Equals(outgoingPaymentId));
 			if (outgoingPayment == null)
@@ -443,7 +443,7 @@ namespace Finance.Expensia.Core.Services.OutgoingPayment
 			outgoingPayment.ApprovalStatus = ApprovalStatus.Cancelled;
 			_dbContext.Update(outgoingPayment);
 
-			var cancelApproval = await _workflowService.CancelApprovalWorkflow(outgoingPayment, currentUserAccessor);
+			var cancelApproval = await _workflowService.CancelApprovalWorkflow(outgoingPayment, remark, currentUserAccessor);
 
 			if (!cancelApproval)
 				return new ResponseBase("Gagal membatalkan approval untuk dokumen ini");

@@ -829,6 +829,10 @@ Account No : ` + accountNo);
 					Swal.fire({
 						title: "Pembatalan Dokumen",
 						html: "Apakah anda yakin ingin membatalkan dokumen ini?",
+						input: "textarea",
+						inputAttributes: {
+							autocapitalize: "off"
+						},
 						showCancelButton: true,
 						confirmButtonText: "Iya",
 						confirmButtonColor: "#D92D20",
@@ -837,14 +841,19 @@ Account No : ` + accountNo);
 							cancelButton: 'order-1 right-gap',
 							confirmButton: 'order-2',
 						},
-						icon: "warning"
+						icon: "warning",
+						preConfirm: async (remark) => {
+							if (remark == "") {
+								Swal.showValidationMessage(`Keterangan harus diisi`);
+							}
+						}
 					}).then(async (result) => {
 						if (result.isConfirmed) {
 							var pathArray = window.location.pathname.split('/');
 
 							await $.ajax(Object.assign({}, glbBaseRequest, {
 								method: "POST",
-								url: "@cancelOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1]
+								url: "@cancelOutgoingPaymentUrl" + "?outgoingPaymentId=" + pathArray[pathArray.length - 1] + '&remark=' + result.value
 							})).done(function (response) {
 								if (response.succeeded) {
 									Swal.fire({

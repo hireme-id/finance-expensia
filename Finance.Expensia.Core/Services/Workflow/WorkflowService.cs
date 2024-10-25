@@ -73,7 +73,7 @@ namespace Finance.Expensia.Core.Services.Workflow
 			return (true, firstRoleApprover.RoleCode);
 		}
 
-		public async Task<bool> CancelApprovalWorkflow(DataAccess.Models.OutgoingPayment input, CurrentUserAccessor currentUserAccessor)
+		public async Task<bool> CancelApprovalWorkflow(DataAccess.Models.OutgoingPayment input, string remark, CurrentUserAccessor currentUserAccessor)
 		{
 			var dataInbox = await _dbContext.ApprovalInboxes.FirstOrDefaultAsync(x => x.TransactionNo == input.TransactionNo);
 
@@ -105,7 +105,8 @@ namespace Finance.Expensia.Core.Services.Workflow
 				ApprovalUserId = currentUserAccessor.Id,
 				TransactionNo = input.TransactionNo,
 				MinAmount = dataInbox.MinAmount,
-				MaxAmount = dataInbox.MaxAmount
+				MaxAmount = dataInbox.MaxAmount,
+				Remark = remark
 			};
 
 			await _dbContext.ApprovalHistories.AddAsync(dataHistory);
