@@ -108,9 +108,9 @@ namespace Finance.Expensia.Web.Areas.Core.Controllers
 		[Mutation]
 		[AppAuthorize(PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert)]
 		[HttpPost("outgoingpayment/cancel")]
-		public async Task<ResponseBase> CancelOutgoingPayment([FromQuery] Guid outgoingPaymentId)
+		public async Task<ResponseBase> CancelOutgoingPayment([FromQuery] Guid outgoingPaymentId, [FromQuery] string remark)
 		{
-			return await _outgoingPaymentService.CancelOutgoingPayment(outgoingPaymentId, _currentUserAccessor);
+			return await _outgoingPaymentService.CancelOutgoingPayment(outgoingPaymentId, remark, _currentUserAccessor);
 		}
 	}
 }
