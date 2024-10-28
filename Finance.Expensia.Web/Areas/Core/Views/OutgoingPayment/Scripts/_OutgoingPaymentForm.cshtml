@@ -1200,7 +1200,7 @@ Account No : ` + accountNo);
 						"description": value.description,
 						"coa": {
 							"coaId": value.chartOfAccountId,
-							"accountCode": value.chartOfAccountNo
+							"accountCode": `${value.chartOfAccountNo} - ${value.chartOfAccountName}`
 						},
 						"costCenter": {
 							"costCenterId": value.costCenterId,
