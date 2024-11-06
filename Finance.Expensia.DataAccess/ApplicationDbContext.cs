@@ -41,10 +41,14 @@ namespace Finance.Expensia.DataAccess
 		public virtual DbSet<ApprovalInbox> ApprovalInboxes { get; set; }
 		public virtual DbSet<ApprovalHistory> ApprovalHistories { get; set; }
 		public virtual DbSet<EmailHistory> EmailHistories { get; set; }
-		#endregion
+        #endregion
 
+        #region Tax Information
+		public virtual DbSet<EffectiveTaxCategoryAssignment> EffectiveTaxCategoryAssignments { get; set; }
+        public virtual DbSet<EffectiveTaxRate> EffectiveTaxRates { get; set; }
+        #endregion
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			#region UserManagement
 			new UserEntityBuilder().Configure(modelBuilder.Entity<User>());
@@ -80,6 +84,11 @@ namespace Finance.Expensia.DataAccess
 			new ApprovalHistoryEntityBuilder().Configure(modelBuilder.Entity<ApprovalHistory>());
 			new EmailHistoryEntityBuilder().Configure(modelBuilder.Entity<EmailHistory>());
 			#endregion
+
+			#region Tax Information
+            new EffectiveTaxCategoryAssignmentEntityBuilder().Configure(modelBuilder.Entity<EffectiveTaxCategoryAssignment>());
+            new EffectiveTaxRateEntityBuilder().Configure(modelBuilder.Entity<EffectiveTaxRate>());
+			#endregion
 		}
-	}
+    }
 }
