@@ -20,67 +20,106 @@
 }
 
 function numbersonly(ini, e) {
-    if (e.keyCode >= 49) {
-        if (e.keyCode <= 57) {
-            a = ini.value.toString().replace(".", "");
-            b = a.replace(/[^\d]/g, "");
-            b = (b == "0") ? String.fromCharCode(e.keyCode) : b + String.fromCharCode(e.keyCode);
+    //keyCode => from numpad 1 until numpad 9
+    if (e.keyCode >= 96 && e.keyCode <= 105) {
+        e.keyCode = e.keyCode - 48;
+    }
+
+    //keyCode => from 1 until 9
+    if (e.keyCode >= 49 && e.keyCode <= 57) {
+        let b = ini.value.replace(/[^\d]/g, "");
+        b = (b == "0") ? String.fromCharCode(e.keyCode) : b + String.fromCharCode(e.keyCode);
+        ini.value = tandaPemisahTitik(b);
+    }
+    //keyCode => 0
+    else if (e.keyCode == 48) {
+        let b = ini.value.replace(/[^\d]/g, "") + String.fromCharCode(e.keyCode);
+        if (parseFloat(b) != 0) {
             ini.value = tandaPemisahTitik(b);
-            return false;
-        }
-        else if (e.keyCode <= 105) {
-            if (e.keyCode >= 96) {
-                //e.keycode = e.keycode - 47;
-                a = ini.value.toString().replace(".", "");
-                b = a.replace(/[^\d]/g, "");
-                b = (b == "0") ? String.fromCharCode(e.keyCode - 48) : b + String.fromCharCode(e.keyCode - 48);
-                ini.value = tandaPemisahTitik(b);
-                //alert(e.keycode);
-                return false;
-            }
-            else { return false; }
         }
         else {
-            return false;
+            ini.value = "0";
         }
-    } else if (e.keyCode == 48) {
-        a = ini.value.replace(".", "") + String.fromCharCode(e.keyCode);
-        b = a.replace(/[^\d]/g, "");
-        if (parseFloat(b) != 0) {
-            ini.value = tandaPemisahTitik(b);
-            return false;
-        } else {
-            return false;
-        }
-    } else if (e.keyCode == 95) {
-        a = ini.value.replace(".", "") + String.fromCharCode(e.keyCode - 48);
-        b = a.replace(/[^\d]/g, "");
-        if (parseFloat(b) != 0) {
-            ini.value = tandaPemisahTitik(b);
-            return false;
-        } else {
-            return false;
-        }
-    } else if (e.keyCode == 8 || e.keycode == 46) {
-        a = ini.value.replace(".", "");
-        b = a.replace(/[^\d]/g, "");
+    }
+    //keyCode => backspace || delete
+    else if (e.keyCode == 8 || e.keycode == 46) {
+        let b = ini.value.replace(/[^\d]/g, "");
         b = b.substr(0, b.length - 1);
         if (tandaPemisahTitik(b) != "") {
             ini.value = tandaPemisahTitik(b);
-        } else {
-            ini.value = "";
         }
-
-        return false;
-    } else if (e.keyCode == 9) {
+        else {
+            ini.value = "0";
+        }
+    }
+    //keyCode => tab
+    else if (e.keyCode == 9) {
         return true;
-    } else if (e.keyCode == 17) {
-        return true;
-    } else {
-        //alert (e.keyCode);
-        return false;
     }
 
+    return false;
+}
+
+function NumberAllowDecimal(ini, e) {
+    //keyCode => from numpad 1 until numpad 9
+    if (e.keyCode >= 96 && e.keyCode <= 105) {
+        e.keyCode = e.keyCode - 48;
+    }
+
+    //keyCode => from 1 until 9
+    if (e.keyCode >= 49 && e.keyCode <= 57) {
+        let valueWoThousandSeparator = ini.value.replace(/[^\d,]/g, "") + String.fromCharCode(e.keyCode);
+        let values = valueWoThousandSeparator.split(',');
+        if (values.length > 1) {
+            ini.value = tandaPemisahTitik(values[0]) + ',' + values[1];
+        }
+        else {
+            ini.value = ini.value == "0" ? String.fromCharCode(e.keyCode) : tandaPemisahTitik(values[0]);
+        }
+    }
+    //keyCode => 0
+    else if (e.keyCode == 48) {
+        let valueWoThousandSeparator = ini.value.replace(/[^\d,]/g, "") + String.fromCharCode(e.keyCode);
+        let values = valueWoThousandSeparator.split(',');
+        if (values.length > 1) {
+            ini.value = tandaPemisahTitik(values[0]) + ',' + values[1];
+        }
+        else if (parseFloat(values[0]) != 0) {
+            ini.value = tandaPemisahTitik(values[0]);
+        }
+        else {
+            ini.value = "0";
+        }
+    }
+    //keyCode => backspace || delete
+    else if (e.keyCode == 8 || e.keycode == 46) {
+        let valueWoThousandSeparator = ini.value.replace(/[^\d,]/g, "");
+        valueWoThousandSeparator = valueWoThousandSeparator.substr(0, valueWoThousandSeparator.length - 1);
+        let values = valueWoThousandSeparator.split(',');
+        if (values.length > 1) {
+            ini.value = tandaPemisahTitik(values[0]) + ',' + values[1];
+        }
+        else if (tandaPemisahTitik(values[0]) != "") {
+            ini.value = tandaPemisahTitik(values[0]);
+        }
+        else {
+            ini.value = "0";
+        }
+    }
+    //keyCode => tab
+    else if (e.keyCode == 9) {
+        return true;
+    }
+    //keyCode => comma
+    else if (e.keyCode == 188) {
+        let valueWoThousandSeparator = ini.value.replace(/[^\d,]/g, "");
+        let values = valueWoThousandSeparator.split(',');
+        if (values.length == 1) {
+            ini.value = tandaPemisahTitik(values[0]) + ',';
+        }
+    }
+
+    return false;
 }
 
 function generateUUID() {
