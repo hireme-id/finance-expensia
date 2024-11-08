@@ -1,0 +1,343 @@
+﻿@{
+    @using Finance.Expensia.Shared.Enums
+    @using Finance.Expensia.Shared.Helpers
+
+    List<object> effectiveTaxCategories = [];
+    foreach (var item in Enum.GetValues(typeof(EffectiveTaxCategory)))
+    {
+        effectiveTaxCategories.Add(new { EffectiveTaxCategory = (int)item, EffectiveTaxCategoryDescription = ((EffectiveTaxCategory)item).GetDescription() });
+    }
+
+    var manageEffectiveTaxCategoryUrl = Url.Action("ManageEffectiveTaxCategory", "Tax");
+    var retrieveEffectiveTaxDataByCategoryUrl = Url.Action("RetrieveEffectiveTaxDataByCategory", "Tax");
+    var updateEffectiveTaxDataUrl = Url.Action("UpdateEffectiveTaxData", "Tax");
+}
+
+<script type="text/javascript">
+    const effectiveTaxCategories = @Json.Serialize(effectiveTaxCategories);
+    let gridEffectiveTaxRateRowIndex = 0;
+
+    let gridEffectiveTaxCategory = $("#gridEffectiveTaxCategory"), gridEffectiveTaxRate = $("#gridEffectiveTaxRate");
+    const ddlNonTaxableIncomes = $("#ddlNonTaxableIncomes");
+    const mdlEffectiveTaxCategory = $("#mdlEffectiveTaxCategory");
+    const dvModalEffectiveTaxCategory = $("#dvModalEffectiveTaxCategory");
+    const btnSubmit = $("#btnSubmit");
+
+    $(function () {
+        ManageEffectiveTaxCategory = new ManageEffectiveTaxCategory();
+        ManageEffectiveTaxCategory.InitManagement();
+    });
+
+    function ManageEffectiveTaxCategory() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridEffectiveTaxCategory.dataTable({
+                    ordering: false,
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    autoWidth: false,
+                    initComplete: function (settings, json) {
+                        $('.dt-scroll-head').css({ visibility: 'collapse' });
+                    },
+                    data: effectiveTaxCategories,
+                    language: {
+                        emptyTable: 'Belum ada data'
+                    },
+                    columns: [
+                        {
+                            data: "effectiveTaxCategory",
+                            visible: false
+                        },
+                        {
+                            data: "effectiveTaxCategoryDescription",
+                            title: "TER",
+                        },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row, meta) {
+                                let id = row.effectiveTaxCategory;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="btn btn-link text-secondary" data-row-id="${meta.row}" role="editEffectiveTaxCategory" data-mode="edit">
+                                                    <i class="fa fa-pencil-alt" style="font-size: 15px;"></i>
+                                                </button>
+                                                    <button class="btn btn-link text-secondary" data-row-id="${meta.row}" role="viewEffectiveTaxCategory" data-mode="view">
+                                                    <i class="fas fa-file-alt" style="font-size: 15px;"></i>
+                                                    </button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                });
+
+                gridEffectiveTaxRate.dataTable({
+                    ordering: false,
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    autoWidth: false,
+                    initComplete: function (settings, json) {
+                        $('.dt-scroll-head').css({ visibility: 'collapse' });
+                    },
+                    drawCallback: AfterGridEffectiveTaxRateDraw,
+                    language: {
+                        emptyTable: 'Belum ada data'
+                    },
+                    columns: [
+                        {
+                            data: "effectiveTaxRateId",
+                            visible: false
+                        },
+                        {
+                            data: "incomeLowerLimit",
+                            title: "Nominal Awal",
+                            render: function (data, type, row, meta) {
+                                let value = fmtMoney(data);
+                                return `<input type="text" role="incomeLowerLimit" value="${value}" data-row-index="${meta.row}" onkeydown="return numbersonly(this, event);" class="form-control" />`;
+                            },
+                            width: '30%'
+                        },
+                        {
+                            data: "incomeUpperLimit",
+                            title: "Nominal Akhir",
+                            render: function (data, type, row, meta) {
+                                let value = fmtMoney(data);
+                                return `<input type="text" role="incomeUpperLimit" value="${value}" data-row-index="${meta.row}" onkeydown="return numbersonly(this, event);" class="form-control" />`;
+                            },
+                            width: '30%'
+                        },
+                        {
+                            data: "taxRateInPercent",
+                            title: "Tarif (%)",
+                            render: function (data, type, row, meta) {
+                                let value = data.toString().replace('.', ',');
+                                return `<input type="text" role="taxRateInPercent" value="${value}" data-row-index="${meta.row}" onkeydown="return NumberAllowDecimal(this, event)" class="form-control" />`;
+                            },
+                            width: '30%'
+                        },
+                        {
+                            title: "", width: '10%', className: "py-1", render: function (data, type, row, meta) {
+                                let index = gridEffectiveTaxRateRowIndex++;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="btn btn-link text-secondary" data-index="${index}" role="insertBeforeEffectiveTaxRate" tabIndex="-1">
+                                                    <i class="fa fa-caret-up" style="font-size: 15px;"></i>
+                                                    <i class="fa fa-plus-circle" style="font-size: 15px;"></i>
+                                                </button>
+                                                    <button class="btn btn-link text-secondary" data-row-index="${meta.row}" role="deleteEffectiveTaxRate" tabIndex="-1">
+                                                    <i class="fa fa-trash" style="font-size: 15px;"></i>
+                                                </button>
+                                                <button class="btn btn-link text-secondary" data-index="${index}" role="insertAfterEffectiveTaxRate" tabIndex="-1">
+                                                    <i class="fa fa-plus-circle" style="font-size: 15px;"></i>
+                                                    <i class="fa fa-caret-down" style="font-size: 15px;"></i>
+                                                </button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                });
+            },
+            InitHandlers: function () {
+                gridEffectiveTaxCategory.on('click', 'button[role="editEffectiveTaxCategory"], button[role = "viewEffectiveTaxCategory"]', async function () {
+                    let rowId = $(this).data('row-id');
+                    let mode = $(this).data('mode');
+                    let effectiveTaxCategoryData = gridEffectiveTaxCategory.api().row(rowId).data();
+
+                    document.body.classList.remove('loaded');
+
+                    await $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@retrieveEffectiveTaxDataByCategoryUrl" + "?effectiveTaxCategory=" + effectiveTaxCategoryData.effectiveTaxCategory,
+                        contentType: "application/json"
+                    }))
+                    .done(function (response) {
+                        if (response.succeeded) {
+                            ResetModalForm();
+                            
+                            effectiveTaxCategoryData.nonTaxableIncomes = response.obj.nonTaxableIncomes;
+                            $.each(effectiveTaxCategoryData, function (key, value) {
+                                let input = $('[bind-name="' + key + '"]');
+
+                                if (input.length > 0) {
+                                    let bindTrigger = input.attr('bind-trigger');
+
+                                    input.val(value);
+
+                                    if (bindTrigger != undefined) {
+                                        input.trigger(bindTrigger);
+                                    }
+                                }
+                            });
+
+                            gridEffectiveTaxRate.api().rows().remove();
+                            gridEffectiveTaxRate.api().rows.add(response.obj.effectiveTaxRates);
+                            gridEffectiveTaxRate.api().draw();
+
+                                ChangeModalForm(mode);
+                            
+                            mdlEffectiveTaxCategory.modal('show');
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    })
+                    .always(function () {
+                        document.body.classList.add('loaded');
+                    });
+                });
+
+                gridEffectiveTaxRate.on('click', 'button[role="deleteEffectiveTaxRate"]', function () {
+                    let indexRowDelete = parseInt($(this).data('row-index'));
+
+                    Swal.fire({
+                        title: "Hapus Data",
+                        html: "Apakah anda yakin ingin meghapus data ini?",
+                        showCancelButton: true,
+                        confirmButtonText: "Hapus",
+                        confirmButtonColor: "#D92D20",
+                        customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                        },
+                        icon: "warning"
+                    })
+                    .then((result) => {
+                        if (result.isConfirmed) {
+                            gridEffectiveTaxRate.api().row(indexRowDelete).remove().draw();
+                        }
+                    });
+                });
+
+                gridEffectiveTaxRate.on('click', 'button[role="insertBeforeEffectiveTaxRate"], button[role="insertAfterEffectiveTaxRate"]', function () {
+                    const indexRow = parseInt($(this).data('index'));
+                    const incrementRow = $(this).attr('role') == 'insertBeforeEffectiveTaxRate' ? 0 : 1;
+                    const insertIndex = indexRow + incrementRow;
+                    const effectiveTaxRateDatas = gridEffectiveTaxRate.api().data().toArray();
+
+                    effectiveTaxRateDatas.splice(insertIndex, 0, {
+                        effectiveTaxRateId: null,
+                        incomeLowerLimit: 0,
+                        incomeUpperLimit: 0,
+                        taxRateInPercent: 0
+                    });
+
+                    gridEffectiveTaxRate.api().rows().remove();
+                    gridEffectiveTaxRate.api().rows.add(effectiveTaxRateDatas).draw();
+                });
+
+                gridEffectiveTaxRate.on('keyup', 'input[role^="income"], input[role="taxRateInPercent"]', function () {
+                    let value = $(this).val();
+                    const indexRow = parseInt($(this).data('row-index'));
+                    let effectiveTaxRateData = gridEffectiveTaxRate.api().row(indexRow).data();
+
+                    if ($(this).attr('role') == 'incomeLowerLimit') {
+                        effectiveTaxRateData.incomeLowerLimit = revertFmtMoney(value);
+                    }
+                    else if ($(this).attr('role') == 'incomeUpperLimit') {
+                        effectiveTaxRateData.incomeUpperLimit = revertFmtMoney(value);
+                    }
+                    else if ($(this).attr('role') == 'taxRateInPercent') {
+                        effectiveTaxRateData.taxRateInPercent = revertFmtMoney(value);
+                    }
+                });
+
+                btnSubmit.on('click', function () {
+                    let $el = $(this);
+                    let isSubmit = $el.attr('data-is-submit');
+                    let disabledElement = dvModalEffectiveTaxCategory.find(`input:disabled, select:disabled`);
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = dvModalEffectiveTaxCategory.find('input, select').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        if (formDataObject.hasOwnProperty(field.name)) {
+                            if (Array.isArray(formDataObject[field.name])) {
+                                formDataObject[field.name].push(field.value);
+                            }
+                            else {
+                                formDataObject[field.name] = [formDataObject[field.name], field.value];
+                            }
+                        }
+                        else {
+                            formDataObject[field.name] = field.value;
+                        }
+                    });
+
+                    formDataObject.effectiveTaxRates = gridEffectiveTaxRate.api().data().toArray();
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@updateEffectiveTaxDataUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "@manageEffectiveTaxCategoryUrl";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                html: response.message,
+                                icon: "error",
+                                width: "60em"
+                            });
+                        }
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: async function () {
+                
+            }
+        }
+    };
+
+    function ResetModalForm() {
+        dvModalEffectiveTaxCategory.find('input[id]').val('');
+        dvModalEffectiveTaxCategory.find('select[id]').val('').trigger('change');
+        gridEffectiveTaxRate.api().rows().remove();
+    }
+
+    function ChangeModalForm(mode) {
+        dvModalEffectiveTaxCategory
+            .find(`input[id]:not(:disabled), input[role]:not(:disabled), 
+                select[id]:not(:disabled), select[role]:not(:disabled), 
+                button[id]:not(:disabled), button[role]:not(:disabled)`)
+            .attr('disabled', true);
+
+        if (mode == 'edit') {
+            ddlNonTaxableIncomes
+                .add(gridEffectiveTaxRate.find('input[role], button[role]'))
+                .add(btnSubmit)
+                .removeAttr('disabled');
+
+            AfterGridEffectiveTaxRateDraw();
+        }
+    }
+
+    function AfterGridEffectiveTaxRateDraw() {
+        $('input[type="text"][role="incomeLowerLimit"]').first().val('0').attr('disabled', true);
+        $('input[type="text"][role="incomeUpperLimit"]').last().val('').attr('disabled', true);
+        gridEffectiveTaxRateRowIndex = 0;
+    }
+</script>

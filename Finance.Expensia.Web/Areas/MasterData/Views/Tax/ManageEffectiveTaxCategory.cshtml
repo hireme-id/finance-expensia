@@ -1,0 +1,70 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@using System.Runtime.Serialization
+@using System.Reflection
+
+@{
+    ViewData["Title"] = "Master TER";
+    ViewData["Subtitle"] = "Master TER";
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="resposivetable" style="margin-top:10px">
+            <table id="gridEffectiveTaxCategory" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlEffectiveTaxCategory">
+    <div class="modal-xl modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Manage TER</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mb-2" id="dvModalEffectiveTaxCategory">
+                <input type="hidden" id="hdnEffectiveTaxCategory" name="effectiveTaxCategory" bind-name="effectiveTaxCategory" />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Kode TER</label>
+                            <div class="col-md-9">
+                                <input type="text" id="txtEffectiveTaxCategoryDescription" class="form-control" bind-name="effectiveTaxCategoryDescription" disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Mapping PTKP</label>
+                            <div class="col-md-9">
+                                <select id="ddlNonTaxableIncomes" class="select2" multiple="multiple" data-editable name="nonTaxableIncomes" bind-name="nonTaxableIncomes" bind-trigger="change">
+                                    @foreach (NonTaxableIncome item in Enum.GetValues(typeof(NonTaxableIncome)))
+                                    {
+                                        var memberInfo = typeof(NonTaxableIncome).GetMember(item.ToString()).FirstOrDefault();
+                                        var enumMemberAttribute = memberInfo?.GetCustomAttribute<EnumMemberAttribute>();
+
+                                        @Html.Raw($"<option value=\"{(int)item}\">{enumMemberAttribute?.Value ?? item.GetDescription()}</option>");
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table" id="gridEffectiveTaxRate" style="min-width:100%"></table>
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="button" class="btn btn-primary float-right ml-2" id="btnSubmit">Submit</button>
+                    <button type="submit" class="btn btn-default close-button float-right" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @await Html.PartialAsync("~/Areas/MasterData/Views/Tax/Scripts/_ManageEffectiveTaxCategory.cshtml")
+}

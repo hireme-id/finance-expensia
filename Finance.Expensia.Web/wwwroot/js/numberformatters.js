@@ -5,3 +5,7 @@
         maximumFractionDigits: 0
     });
 }
+
+function revertFmtMoney(formattedString) {
+    return Number(formattedString.replace(/\./g, '').replace(',', '.'));
+}

@@ -57,6 +57,12 @@
                 public const string CoaUpsert = "MasterData.Coa.Upsert";
                 public const string CoaDelete = "MasterData.Coa.Delete";
             }
+
+            public static class Tax
+            {
+                public const string EffectiveTaxView = "MasterData.EffectiveTax.View";
+                public const string EffectiveTaxUpdate = "MasterData.EffectiveTax.Update";
+            }
         }
 
         public static class Rule

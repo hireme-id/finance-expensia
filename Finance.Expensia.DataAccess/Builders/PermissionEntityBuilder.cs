@@ -90,13 +90,21 @@ namespace Finance.Expensia.DataAccess.Builders
                     new Permission { Id = new Guid("7b50fa6f-5b76-4349-bbcc-86f9c974a4a8"), PermissionCode = PermissionConstants.MasterData.CostCenter.CostCenterUpsert, PermissionDescription = "Akses untuk upsert cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
                     new Permission { Id = new Guid("e768a0ab-5210-4418-accd-d841f8283c7f"), PermissionCode = PermissionConstants.MasterData.CostCenter.CostCenterDelete, PermissionDescription = "Akses untuk delete cost center", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
                 );
-			#endregion
+            #endregion
 
-			#endregion
+            #region Tax
+            builder
+                .HasData(
+                    new Permission { Id = new Guid("923d83d4-cd5d-4049-8371-a6313a101094"), PermissionCode = PermissionConstants.MasterData.Tax.EffectiveTaxView, PermissionDescription = "Akses untuk view effective tax", Created = new DateTime(2024, 11, 6, 0, 0, 0) },
+                    new Permission { Id = new Guid("f2c5ead1-3ea7-4206-b2dc-7790af360d75"), PermissionCode = PermissionConstants.MasterData.Tax.EffectiveTaxUpdate, PermissionDescription = "Akses untuk update effective tax", Created = new DateTime(2024, 11, 6, 0, 0, 0) }
+                );
+            #endregion
 
-			#region Outgoing Payment
-			builder
-			   .HasData(
+            #endregion
+
+            #region Outgoing Payment
+            builder
+               .HasData(
 				   new Permission { Id = new Guid("f5de4a8f-3b4d-4269-869e-65d72e52acec"), PermissionCode = PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument, PermissionDescription = "Akses untuk view data outgoing payment atas dokumen yang dibuat sendiri", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
 				   new Permission { Id = new Guid("ee541861-a2ff-444e-91bd-29d8c161259c"), PermissionCode = PermissionConstants.OutgoingPayment.OutgoingPaymentView, PermissionDescription = "Akses untuk view data outgoing payment", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
 				   new Permission { Id = new Guid("fb802f18-ae08-43ab-9335-50fc2a1fb290"), PermissionCode = PermissionConstants.OutgoingPayment.OutgoingPaymentUpsert, PermissionDescription = "Akses untuk melakukan insert dan update data outgoing payment", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },

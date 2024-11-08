@@ -40,6 +40,7 @@ namespace Finance.Expensia.Core
 			services.AddScoped<WorkflowHistoryService>();
             services.AddScoped<DocumentNumberingService>();
             services.AddScoped<ApprovalRuleService>();
+            services.AddScoped<TaxService>();
 
             services.AddHttpClient();
 
