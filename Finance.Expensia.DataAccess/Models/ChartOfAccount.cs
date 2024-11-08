@@ -11,5 +11,6 @@ namespace Finance.Expensia.DataAccess.Models
         public bool IsActive { get; set; }
 
         public virtual Company Company { get; set; } = null!;
+        public virtual List<CostComponentCompany> CostComponentCompanies { get; set; } = [];
     }
 }

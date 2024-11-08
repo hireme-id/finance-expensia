@@ -27,10 +27,14 @@ namespace Finance.Expensia.DataAccess
 		public virtual DbSet<TransactionType> TransactionTypes { get; set; }
 		public virtual DbSet<DocNumberConfig> DocNumberConfigs { get; set; }
 		public virtual DbSet<AppConfig> AppConfigs { get; set; }
-		#endregion
+        public virtual DbSet<EffectiveTaxCategoryAssignment> EffectiveTaxCategoryAssignments { get; set; }
+        public virtual DbSet<EffectiveTaxRate> EffectiveTaxRates { get; set; }
+        public virtual DbSet<CostComponent> CostComponents { get; set; }
+		public virtual DbSet<CostComponentCompany> CostComponentCompanies { get; set; }
+        #endregion
 
-		#region Transaction
-		public virtual DbSet<OutgoingPayment> OutgoingPayments { get; set; }
+        #region Transaction
+        public virtual DbSet<OutgoingPayment> OutgoingPayments { get; set; }
 		public virtual DbSet<OutgoingPaymentDetail> OutgoingPaymentDetails { get; set; }
 		public virtual DbSet<OutgoingPaymentTagging> OutgoingPaymentTaggings { get; set; }
 		public virtual DbSet<OutgoingPaymentDetailAttachment> OutgoingPaymentDetailAttachments { get; set; }
@@ -41,11 +45,6 @@ namespace Finance.Expensia.DataAccess
 		public virtual DbSet<ApprovalInbox> ApprovalInboxes { get; set; }
 		public virtual DbSet<ApprovalHistory> ApprovalHistories { get; set; }
 		public virtual DbSet<EmailHistory> EmailHistories { get; set; }
-        #endregion
-
-        #region Tax Information
-		public virtual DbSet<EffectiveTaxCategoryAssignment> EffectiveTaxCategoryAssignments { get; set; }
-        public virtual DbSet<EffectiveTaxRate> EffectiveTaxRates { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -68,11 +67,14 @@ namespace Finance.Expensia.DataAccess
 			new CostCenterEntityBuilder().Configure(modelBuilder.Entity<CostCenter>());
 			new TransactionTypeEntityBuilder().Configure(modelBuilder.Entity<TransactionType>());
 			new DocNumberConfigEntityBuilder().Configure(modelBuilder.Entity<DocNumberConfig>());
-			new AppConfigEntityBuilder().Configure(modelBuilder.Entity<AppConfig>());
-			#endregion
+			new AppConfigEntityBuilder().Configure(modelBuilder.Entity<AppConfig>()); new EffectiveTaxCategoryAssignmentEntityBuilder().Configure(modelBuilder.Entity<EffectiveTaxCategoryAssignment>());
+            new EffectiveTaxRateEntityBuilder().Configure(modelBuilder.Entity<EffectiveTaxRate>());
+			new CostComponentEntityBuilder().Configure(modelBuilder.Entity<CostComponent>());
+            new CostComponentCompanyEntityBuilder().Configure(modelBuilder.Entity<CostComponentCompany>());
+            #endregion
 
-			#region Transaction
-			new OutgoingPaymentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPayment>());
+            #region Transaction
+            new OutgoingPaymentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPayment>());
 			new OutgoingPaymentDetailEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetail>());
 			new OutgoingPaymentTaggingEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentTagging>());
 			new OutgoingPaymentDetailAttachmentEntityBuilder().Configure(modelBuilder.Entity<OutgoingPaymentDetailAttachment>());
@@ -83,11 +85,6 @@ namespace Finance.Expensia.DataAccess
 			new ApprovalInboxEntityBuilder().Configure(modelBuilder.Entity<ApprovalInbox>());
 			new ApprovalHistoryEntityBuilder().Configure(modelBuilder.Entity<ApprovalHistory>());
 			new EmailHistoryEntityBuilder().Configure(modelBuilder.Entity<EmailHistory>());
-			#endregion
-
-			#region Tax Information
-            new EffectiveTaxCategoryAssignmentEntityBuilder().Configure(modelBuilder.Entity<EffectiveTaxCategoryAssignment>());
-            new EffectiveTaxRateEntityBuilder().Configure(modelBuilder.Entity<EffectiveTaxRate>());
 			#endregion
 		}
     }
