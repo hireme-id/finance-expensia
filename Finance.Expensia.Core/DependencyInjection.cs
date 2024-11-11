@@ -41,6 +41,7 @@ namespace Finance.Expensia.Core
             services.AddScoped<DocumentNumberingService>();
             services.AddScoped<ApprovalRuleService>();
             services.AddScoped<TaxService>();
+            services.AddScoped<CostComponentService>();
 
             services.AddHttpClient();
 

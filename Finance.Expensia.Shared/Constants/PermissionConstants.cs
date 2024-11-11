@@ -63,6 +63,12 @@
                 public const string EffectiveTaxView = "MasterData.EffectiveTax.View";
                 public const string EffectiveTaxUpdate = "MasterData.EffectiveTax.Update";
             }
+
+            public static class CostComponent
+            {
+                public const string CostComponentView = "MasterData.CostComponent.View";
+                public const string CostComponentUpsert = "MasterData.CostComponent.Upsert";
+            }
         }
 
         public static class Rule

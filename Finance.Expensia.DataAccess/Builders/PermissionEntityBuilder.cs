@@ -100,6 +100,14 @@ namespace Finance.Expensia.DataAccess.Builders
                 );
             #endregion
 
+            #region Cost Component
+            builder
+                .HasData(
+                    new Permission { Id = new Guid("bf1d72af-698e-43fa-af9f-5fabd42743f2"), PermissionCode = PermissionConstants.MasterData.CostComponent.CostComponentView, PermissionDescription = "Akses untuk view cost component", Created = new DateTime(2024, 11, 6, 0, 0, 0) },
+                    new Permission { Id = new Guid("dc97d84b-c194-4493-98c6-897f440e67a2"), PermissionCode = PermissionConstants.MasterData.CostComponent.CostComponentUpsert, PermissionDescription = "Akses untuk update cost component", Created = new DateTime(2024, 11, 6, 0, 0, 0) }
+                );
+            #endregion
+
             #endregion
 
             #region Outgoing Payment

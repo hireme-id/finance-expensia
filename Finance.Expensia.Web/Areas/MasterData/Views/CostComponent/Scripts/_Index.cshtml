@@ -1,0 +1,439 @@
+﻿@{
+    var getListCoaUrl = Url.Action("RetrieveAllCoa", "Coa");
+    var getListCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+    var retrievePagingCostComponentUrl = Url.Action("RetrievePagingCostComponent", "CostComponent");
+    var retrieveCostComponentByIdUrl = Url.Action("RetrieveCostComponentById", "CostComponent");
+    var upsertCostComponentUrl = Url.Action("UpsertCostComponent", "CostComponent");
+}
+
+<script type="text/javascript">
+    const gridCostComponent = $('#gridCostComponent'), gridCostComponentCompany = $('#gridCostComponentCompany');
+    const mdlCostComponent = $('#mdlCostComponent');
+    const dvModalCostComponent = $('#dvModalCostComponent');
+    const txtCostComponentNo = $('#txtCostComponentNo'), txtCostComponentName = $('#txtCostComponentName'), txtCalculateFormula = $('#txtCalculateFormula');
+    const ddlCostComponentType = $('#ddlCostComponentType'), ddlCostComponentCategory = $('#ddlCostComponentCategory');
+    const cbIsCalculated = $('#cbIsCalculated');
+    const btnSubmit = $('#btnSubmit');
+
+    let currentDraw = 0;
+    let glbCompanies = [], glbChartOfAccounts = [];
+    
+    $(function () {
+        CostComponent = new CostComponent();
+        CostComponent.InitManagement();
+    });
+
+    function CostComponent() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridCostComponent.dataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@retrievePagingCostComponentUrl",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { title: "Id Komponen", data: "costComponentId", visible: false },
+                        { title: "No Komponen", data: "costComponentNo" },
+                        { title: "Nama Komponen", data: "costComponentName" },
+                        { title: "Tipe Komponen", data: "costComponentTypeDescription" },
+                        { title: "Kategori Komponen", data: "costComponentCategoryDescription" },
+                        {
+                            title: "Calculated", 
+                            data: "isCalculated", 
+                            render: function (data, type, row) {
+                                let checked = row.isCalculated ? 'checked' : '';
+                                return `<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                            <input id="${row.costComponentId}" type="checkbox" class="custom-control-input" ${checked} disabled>
+                                            <label class="custom-control-label" for="${row.costComponentId}"></label>
+                                        </div>`;
+                            }
+                        },
+                        {
+                            title: "Active",
+                            data: "isActive",
+                            render: function (data, type, row) {
+                                let checked = row.isActive ? 'checked' : '';
+                                return `<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                            <input id="${row.costComponentId}" type="checkbox" class="custom-control-input" ${checked} disabled>
+                                            <label class="custom-control-label" for="${row.costComponentId}"></label>
+                                        </div>`;
+                            }
+                        },
+                        {
+                            title: "", 
+                            width: '6%', 
+                            className: "py-1", 
+                            render: function (data, type, row) {
+                                let id = row.costComponentId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" role="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" role="viewbutton"><i class="fa fa-file-alt" style="font-size: 15px;"></i></button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+
+                gridCostComponentCompany.dataTable({
+                    ordering: false,
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    autoWidth: false,
+                    initComplete: function (settings, json) {
+                        $('.dt-scroll-head').css({ visibility: 'collapse' });
+                    },
+                    language: {
+                        emptyTable: 'Belum ada data'
+                    },
+                    columns: [
+                        {
+                            data: "costComponentCompanyId",
+                            visible: false
+                        },
+                        {
+                            data: "companyId",
+                            visible: false
+                        },
+                        {
+                            data: "companyName",
+                            title: "Company",
+                            width: "25%",
+                            class: "pt-20"
+                        },
+                        {
+                            data: "chartOfAccountId",
+                            title: "CoA",
+                            render: function (data, type, row, meta) {
+                                let options = ``;
+                                glbChartOfAccounts.filter(d => d.companyId == row.companyId).forEach(function (data, index, obj) {
+                                    let selected = data.coaId != row.chartOfAccountId ? '' : 'selected="selected"';
+                                    options += `<option value="${data.coaId}" ${selected}>${data.accountCode} - ${data.accountName}</option>`
+                                });
+
+                                let component = `<select class="grid-select2" role="chartOfAccount" data-row-index=${meta.row} style="width: 400px!important;">
+                                                    ${options}
+                                                </select>`;
+
+                                return component;
+                            }
+                        }
+                    ],
+                    layout: {
+                        top1End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.className = "d-flex justify-content-start";
+                            toolbar.style = "width:350px";
+                            let dropdown = `<select id="ddlCompany" class="select2"></select>`
+                            let buttons = `<button id="btnAddMapping" class="btn btn-sm btn-outline-primary mr-2 ml-2" style="width:150px">Add Mapping</button>`
+                            toolbar.innerHTML = dropdown + buttons;
+
+                            return toolbar;
+                        }
+                    },
+                    "fnDrawCallback": function () {
+                        $(".grid-select2").select2();
+                    },
+                });
+            },
+            InitHandlers: function () {
+                gridCostComponent.on('click', '[role="editbutton"], [role="viewbutton"]', async function () {
+                    let dataId = $(this).data('id');
+                    let mode = $(this).attr('role') == "editbutton" ? "edit" : "view";
+
+                    document.body.classList.remove('loaded');
+
+                    await $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@retrieveCostComponentByIdUrl" + "?costComponentId=" + dataId,
+                        contentType: "application/json"
+                    }))
+                        .done(function (response) {
+                            if (response.succeeded) {
+                                ResetModalForm();
+
+                                $.each(response.obj, function (key, value) {
+                                    let input = $('[bind-name="' + key + '"]');
+
+                                    if (input.length > 0) {
+                                        let bindTrigger = input.attr('bind-trigger');
+                                        let bindType = input.attr('bind-type');
+
+                                        if (bindType == 'checkbox') {
+                                            input.prop('checked', value);
+                                        }
+                                        else {
+                                            input.val(value);
+                                        }
+
+                                        if (bindTrigger != undefined) {
+                                            input.trigger(bindTrigger);
+                                        }
+                                    }
+                                });
+
+                                gridCostComponentCompany.api().rows().remove();
+                                gridCostComponentCompany.api().rows.add(response.obj.costComponentCompanies);
+                                gridCostComponentCompany.api().draw();
+
+                                ChangeModalForm(mode);
+
+                                mdlCostComponent.modal('show');
+                            }
+                            else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: response.message,
+                                    icon: "error"
+                                });
+                            }
+                        })
+                        .always(function () {
+                            document.body.classList.add('loaded');
+                        });
+                });
+
+                cbIsCalculated.on('change', function (e) {
+                    if (this.checked) {
+                        txtCalculateFormula.prop('disabled', false);
+                    }
+                    else {
+                        txtCalculateFormula.prop('disabled', true);
+                    }
+                });
+
+                $('#ddlCompany').on('select2:opening', function (e) {
+                    let el = $(this);
+                    let alreadyAddedCompanies = gridCostComponentCompany.api().rows().data().toArray();
+
+                    el.empty().append(`<option value="">&nbsp</option>`);
+                    glbCompanies.forEach(function (d, i, a) {
+                        if (alreadyAddedCompanies.find(dd => dd.companyId == d.companyId) == undefined) {
+                            el.append(`<option value="` + d.companyId + `">` + d.companyName + `</option>`);
+                        }
+                    });
+                });
+
+                $('#btnAddMapping').on('click', function (e) {
+                    if ($('#ddlCompany').val() == null || $('#ddlCompany').val() == '') {
+                        Swal.fire({
+                            title: "Error",
+                            text: "Pilih company terlebih dahulu",
+                            icon: "error"
+                        });
+
+                        return false;
+                    }
+
+                    let companyId = $('#ddlCompany').val();
+                    let chartOfAccountsPerCompany = glbChartOfAccounts.filter(d => d.companyId == companyId);
+
+                    if (chartOfAccountsPerCompany.length != 0) {
+                        gridCostComponentCompany.api().row.add({
+                            "companyId": companyId,
+                            "companyName": $('#ddlCompany option:selected').text(),
+                            "chartOfAccountId": chartOfAccountsPerCompany[0].coaId
+                        });
+                        gridCostComponentCompany.api().draw();
+
+                        $('#ddlCompany').empty();
+                    }
+                    else {
+                        Swal.fire({
+                            title: "Error",
+                            text: "Tidak ada chart of account untuk company tersebut",
+                            icon: "error"
+                        });
+                    }
+                });
+
+                $(document).on('select2:select', '[role="chartOfAccount"]', function (e) {
+                    let indexRowEdit = parseInt($(this).attr('data-row-index'));
+                    let rowData = gridCostComponentCompany.api().row(indexRowEdit).data();
+                    let changeData = e.params.data;
+
+                    gridCostComponentCompany.api().row(indexRowEdit).data({
+                        "costComponentCompanyId": rowData.costComponentCompanyId,
+                        "companyId": rowData.companyId,
+                        "companyName": rowData.companyName,
+                        "chartOfAccountId": changeData.id
+                    }).draw();
+                });
+
+                btnSubmit.on('click', async function () {
+                    let $el = $(this);
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('#dvModalCostComponent :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        if (field.name == 'isCalculated' || field.name == 'isVisible' || field.name == 'isActive') {
+                            formDataObject[field.name] = true;
+                            return;
+                        }
+
+                        formDataObject[field.name] = field.value;
+                    });
+
+                    formDataObject.costComponentCompanies = gridCostComponentCompany.api().data().toArray();
+
+                    document.body.classList.remove('loaded');
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@upsertCostComponentUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    }))
+                    .done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    })
+                    .always(function () {
+                        document.body.classList.add('loaded');
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: async function () {
+                await LoadListCompany();
+                await LoadListChartOfAccount();
+            }
+        }
+    };
+
+    function ResetModalForm() {
+        dvModalCostComponent.find('input[id]').val('');
+        dvModalCostComponent.find('select[id]').val('').trigger('change');
+        gridCostComponentCompany.api().rows().remove();
+    }
+
+    function ChangeModalForm(mode) {
+        if (mode == 'view') {
+           dvModalCostComponent
+                .find(`input[id]:not(:disabled), input[role]:not(:disabled), 
+                    select[id]:not(:disabled), select[role]:not(:disabled), 
+                    button[id]:not(:disabled), button[role]:not(:disabled)`)
+                .attr('disabled', true);
+        }
+        else {
+            dvModalCostComponent
+                .find(`input[id]:not(:disabled), input[role]:not(:disabled), 
+                    select[id]:not(:disabled), select[role]:not(:disabled), 
+                    button[id]:not(:disabled), button[role]:not(:disabled)`)
+                .removeAttr('disabled');
+
+            cbIsCalculated.trigger('change');
+        }
+    }
+
+    function LoadListCompany() {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getListCompanyUrl"
+            })).done(function (response) {
+                if (response.succeeded) {
+                    glbCompanies = response.obj;
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+
+    function LoadListChartOfAccount() {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getListCoaUrl"
+            })).done(function (response) {
+                if (response.succeeded) {
+                    glbChartOfAccounts = response.obj;
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+</script>
