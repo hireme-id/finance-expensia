@@ -9,5 +9,6 @@ namespace Finance.Expensia.DataAccess.Models
         public string CostCenterName { get; set; } = string.Empty;
 
         public virtual Company Company { get; set; } = null!;
+        public virtual List<EmployeeCost> EmployeeCosts { get; set; } = [];
     }
 }

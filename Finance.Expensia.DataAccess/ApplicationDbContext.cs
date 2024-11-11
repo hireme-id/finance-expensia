@@ -45,6 +45,12 @@ namespace Finance.Expensia.DataAccess
 		public virtual DbSet<ApprovalInbox> ApprovalInboxes { get; set; }
 		public virtual DbSet<ApprovalHistory> ApprovalHistories { get; set; }
 		public virtual DbSet<EmailHistory> EmailHistories { get; set; }
+		#endregion
+
+		#region Employee
+        public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<EmployeeCost> EmployeeCosts { get; set; }
+		public virtual DbSet<EmployeeCostComponent> EmployeeCostComponents { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -85,7 +91,13 @@ namespace Finance.Expensia.DataAccess
 			new ApprovalInboxEntityBuilder().Configure(modelBuilder.Entity<ApprovalInbox>());
 			new ApprovalHistoryEntityBuilder().Configure(modelBuilder.Entity<ApprovalHistory>());
 			new EmailHistoryEntityBuilder().Configure(modelBuilder.Entity<EmailHistory>());
-			#endregion
-		}
+            #endregion
+
+            #region Employee
+            new EmployeeEntityBuilder().Configure(modelBuilder.Entity<Employee>());
+            new EmployeeCostEntityBuilder().Configure(modelBuilder.Entity<EmployeeCost>());
+            new EmployeeCostComponentEntityBuilder().Configure(modelBuilder.Entity<EmployeeCostComponent>());
+            #endregion
+        }
     }
 }
