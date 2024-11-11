@@ -1,0 +1,127 @@
+﻿﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+
+@{
+    ViewData["Title"] = "Master Cost Component";
+    ViewData["Subtitle"] = "Master Cost Component";
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="resposivetable" style="margin-top:10px">
+            <table id="gridCostComponent" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdlCostComponent">
+    <div class="modal-xl modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Manage Cost Component</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mb-2" id="dvModalCostComponent">
+                <input type="hidden" id="hdCostComponentId" class="form-control" bind-name="costComponentId" name="costComponentId">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">No</label>
+                            <div class="col-md-9">
+                                <input type="text" id="txtCostComponentNo" class="form-control" bind-name="costComponentNo" name="costComponentNo">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Nama</label>
+                            <div class="col-md-9">
+                                <input type="text" id="txtCostComponentName" class="form-control" bind-name="costComponentName" name="costComponentName">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Tipe</label>
+                            <div class="col-md-9">
+                                <select class="form-control select2" id="ddlCostComponentType" name="costComponentType" bind-name="costComponentType" bind-trigger="change">
+                                    @foreach (var item in Enum.GetValues(typeof(CostComponentType)))
+                                    {
+                                        @Html.Raw($"<option value=\"{(int)item}\">{((CostComponentType)item).GetDescription()}</option>");
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Kategori</label>
+                            <div class="col-md-9">
+                                <select class="form-control select2" id="ddlCostComponentCategory" name="costComponentCategory" bind-name="costComponentCategory" bind-trigger="change">
+                                    @foreach (var item in Enum.GetValues(typeof(CostComponentCategory)))
+                                    {
+                                        @Html.Raw($"<option value=\"{(int)item}\">{((CostComponentCategory)item).GetDescription()}</option>");
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Calculated</label>
+                            <div class="col-md-9">
+                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success pt-2">
+                                    <input type="checkbox" id="cbIsCalculated" class="custom-control-input" bind-name="isCalculated" name="isCalculated" bind-type="checkbox">
+                                    <label class="custom-control-label" for="cbIsCalculated"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Active</label>
+                            <div class="col-md-9">
+                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success pt-2">
+                                    <input type="checkbox" id="cbIsActive" class="custom-control-input" bind-name="isActive" name="isActive" bind-type="checkbox">
+                                    <label class="custom-control-label" for="cbIsActive"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Visible</label>
+                            <div class="col-md-9">
+                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success pt-2">
+                                    <input type="checkbox" id="cbIsVisible" class="custom-control-input" bind-name="isVisible" name="isVisible" bind-type="checkbox">
+                                    <label class="custom-control-label" for="cbIsVisible"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Formula</label>
+                            <div class="col-md-9">
+                                <input type="text" id="txtCalculateFormula" class="form-control" bind-name="calculateFormula" name="calculateFormula">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table" id="gridCostComponentCompany" style="min-width:100%"></table>
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="button" class="btn btn-primary float-right ml-2" id="btnSubmit">Submit</button>
+                    <button type="submit" class="btn btn-default close-button float-right" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @await Html.PartialAsync("~/Areas/MasterData/Views/CostComponent/Scripts/_Index.cshtml")
+}

@@ -8,6 +8,7 @@
     var masterCostCenter = Url.Action("Index", "CostCenter", new { area = "MasterData" });
     var masterCoa = Url.Action("Index", "Coa", new { area = "MasterData" });
     var masterEffectiveTaxCategory = Url.Action("ManageEffectiveTaxCategory", "Tax", new { area = "MasterData" });
+    var masterCostComponent = Url.Action("Index", "CostComponent", new { area = "MasterData" });
     var menuApprovalRule = Url.Action("Index", "ApprovalRule", new { area = "Rule" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
     var manageUser = Url.Action("ManageUser", "UserManagement", new { area = "Account" });
@@ -128,6 +129,12 @@
                                     <a href="@masterEffectiveTaxCategory" class="nav-link">
                                         <i class="nav-icon fas fa-coins"></i>
                                         <p>Tarif Efektif Rata-rata (TER)</p>
+                                    </a>
+                                </li>
+                                <li id="menuCostComponent" class="nav-item" style="display:none">
+                                    <a href="@masterCostComponent" class="nav-link">
+                                        <i class="nav-icon fas fa-vial"></i>
+                                        <p>Cost Component</p>
                                     </a>
                                 </li>
                             </ul>
@@ -296,6 +303,11 @@
                         if (response.obj.permissions.includes("@PermissionConstants.MasterData.Tax.EffectiveTaxUpdate")) {
                             $('#menuMaster').show();
                             $('#menuEffectiveTaxCategory').show();
+                        }
+
+                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.CostComponent.CostComponentUpsert")) {
+                            $('#menuMaster').show();
+                            $('#menuCostComponent').show();
                         }
 
                         // if (response.obj.permissions.includes("@PermissionConstants.Rule.ApprovalRuleUpsert")) {

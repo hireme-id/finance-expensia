@@ -17,5 +17,21 @@ namespace Finance.Expensia.Shared.Helpers
 
             return value.ToString();
         }
+
+        public static List<TEnum> FilterEnumList<TEnum>(string? filterKey)
+            where TEnum : Enum
+        {
+            List<TEnum> result = [];
+
+            foreach (TEnum item in Enum.GetValues(typeof(TEnum)))
+            {
+                if (item.GetDescription().Contains(filterKey ?? string.Empty, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
     }
 }

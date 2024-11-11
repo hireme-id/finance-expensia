@@ -32,6 +32,13 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
 
             CreateMap<EffectiveTaxRate, EffectiveTaxRateDto>()
                 .ForMember(dest => dest.EffectiveTaxRateId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<CostComponent, CostComponentDto>()
+                .ForMember(dest => dest.CostComponentId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<CostComponentCompany, CostComponentCompanyDto>()
+                .ForMember(dest => dest.CostComponentCompanyId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company == null ? string.Empty : src.Company.CompanyName));
             #endregion
 
             #region Transform Input into Entity
@@ -49,6 +56,20 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
 
             CreateMap<UpdateEffectiveTaxRateInput, EffectiveTaxRate>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<UpsertCostComponentInput, CostComponent>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CostComponentCompanies, opt => opt.Ignore());
+
+            CreateMap<UpsertCostComponentCompanyInput, CostComponentCompany>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .AfterMap((src, dest, context) =>
+                {
+                    if (context.TryGetItems(out var items) && items.TryGetValue("IsCreate", out object? value) && (bool)value)
+                    {
+                        dest.CompanyId = src.CompanyId; // Saat create, tetap mapping CompanyId
+                    }
+                }); ;
             #endregion
         }
     }

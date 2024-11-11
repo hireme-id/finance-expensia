@@ -25,6 +25,13 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
             return View();
         }
 
+        [HttpPost("ddlallcoa")]
+        [AppAuthorize(PermissionConstants.MasterData.Coa.CoaView)]
+        public async Task<ResponseObject<List<CoaDto>>> RetrieveAllCoa()
+        {
+            return await _coaService.RetrieveAllCoa();
+        }
+
         [HttpPost("ddlcoa")]
         [AppAuthorize(PermissionConstants.MasterData.Coa.CoaView)]
         public async Task<ResponseObject<List<CoaDto>>> RetrieveCoa(Guid companyId)
