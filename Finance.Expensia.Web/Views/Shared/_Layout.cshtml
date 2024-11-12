@@ -12,6 +12,7 @@
     var menuApprovalRule = Url.Action("Index", "ApprovalRule", new { area = "Rule" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
     var manageUser = Url.Action("ManageUser", "UserManagement", new { area = "Account" });
+    var employee = Url.Action("Index", "Employee", new { area = "Employee" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
     var myPermissionUrl = Url.Action("GetMyPermission", "Login");
@@ -135,6 +136,23 @@
                                     <a href="@masterCostComponent" class="nav-link">
                                         <i class="nav-icon fas fa-vial"></i>
                                         <p>Cost Component</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="menuEmployeeInfo" class="nav-item" @* style="display:none" *@>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-suitcase"></i>
+                                <p>
+                                    Employee Info
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview pl-2">
+                                <li id="menuEmployee" class="nav-item" @* style="display:none" *@>
+                                    <a href="@employee" class="nav-link">
+                                        <i class="fas fa-users nav-icon"></i>
+                                        <p>Employee</p>
                                     </a>
                                 </li>
                             </ul>
