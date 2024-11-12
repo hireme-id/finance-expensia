@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Employee";
+    ViewData["Subtitle"] = "Employee";
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="resposivetable" style="margin-top:10px">
+            <table id="gridEmployee" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @await Html.PartialAsync("~/Areas/Employee/Views/Employee/Scripts/_Index.cshtml")
+}

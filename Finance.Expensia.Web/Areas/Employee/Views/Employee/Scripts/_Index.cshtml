@@ -1,0 +1,90 @@
+﻿@{
+    var retrievePagingEmployeeUrl = Url.Action("RetrievePagingEmployee", "Employee");
+}
+
+<script type="text/javascript">
+    const gridEmployee = $("#gridEmployee");
+
+    let currentDraw = 0;
+
+    $(function () {
+        Employee = new Employee();
+        Employee.InitManagement();
+    });
+
+    function Employee() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridEmployee.dataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@retrievePagingEmployeeUrl",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { data: "employeeId", visible: false },
+                        { title: "Nomor Pegawai", data: "employeeNo" },
+                        { title: "Nama Pegawai", data: "employeeName" }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+
+            },
+            InitValidation: function () {
+
+            },
+            InitLoad: async function () {
+
+            }
+        }
+    };
+</script>

@@ -1,5 +1,6 @@
 ﻿using Finance.Expensia.Core.Services.Account;
 using Finance.Expensia.Core.Services.DocumentNumbering;
+using Finance.Expensia.Core.Services.Employee;
 using Finance.Expensia.Core.Services.Inbox;
 using Finance.Expensia.Core.Services.MasterData;
 using Finance.Expensia.Core.Services.OutgoingPayment;
@@ -13,7 +14,7 @@ using System.Reflection;
 
 namespace Finance.Expensia.Core
 {
-	public static class DependencyInjection
+    public static class DependencyInjection
     {
         public static IServiceCollection RegisterCore(this IServiceCollection services, IConfiguration configuration)
         {
@@ -42,6 +43,7 @@ namespace Finance.Expensia.Core
             services.AddScoped<ApprovalRuleService>();
             services.AddScoped<TaxService>();
             services.AddScoped<CostComponentService>();
+            services.AddScoped<EmployeeService>();
 
             services.AddHttpClient();
 
