@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Create Employee Cost";
+    ViewData["Subtitle"] = "Create Employee Cost";
+    ViewData["isSecondPage"] = "true";
+}
+
+@section Styles {
+    <style>
+        .table th, .table td {
+            padding: 0.5em;
+        }
+    </style>
+}
+
+@await Html.PartialAsync("~/Areas/Employee/Views/EmployeeCost/Components/_EmployeeCostForm.cshtml")
+
+@section scripts {
+    @await Html.PartialAsync("~/Areas/Employee/Views/EmployeeCost/Scripts/_EmployeeCostForm.cshtml")
+}

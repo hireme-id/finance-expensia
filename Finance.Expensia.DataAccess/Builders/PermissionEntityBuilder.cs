@@ -162,7 +162,18 @@ namespace Finance.Expensia.DataAccess.Builders
 					new Permission { Id = new Guid("a830d1d8-07af-46a7-bb51-ea157fe4f421"), PermissionCode = PermissionConstants.UserManagement.ManageUser.ManageUserView, PermissionDescription = "Akses untuk view manage user", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
 					new Permission { Id = new Guid("ed9a3de5-d557-46b1-9509-78fced8ad5c0"), PermissionCode = PermissionConstants.UserManagement.ManageUser.ManageUserUpdate, PermissionDescription = "Akses untuk update manage user", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
 				);
-            #endregion
-        }
-    }
+			#endregion
+
+			#region Employee
+			builder
+				.HasData(
+					new Permission { Id = new Guid("b621b344-7a61-4ae9-898f-7c060cf17641"), PermissionCode = PermissionConstants.Employee.EmployeeView, PermissionDescription = "Akses untuk view data employee", Created = new DateTime(2025, 1, 3, 0, 0, 0) },
+					new Permission { Id = new Guid("69e719a7-fb8b-4593-8983-81a9b328814d"), PermissionCode = PermissionConstants.Employee.EmployeeCost.EmployeeCostView, PermissionDescription = "Akses untuk view data employee cost", Created = new DateTime(2025, 1, 3, 0, 0, 0) },
+					new Permission { Id = new Guid("2d86e5ba-4862-482c-a5aa-57f854d9d146"), PermissionCode = PermissionConstants.Employee.EmployeeCost.EmployeeCostCreate, PermissionDescription = "Akses untuk create data employee cost", Created = new DateTime(2025, 1, 3, 0, 0, 0) },
+					new Permission { Id = new Guid("4bea6378-af27-43a8-bf6d-1881b25c71c1"), PermissionCode = PermissionConstants.Employee.EmployeeCost.EmployeeCostUpdate, PermissionDescription = "Akses untuk update data employee cost", Created = new DateTime(2025, 1, 3, 0, 0, 0) },
+					new Permission { Id = new Guid("a9901d48-f80f-492d-bd21-fd3414f855b1"), PermissionCode = PermissionConstants.Employee.EmployeeCost.EmployeeCostDelete, PermissionDescription = "Akses untuk delete data employee cost", Created = new DateTime(2025, 1, 3, 0, 0, 0) }
+				);
+			#endregion
+		}
+	}
 }

@@ -14,11 +14,11 @@ namespace Finance.Expensia.DataAccess.Models
         public string Remark { get; set; } = string.Empty;
         public bool IsCalculated { get; set; }
         public string CalculateFormula { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
         public bool IsVisible { get; set; }
         public int CostComponentAmount { get; set; }
+		public int CostComponentTotalAmount { get; set; }
 
-        public EmployeeCost EmployeeCost { get; set; } = null!;
-        public CostComponent CostComponent { get; set; } = null!;
+		public virtual EmployeeCost EmployeeCost { get; set; } = null!;
+        public virtual CostComponent CostComponent { get; set; } = null!;
     }
 }

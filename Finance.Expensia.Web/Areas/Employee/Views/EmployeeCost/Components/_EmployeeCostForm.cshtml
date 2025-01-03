@@ -1,0 +1,161 @@
+﻿﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@using System.Runtime.Serialization
+@using System.Reflection
+
+<!-- Main Form -->
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <!-- Company -->
+            <div class="col-lg-6">
+                <label>Company <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
+            </div>
+            <!-- Cost Center -->
+            <div class="col-lg-6">
+                <label>Customer <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlCostCenter" name="costCenterId" bind-name="costCenterId" bind-trigger="change" disabled></select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <!-- Offering Date -->
+            <div class="col-lg-6">
+                <label>Offering Date <span class="text-danger">*</span></label>
+                <div class="input-group date mb-2">
+                    <input type="text" class="form-control datepicker"
+                           id="dtOfferingDate" name="offeringDate" bind-name="offeringDate" bind-type="datetime"
+                           autocomplete="off">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <!-- Join Date -->
+            <div class="col-lg-6">
+                <label>JoinDate <span class="text-danger">*</span></label>
+                <div class="input-group date mb-2">
+                    <input type="text" class="form-control datepicker"
+                           id="dtJoinDate" name="joinDate" bind-name="joinDate" bind-type="datetime"
+                           autocomplete="off">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- End Date -->
+            <div class="col-lg-6">
+                <label>End Date <span class="text-danger">*</span></label>
+                <div class="input-group date mb-2">
+                    <input type="text" class="form-control datepicker"
+                           id="dtEndDate" name="endDate" bind-name="endDate" bind-type="datetime"
+                           autocomplete="off">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4 border-bottom border-dark"></div>
+
+        <div class="row mb-3">
+            <!-- Employee No -->
+            <div class="col-lg-6">
+                <label>NPK <span class="text-danger">*</span></label>
+                @if (Context.Request.Path == Url.Action("Create", "EmployeeCost"))
+                {
+                    <select class="form-control" id="ddlEmployeeNo" name="employeeNo" bind-name="employeeNo" data-tags="true" bind-trigger="change"></select>
+                }
+                else
+                {
+                    <input type="text" class="form-control" id="ddlEmployeeNo" name="employeeNo" bind-name="employeeNo" />
+                }
+            </div>
+            <!-- Employee Name -->
+            <div class="col-lg-6">
+                <label>Nama Pekerja <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="txtEmployeeName" name="employeeName" bind-name="employeeName" disabled />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <!-- Employee Status -->
+            <div class="col-lg-6">
+                <label>Employee Status <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlEmployeeStatus" name="employeeStatus" bind-name="employeeStatus" bind-trigger="change">
+                    <option value="">&nbsp</option>
+                    @foreach (EmployeeStatus item in Enum.GetValues(typeof(EmployeeStatus)))
+                    {
+                        @Html.Raw($"<option value=\"{(int)item}\">{item.GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
+            <!-- Job Position -->
+            <div class="col-lg-6">
+                <label>Jabatan <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="txtJobPosition" name="jobPosition" bind-name="jobPosition" />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <!-- PTKP -->
+            <div class="col-lg-6">
+                <label>PTKP Type <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlNonTaxableIncome" name="nonTaxableIncome" bind-name="nonTaxableIncome" bind-trigger="change">
+                    <option value="">&nbsp</option>
+                    @foreach (NonTaxableIncome item in Enum.GetValues(typeof(NonTaxableIncome)))
+                    {
+                        var memberInfo = typeof(NonTaxableIncome).GetMember(item.ToString()).FirstOrDefault();
+                        var enumMemberAttribute = memberInfo?.GetCustomAttribute<EnumMemberAttribute>();
+
+                        @Html.Raw($"<option value=\"{(int)item}\">{enumMemberAttribute?.Value ?? item.GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
+            <!-- Working Day -->
+            <div class="col-lg-6">
+                <label>Hari Kerja <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="txtWorkingDay" name="workingDay" bind-name="workingDay" />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <!-- Remark -->
+            <div class="col-lg-6">
+                <label>Remark <span class="text-danger">*</span></label>
+                <textarea id="txtRemark" rows="3" class="form-control form-control-area" name="remark" bind-name="remark"></textarea>
+            </div>
+        </div>
+
+        <div class="mb-4 border-bottom border-dark"></div>
+
+        <div class="row mb-3">
+            <div class="col-lg-12">
+                <div class="row mb-3">
+                    <button id="btnCalculatedRowMode" class="btn btn-sm btn-outline-secondary mr-2" style="width:200px">Tampilkan Baris Kalkulasi</button>
+                    @if (Context.Request.Path != Url.Action("Detail", "EmployeeCost"))
+                    {
+                        <button id="btnCalculate" class="btn btn-sm btn-outline-primary" style="width:100px">Calculate</button>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <table class="table" id="gridEmployeeCostComponent" style="margin-top:0px!important;font-size:12px"></table>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        @if (Context.Request.Path != Url.Action("Detail", "EmployeeCost"))
+        {
+            <button type="button" id="btnSubmit" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
+        }
+    </div>
+</div>

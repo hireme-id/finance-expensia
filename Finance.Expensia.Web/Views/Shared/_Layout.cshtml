@@ -13,6 +13,7 @@
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
     var manageUser = Url.Action("ManageUser", "UserManagement", new { area = "Account" });
     var employee = Url.Action("Index", "Employee", new { area = "Employee" });
+    var employeeCost = Url.Action("Index", "EmployeeCost", new { area = "Employee" });
 
     var refreshTokenUrl = Url.Action("RefreshToken", "Login");
     var myPermissionUrl = Url.Action("GetMyPermission", "Login");
@@ -25,6 +26,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Expensia</title>
     <partial name="_Styles" />
+    @RenderSection("Styles", required: false)
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse">
     <div id="loader-wrapper">
@@ -140,7 +142,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li id="menuEmployeeInfo" class="nav-item" @* style="display:none" *@>
+                        <li id="menuEmployeeInfo" class="nav-item" style="display:none">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-suitcase"></i>
                                 <p>
@@ -149,10 +151,16 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview pl-2">
-                                <li id="menuEmployee" class="nav-item" @* style="display:none" *@>
+                                <li id="menuEmployee" class="nav-item" style="display:none">
                                     <a href="@employee" class="nav-link">
                                         <i class="fas fa-users nav-icon"></i>
                                         <p>Employee</p>
+                                    </a>
+                                </li>
+                                <li id="menuEmployeeCost" class="nav-item" style="display:none">
+                                    <a href="@employeeCost" class="nav-link">
+                                        <i class="fas fa-calculator nav-icon"></i>
+                                        <p>Employee Cost</p>
                                     </a>
                                 </li>
                             </ul>
@@ -227,7 +235,7 @@
 
         <footer class="main-footer">
             <div class="float-right d-none d-sm-block">
-                <b>Version</b> 1.0.0
+                <b>Version</b> 2.0.0
             </div>
             <strong>Copyright &copy; 2024 <a href="@homePage">Expensia</a>.</strong> All rights reserved.
         </footer>
@@ -336,6 +344,16 @@
                         if (response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentViewMyDocument")
                             || response.obj.permissions.includes("@PermissionConstants.OutgoingPayment.OutgoingPaymentView")) {
                             $('#menuOutgoingPayment').show();
+                        }
+                        
+                        if (response.obj.permissions.includes("@PermissionConstants.Employee.EmployeeView")) {
+                            $('#menuEmployeeInfo').show();
+                            $('#menuEmployee').show()
+                        }
+
+                        if (response.obj.permissions.includes("@PermissionConstants.Employee.EmployeeCost.EmployeeCostView")) {
+                            $('#menuEmployeeInfo').show();
+                            $('#menuEmployeeCost').show()
                         }
 
                         if (response.obj.permissions.includes("@PermissionConstants.ApprovalInbox.ApprovalInboxView")) {

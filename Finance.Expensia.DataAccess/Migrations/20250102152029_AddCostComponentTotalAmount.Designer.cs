@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250102152029_AddCostComponentTotalAmount")]
+    partial class AddCostComponentTotalAmount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3623,51 +3626,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             PermissionCode = "UserManagement.ManageUser.Update",
                             PermissionDescription = "Akses untuk update manage user",
                             RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("b621b344-7a61-4ae9-898f-7c060cf17641"),
-                            Created = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "Employee:View",
-                            PermissionDescription = "Akses untuk view data employee",
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("69e719a7-fb8b-4593-8983-81a9b328814d"),
-                            Created = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "Employee:Cost:View",
-                            PermissionDescription = "Akses untuk view data employee cost",
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("2d86e5ba-4862-482c-a5aa-57f854d9d146"),
-                            Created = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "Employee:Cost:Create",
-                            PermissionDescription = "Akses untuk create data employee cost",
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("4bea6378-af27-43a8-bf6d-1881b25c71c1"),
-                            Created = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "Employee:Cost:Update",
-                            PermissionDescription = "Akses untuk update data employee cost",
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("a9901d48-f80f-492d-bd21-fd3414f855b1"),
-                            Created = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "Employee:Cost:Delete",
-                            PermissionDescription = "Akses untuk delete data employee cost",
-                            RowStatus = 0
                         });
                 });
 
@@ -5166,51 +5124,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             Created = new DateTime(2024, 11, 6, 13, 58, 0, 0, DateTimeKind.Utc).AddTicks(3910),
                             CreatedBy = "",
                             PermissionId = new Guid("dc97d84b-c194-4493-98c6-897f440e67a2"),
-                            RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("d4493d80-f8e7-4286-95d7-a4671bc49b53"),
-                            Created = new DateTime(2025, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("b621b344-7a61-4ae9-898f-7c060cf17641"),
-                            RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("ffb7bd5e-2918-4428-8cba-dc3a610159d9"),
-                            Created = new DateTime(2024, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("69e719a7-fb8b-4593-8983-81a9b328814d"),
-                            RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("38fde7bc-67c5-4caf-9603-9d261fefcf8a"),
-                            Created = new DateTime(2025, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("2d86e5ba-4862-482c-a5aa-57f854d9d146"),
-                            RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("031f512a-4e23-4cad-968d-5a541aab2f2d"),
-                            Created = new DateTime(2024, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("4bea6378-af27-43a8-bf6d-1881b25c71c1"),
-                            RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("8574ce80-16e8-4658-b3a1-3f2c34fe76a6"),
-                            Created = new DateTime(2025, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("a9901d48-f80f-492d-bd21-fd3414f855b1"),
                             RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
                             RowStatus = 0
                         });

@@ -1,0 +1,179 @@
+﻿@{
+    var createEmployeeCostUrl = Url.Action("Create", "EmployeeCost");
+    var editEmployeeCostUrl = Url.Action("Edit", "EmployeeCost");
+    var detailEmployeeCostUrl = Url.Action("Detail", "EmployeeCost");
+    var deleteEmployeeCostUrl = Url.Action("DeleteEmployeeCost", "EmployeeCost");
+    var retrievePagingEmployeeCostUrl = Url.Action("RetrievePagingEmployeeCost", "EmployeeCost");
+}
+
+<script type="text/javascript">
+    const gridEmployeeCost = $("#gridEmployeeCost");
+
+    let currentDraw = 0;
+
+    $(function () {
+        EmployeeCost = new EmployeeCost();
+        EmployeeCost.InitManagement();
+    });
+
+    function EmployeeCost() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridEmployeeCost.dataTable({ 
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@retrievePagingEmployeeCostUrl",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { data: "employeeCostId", visible: false },
+                        { title: "Company", data: "company.companyName" },
+                        { title: "Nama Pegawai", data: "employee.employeeName" },
+                        { title: "Customer", data: "costCenter.costCenterName" },
+                        { title: "Join Date", data: "joinDate", render: function (data) { return fmtDate4(data); } },
+                        { title: "End Date", data: "endDate", render: function (data) { return fmtDate4(data); } },
+                        { 
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                let id = row.employeeCostId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="btn btn-link text-secondary" data-id="${id}" action="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                <button class="btn btn-link text-danger" data-id="${id}" action="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
+                                                <button class="btn btn-link text-secondary" data-id="${id}" action="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
+                                            </div>`;
+                                return elem;
+                            }
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+                $('#txtJump').on('keyup change', function () {
+                    let debouncedAjaxRequest;
+
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridEmployeeCost.page.info().pages) {
+                                gridEmployeeCost.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                $('#btnCreate').click(function () {
+                    window.location.href = '@createEmployeeCostUrl';
+                })
+
+                $(document).on('click', '[action="editbutton"]', function () {
+                    window.location.href = "@editEmployeeCostUrl/" + $(this).data('id')
+                });
+
+                $(document).on('click', '[action="deletebutton"]', function () {
+                    Swal.fire({
+                        title: 'Delete',
+                        html: 'Apakah anda yakin menghapus data ini?',
+                        width: '500px',
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        confirmButtonColor: "#D92D20",
+                        customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                        },
+                        icon: "warning",
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax(Object.assign({}, glbBaseRequest, {
+                                method: "POST",
+                                url: "@deleteEmployeeCostUrl?employeeCostId=" + $(this).data('id'),
+                                contentType: "application/json"
+                            })).done(function (response) {
+                                if (response.succeeded) {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.message,
+                                        icon: "success"
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                }
+                                else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: response.message,
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+
+                $(document).on('click', '[action="detailbutton"]', async function () {
+                    window.location.href = "@detailEmployeeCostUrl/" + $(this).data('id')
+                });
+            },
+            InitValidation: function () {
+
+            },
+            InitLoad: async function () {
+
+            }
+        }
+    };
+</script>
