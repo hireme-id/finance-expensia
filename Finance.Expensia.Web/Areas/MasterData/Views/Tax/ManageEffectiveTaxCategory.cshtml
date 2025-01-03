@@ -40,7 +40,7 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label">Mapping PTKP</label>
                             <div class="col-md-9">
-                                <select id="ddlNonTaxableIncomes" class="select2" multiple="multiple" data-editable name="nonTaxableIncomes" bind-name="nonTaxableIncomes" bind-trigger="change">
+                                <select id="ddlNonTaxableIncomes" class="form-control select2" multiple="multiple" data-editable name="nonTaxableIncomes" bind-name="nonTaxableIncomes" bind-trigger="change">
                                     @foreach (NonTaxableIncome item in Enum.GetValues(typeof(NonTaxableIncome)))
                                     {
                                         var memberInfo = typeof(NonTaxableIncome).GetMember(item.ToString()).FirstOrDefault();

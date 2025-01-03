@@ -10,7 +10,7 @@ window.onload = function () {
     $('label[for="dt-length-0"]').hide();
 
     //Transform all select with class 'select2' with select2
-    $(".select2").select2();
+    $(".form-control.select2").select2();
 
     //Set highlight menu
     var url = window.location;

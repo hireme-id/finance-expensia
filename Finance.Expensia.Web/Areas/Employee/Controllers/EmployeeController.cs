@@ -1,5 +1,7 @@
 ﻿using Finance.Expensia.Core.Services.Employee;
 using Finance.Expensia.Core.Services.Employee.Dtos;
+using Finance.Expensia.Shared.Attributes;
+using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Finance.Expensia.Web.Controllers;
@@ -8,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 {
-    public class EmployeeController(EmployeeService employeeService) : BaseController
+    public partial class EmployeeController(EmployeeService employeeService) : BaseController
     {
         private readonly EmployeeService _employeeService = employeeService;
 
@@ -18,8 +20,12 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
             return View();
         }
 
-        [AllowAnonymous]
+        [AppAuthorize(PermissionConstants.Employee.EmployeeView)]
         [HttpPost("employee/paging")]
         public async Task<ResponsePaging<EmployeeDto>> RetrievePagingEmployee([FromBody] PagingSearchInputBase input) => await _employeeService.RetrievePagingEmployee(input);
+
+        [AppAuthorize(PermissionConstants.Employee.EmployeeView)]
+        [HttpPost("employee/list")]
+        public async Task<ResponseObject<List<EmployeeDto>>> RetrieveListEmployee([FromBody] SearchInputBase input) => await _employeeService.RetrieveListEmployee(input);
 	}
 }

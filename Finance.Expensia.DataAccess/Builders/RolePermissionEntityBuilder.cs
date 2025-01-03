@@ -454,6 +454,15 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("fe224692-bdc8-4f35-8c72-8744f22b4692"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("bf1d72af-698e-43fa-af9f-5fabd42743f2"), Created = new DateTime(2024, 11, 6, 13, 58, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("9a99df65-693d-4ff7-99f4-0976e764d0d6"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("dc97d84b-c194-4493-98c6-897f440e67a2"), Created = new DateTime(2024, 11, 6, 13, 58, 0, 0, DateTimeKind.Utc).AddTicks(3910) }
                 );
-        }
+
+			builder
+				.HasData(
+					new RolePermission { Id = new Guid("d4493d80-f8e7-4286-95d7-a4671bc49b53"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("b621b344-7a61-4ae9-898f-7c060cf17641"), Created = new DateTime(2025, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("ffb7bd5e-2918-4428-8cba-dc3a610159d9"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("69e719a7-fb8b-4593-8983-81a9b328814d"), Created = new DateTime(2024, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("38fde7bc-67c5-4caf-9603-9d261fefcf8a"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("2d86e5ba-4862-482c-a5aa-57f854d9d146"), Created = new DateTime(2025, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("031f512a-4e23-4cad-968d-5a541aab2f2d"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("4bea6378-af27-43a8-bf6d-1881b25c71c1"), Created = new DateTime(2024, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("8574ce80-16e8-4658-b3a1-3f2c34fe76a6"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("a9901d48-f80f-492d-bd21-fd3414f855b1"), Created = new DateTime(2025, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910) }
+				);
+		}
     }
 }

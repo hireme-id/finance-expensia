@@ -22,7 +22,7 @@
             public const string ApprovalInboxView = "ApprovalInbox.View";
             public const string ApprovalInboxUpdate = "ApprovalInbox.Update";
             public const string ApprovalInboxDelete = "ApprovalInbox.Delete";
-            public const string ApprovalEditInformation = "ApprovalInbox.EditInformation";
+            public const string ApprovalEditInformation = "ApprovalInbox.EditInformation"; // Edit Expected Transfer, Scheduled Date, From Bank Alias, Bank Payment Type
         }
 
         public static class MasterData
@@ -97,6 +97,19 @@
             {
 				public const string ManageUserView = "UserManagement.ManageUser.View";
 				public const string ManageUserUpdate = "UserManagement.ManageUser.Update";
+			}
+        }
+
+        public static class Employee
+        {
+            public const string EmployeeView = "Employee:View";
+
+            public static class EmployeeCost
+            {
+                public const string EmployeeCostCreate = "Employee:Cost:Create";
+				public const string EmployeeCostUpdate = "Employee:Cost:Update";
+				public const string EmployeeCostDelete = "Employee:Cost:Delete";
+				public const string EmployeeCostView = "Employee:Cost:View";
 			}
         }
     }

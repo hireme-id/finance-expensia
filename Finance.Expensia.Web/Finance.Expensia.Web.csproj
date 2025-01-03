@@ -37,4 +37,11 @@
     <Folder Include="wwwroot\lib\fontawesome-free\css\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Areas\Employee\Views\EmployeeCost\Scripts\_EmployeeCostForm.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,552 @@
+﻿@using Finance.Expensia.Shared.Enums
+@{
+	var ddlCompanyUrl = Url.Action("RetrieveCompanyDatas", "Company");
+	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
+	var ddlEmployeeUrl = Url.Action("RetrieveListEmployee", "Employee");
+	var retrieveInitialEmployeeCostComponentsUrl = Url.Action("RetrieveInitialEmployeeCostComponents", "EmployeeCost");
+	var calculateEmployeeCostUrl = Url.Action("CalculateEmployeeCost", "EmployeeCost");
+	var createEmployeeCostUrl = Url.Action("CreateEmployeeCost", "EmployeeCost");
+	var updateEmployeeCostUrl = Url.Action("UpdateEmployeeCost", "EmployeeCost");
+	var detailEmployeeCostUrl = Url.Action("RetrieveEmployeeCost", "EmployeeCost");
+	var employeeCostPageUrl = Url.Action("Index", "EmployeeCost");
+}
+
+<script type="text/javascript">
+	const ddlCompany = $('#ddlCompany'), ddlCostCenter = $("#ddlCostCenter");
+	const dtOfferingDate = $('#dtOfferingDate'), dtJoinDate = $('#dtJoinDate'), dtEndDate = $('#dtEndDate');
+	const ddlEmployeeNo = $('#ddlEmployeeNo'), ddlEmployeeStatus = $('#ddlEmployeeStatus'), ddlNonTaxableIncome = $('#ddlNonTaxableIncome');
+	const txtEmployeeName = $('#txtEmployeeName'), txtWorkingDay = $('#txtWorkingDay'), txtJobPosition = $('#txtJobPosition'), txtRemark = $('#txtRemark');
+	const gridEmployeeCostComponent = $('#gridEmployeeCostComponent');
+	const btnCalculatedRowMode = $('#btnCalculatedRowMode'), btnCalculate = $('#btnCalculate'), btnSubmit = $('#btnSubmit');
+
+	const gridEmployeeCostComponentRowColor = {
+		@((int)CostComponentCategory.MonthlyEarningBenefit): "#F6E9B2", @((int)CostComponentCategory.MonthlyDeductionBenefit): "#C1BAA1",
+		@((int)CostComponentCategory.YearlyBenefit): "#D7D3BF", @((int)CostComponentCategory.OtherBenefit): "#FFBE98",
+        @((int)CostComponentCategory.GovernmentDeduction): "#77CDFF", @((int)CostComponentCategory.Total): "#BDE8CA"
+	};
+
+	const gridEmployeeCostComponentRowBold = {
+		@((int)CostComponentType.Daily): "400", @((int)CostComponentType.Monthly): "400", @((int)CostComponentType.Yearly): "400",
+		@((int)CostComponentType.SubTotal): "900", @((int)CostComponentType.Total): "900"
+	}
+
+	const gridEmployeeCostComponentRowFontSize = {
+		@((int)CostComponentType.Daily): "12", @((int)CostComponentType.Monthly): "12", @((int)CostComponentType.Yearly): "12",
+		@((int)CostComponentType.SubTotal): "14", @((int)CostComponentType.Total): "18"
+	}
+
+	const gridEmployeeCostComponentUnitAmountVisible = {
+		@((int)CostComponentType.Daily): true, @((int)CostComponentType.Monthly): true, @((int)CostComponentType.Yearly): true,
+		@((int)CostComponentType.SubTotal): false, @((int)CostComponentType.Total): false
+	}
+
+	let employeeCostId = null, isShowCalculatedRow = false;
+
+	$(function () {
+		EmployeeCostFormManager = new EmployeeCostFormManager();
+		EmployeeCostFormManager.InitManagement();
+	});
+
+	function EmployeeCostFormManager() {
+		return {
+			InitManagement: function () {
+				this.InitControls();
+				this.InitHandlers();
+				this.InitValidation();
+				this.InitLoad();
+			},
+			InitControls: function () {
+				dtOfferingDate.datepicker({
+					dateFormat: 'yy-mm-dd',
+					onClose: function (selectedDate) {
+						dtJoinDate.datepicker("option", "minDate", selectedDate);
+					},
+				});
+
+				dtJoinDate.datepicker({
+					dateFormat: 'yy-mm-dd',
+					onClose: function (selectedDate) {
+						dtEndDate.datepicker("option", "minDate", selectedDate);
+					},
+				});
+
+				dtEndDate.datepicker({
+					dateFormat: 'yy-mm-dd',
+					onClose: function (selectedDate) {
+						dtJoinDate.datepicker("option", "maxDate", selectedDate);
+					},
+				});
+
+				@if (Context.Request.Path == Url.Action("Create", "EmployeeCost"))
+				{
+					<text>
+						ddlEmployeeNo.select2({
+							tags: true,
+							minimumInputLength: 3,
+							ajax: Object.assign({}, glbBaseRequest, {
+								method: "POST",
+								url: "@ddlEmployeeUrl",
+								data: function (params) {
+									return JSON.stringify({
+										searchKey: params.term
+									});
+								},
+								processResults: function (data) {
+									let results = [];
+									ddlEmployeeNo.empty().append('<option value="">&nbsp</option>');
+
+									data.obj.forEach(function (d) {
+										ddlEmployeeNo.append('<option value="' + d.employeeId + '">' + d.employeeNo + '</option>');
+
+										results.push({
+											id: d.employeeId,
+											text: d.employeeNo + " - " + d.employeeName,
+											employeeName: d.employeeName
+										});
+									});
+
+									return {
+										results: results
+									};
+								}
+							})
+						});
+					</text>
+				}
+
+				gridEmployeeCostComponent.dataTable({
+					ordering: false,
+					paging: false,
+					searching: false,
+					info: false,
+					autoWidth: false,
+					initComplete: function (settings, json) {
+						$('.dt-scroll-head').css({ visibility: 'collapse' });
+					},
+					language: {
+						emptyTable: 'Belum ada data'
+					},
+					columnDefs: [
+						{ className: "dt-head-center", targets: [ 3, 4, 5, 6, 7 ] }
+					],
+					columns: [
+						{
+							data: "employeeCostComponentId",
+							visible: false
+						},
+						{
+							data: "costComponentId",
+							visible: false
+						},
+						{
+							data: "costComponentNo",
+							visible: false
+						},
+						{
+							data: "costComponentName",
+							title: "Component",
+							width: "20%",
+							class: "pt-16-px"
+						},
+						{
+							data: "costComponentAmount",
+							title: "Unit Amount",
+							width: "19%",
+							render: function (data, type, row, meta) {
+								let disabled = row.isCalculated ? "disabled" : "";
+								let dataCalculateParam = row.isCalculated ? "" : `data-calculate-param="true"`;
+								let dataComponentId = row.isCalculated ? "" : `data-component-id=${row.costComponentId}`;
+								let fontWeight = gridEmployeeCostComponentRowBold[row.costComponentType];
+								let fontSize = gridEmployeeCostComponentRowFontSize[row.costComponentType];
+
+								return gridEmployeeCostComponentUnitAmountVisible[row.costComponentType] ? `<input type='text' class='form-control text-right' onkeydown="return numbersonly(this, event);" value='` + fmtMoney(data) + `' ${disabled} ${dataComponentId} style="font-weight: ${fontWeight};font-size: ${fontSize}px;">` : ``;
+							}
+						},
+						{
+							data: "costComponentTypeDescription",
+							title: "",
+							width: "7%",
+							class: "pt-16-px text-center",
+							render: function (data, type, row, meta) {
+								return gridEmployeeCostComponentUnitAmountVisible[row.costComponentType] ? data : ``;
+							}
+						},
+						{
+							data: "costComponentTotalAmount",
+							title: "Amount",
+							width: "19%",
+							render: function (data, type, row, meta) {
+								let fontWeight = gridEmployeeCostComponentRowBold[row.costComponentType];
+								let fontSize = gridEmployeeCostComponentRowFontSize[row.costComponentType];
+
+								return `<input type='text' class='form-control text-right' value='` + fmtMoney(data ?? 0) + `' disabled style="font-weight: ${fontWeight};font-size: ${fontSize}px;">`;
+							}
+						},
+						{
+							data: "remark",
+							title: "Remark",
+							width: "35%",
+							class: "pt-16-px",
+						}
+					],
+					createdRow: function (row, data, index) {
+						let backgroundColor = gridEmployeeCostComponentRowColor[data.costComponentCategory];
+						let fontWeight = gridEmployeeCostComponentRowBold[data.costComponentType];
+						let fontSize = gridEmployeeCostComponentRowFontSize[data.costComponentType];
+
+						$(row).prop("style",
+							`background-color: ${backgroundColor};font-weight: ${fontWeight};font-size: ${fontSize}px;`);
+					},
+					rowCallback: function (row, data) {
+						if (data.isCalculated && !isShowCalculatedRow) {
+							$(row).attr("calculated-row", "");
+							$(row).hide();
+						}
+					}
+				});
+			},
+			InitHandlers: function () {
+				ddlCompany.on('change', async function () {
+					let companyId = ddlCompany.val();
+					if (companyId != '') {
+						await RefreshDdlCostCenter();
+						ddlCostCenter.prop('disabled', false);
+						ddlCompany.prop('disabled', true);
+					}
+				});
+
+				ddlEmployeeNo.on('select2:select', function (e) {
+					if (e.params.data.employeeName == undefined) {
+						txtEmployeeName.val('').prop('disabled', false);
+					}
+					else {
+						txtEmployeeName.val(e.params.data.employeeName).prop('disabled', true);
+					}
+				});
+
+				btnCalculatedRowMode.on('click', function () {
+                    isShowCalculatedRow = !isShowCalculatedRow;
+                    btnCalculatedRowMode.text(isShowCalculatedRow ? "Sembunyikan Baris Kalkulasi" : "Tampilkan Baris Kalkulasi");
+                    isShowCalculatedRow ? $('[calculated-row]').show() : $('[calculated-row]').hide();
+                });
+
+				btnCalculate.on('click', async function () {
+					if (ddlEmployeeStatus.val() == '' || ddlNonTaxableIncome.val() == '' || txtWorkingDay.val() == '') {
+						Swal.fire({
+                            title: "Info",
+                            text: "Data employee status / ptkp / working day belum terisi",
+                            icon: "info"
+                        });
+
+						return;
+					}
+
+                    let componentElements = $('[data-component-id]');
+                    let employeeCostComponents = [];
+                    componentElements.each(function (index, el) { 
+                        employeeCostComponents.push({
+                            costComponentId: $(el).data('component-id'),
+                            costComponentAmount: revertFmtMoney($(el).val())
+                        });
+                    });
+
+                    let requestBody = {
+                        employeeStatus: ddlEmployeeStatus.val(),
+                        nonTaxableIncome: ddlNonTaxableIncome.val(),
+						workingDay: txtWorkingDay.val(),
+                        employeeCostComponents: employeeCostComponents
+                    }
+
+                    await $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@calculateEmployeeCostUrl",
+                        data: JSON.stringify(requestBody)
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            gridEmployeeCostComponent.api().rows().remove();
+                            gridEmployeeCostComponent.api().rows.add(response.obj);
+                            gridEmployeeCostComponent.api().draw();
+
+                            if(!isShowCalculatedRow) {
+                                btnCalculatedRowMode.trigger('click');
+                            }   
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    });
+                });
+
+				btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('.card-body :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataObject.employeeCostId = employeeCostId;
+                    formDataArray.forEach(function (field) {
+                        if (field.name == 'employeeNo' && employeeCostId == null) {
+                            formDataObject['employeeId'] = txtEmployeeName.prop('disabled') ? field.value : null;
+							formDataObject[field.name] = $('#ddlEmployeeNo option:selected').text();
+
+							return;
+                        }
+
+                        formDataObject[field.name] = field.value;
+                    });
+
+					let componentElements = $('[data-component-id]');
+                    let employeeCostComponents = [];
+                    componentElements.each(function (index, el) { 
+                        employeeCostComponents.push({
+                            costComponentId: $(el).data('component-id'),
+                            costComponentAmount: revertFmtMoney($(el).val())
+                        });
+                    });
+					formDataObject.employeeCostComponents = employeeCostComponents;
+
+                    document.body.classList.remove('loaded');
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: employeeCostId == null ? "@createEmployeeCostUrl" : "@updateEmployeeCostUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "@employeeCostPageUrl";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    }).always(function () {
+                        document.body.classList.add('loaded');
+                    });
+                });
+			},
+			InitValidation: function () {
+			
+			},
+			InitLoad: async function () {
+				await RefreshDdlCompany();
+
+				@if (Context.Request.Path == Url.Action("Create", "EmployeeCost"))
+				{
+					<text>
+						await RetrieveInitialCostComponent();
+					</text>
+				}
+
+				@if (Context.Request.Path == Url.Action("Detail", "EmployeeCost") || Context.Request.Path == Url.Action("Edit", "EmployeeCost"))
+				{
+					<text>
+						let pathArray = window.location.pathname.split('/');
+						employeeCostId = pathArray[pathArray.length - 1];
+
+						await LoadEmployeeCostData();
+					</text>
+				}
+
+				@if (Context.Request.Path == Url.Action("Edit", "EmployeeCost"))
+				{
+					<text>
+						SetFormForEdit();
+					</text>
+				}
+
+				@if (Context.Request.Path == Url.Action("Detail", "EmployeeCost"))
+				{
+					<text>
+						SetFormForView();
+					</text>
+				}
+			}
+		}
+	}
+
+	async function RefreshDdlCompany() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCompanyUrl"
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCompany.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlCompany.append(`<option value="` + data.companyId + `">` + data.companyName + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function RefreshDdlCostCenter() {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCostCenterUrl" + "?companyId=" + ddlCompany.val()
+		})).done(function (response) {
+			if (response.succeeded) {
+				ddlCostCenter.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					ddlCostCenter.append(`<option value="` + data.costCenterId + `">` + data.costCenterName + `</option>`);
+				}
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	@if (Context.Request.Path == Url.Action("Create", "EmployeeCost"))
+    {
+        <text>
+            async function RetrieveInitialCostComponent() {
+                await $.ajax(Object.assign({}, glbBaseRequest, {
+                    method: "POST",
+                    url: "@retrieveInitialEmployeeCostComponentsUrl"
+                })).done(function (response) {
+                    if (response.succeeded) {
+                        gridEmployeeCostComponent.api().rows().remove();
+                        gridEmployeeCostComponent.api().rows.add(response.obj);
+                        gridEmployeeCostComponent.api().draw();
+                    }
+                    else {
+                        Swal.fire({
+                            title: "Error",
+                            text: response.message,
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        </text>
+    }
+
+	@if (Context.Request.Path == Url.Action("Detail", "EmployeeCost") || Context.Request.Path == Url.Action("Edit", "EmployeeCost"))
+    {
+        <text>
+            async function LoadEmployeeCostData() {
+                await $.ajax(Object.assign({}, glbBaseRequest, {
+					method: "POST",
+					url: "@detailEmployeeCostUrl?employeeCostId=" + employeeCostId
+				})).done(function (response) {
+					if (response.succeeded) {
+						$.each(response.obj, function (key, value) {
+							if (typeof value === 'object') {
+								$.each(value, function (key, value) {
+									let input = $('[bind-name="' + key + '"]');
+
+									if (input.length > 0) {
+										let bindTrigger = input.attr('bind-trigger');
+										let bindType = input.attr('bind-type');
+
+										if (bindType == 'datetime' && value != null) {
+											value = value.split('T')[0];
+										}
+
+										input.val(value);
+
+										if (bindTrigger != undefined) {
+											input.trigger(bindTrigger);
+										}
+									}
+								});
+							}
+							else {
+								let input = $('[bind-name="' + key + '"]');
+
+								if (input.length > 0) {
+									let bindTrigger = input.attr('bind-trigger');
+									let bindType = input.attr('bind-type');
+
+									if (bindType == 'datetime' && value != null) {
+										value = value.split('T')[0];
+									}
+
+									input.val(value);
+
+									if (bindTrigger != undefined) {
+										input.trigger(bindTrigger);
+									}
+								}
+							}
+						});
+
+						setTimeout(() => {
+							ddlCostCenter.val(response.obj.costCenter.costCenterId);
+							ddlCostCenter.trigger('change');
+							ddlCostCenter.attr('disabled', true);
+						}, 500);
+
+						gridEmployeeCostComponent.api().rows().remove();
+                        gridEmployeeCostComponent.api().rows.add(response.obj.employeeCostComponents);
+                        gridEmployeeCostComponent.api().draw();
+
+						btnCalculatedRowMode.trigger('click');
+					}
+					else {
+						Swal.fire({
+							title: "Error",
+							text: response.message,
+							icon: "error"
+						});
+					}
+				});
+            }
+        </text>
+    }
+
+	@if (Context.Request.Path == Url.Action("Edit", "EmployeeCost"))
+	{
+		<text>
+			function SetFormForEdit() {
+				$('input:not(:disabled):not([data-component-id])').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
+				
+				ddlEmployeeStatus.removeAttr('disabled');
+				txtJobPosition.removeAttr('disabled');
+				ddlNonTaxableIncome.removeAttr('disabled');
+				txtWorkingDay.removeAttr('disabled');
+				txtRemark.removeAttr('disabled');
+			}
+		</text>
+	}
+
+	@if (Context.Request.Path == Url.Action("Detail", "EmployeeCost"))
+	{
+		<text>
+			function SetFormForView() {
+				$('input:not(:disabled)').add('select:not(:disabled)').add('textarea:not(:disabled)').attr('disabled', true);
+			}
+		</text>
+	}
+</script>
