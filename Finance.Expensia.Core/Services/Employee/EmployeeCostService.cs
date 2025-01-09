@@ -41,7 +41,7 @@ namespace Finance.Expensia.Core.Services.Employee
 											   .Include(ec => ec.Employee)
 											   .Include(ec => ec.Company)
 											   .Include(ec => ec.CostCenter)
-											   .Include(ec => ec.EmployeeCostComponents.OrderBy(d => d.CostComponentNo))
+											   .Include(ec => ec.EmployeeCostComponents.Where(d => d.IsVisible).OrderBy(d => d.CostComponentNo))
 											   .FirstOrDefaultAsync(d => d.Id == employeeCostId);
 
 			if (employeeCost == null)
