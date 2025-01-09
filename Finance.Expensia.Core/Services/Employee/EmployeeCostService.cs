@@ -27,7 +27,7 @@ namespace Finance.Expensia.Core.Services.Employee
                                                             || EF.Functions.Like(d.CostCenter.CostCenterName, $"%{input.SearchKey}%")
                                                             || EF.Functions.Like(d.Company.CompanyName, $"%{input.SearchKey}%")
                                                            )
-                                                           .OrderBy(d => d.Modified ?? d.Created)
+                                                           .OrderByDescending(d => d.Modified ?? d.Created)
                                                            .Select(d => _mapper.Map<EmployeeCostDto>(d));
 
             retVal.ApplyPagination(input.Page, input.PageSize, employeeCostDtos);
@@ -69,11 +69,11 @@ namespace Finance.Expensia.Core.Services.Employee
 
 			return new ResponseObject<List<EmployeeCostComponentDto>>(responseCode: ResponseCode.Ok)
 			{
-				Obj = employeeCostComponentDtos
+				Obj = employeeCostComponentDtos.Where(d => d.IsVisible).ToList()
 			};
         }
 
-        public async Task<ResponseObject<List<EmployeeCostComponentDto>>> CalculateEmployeeCost(CalculateEmployeeCostInput input)
+        public async Task<ResponseObject<List<EmployeeCostComponentDto>>> CalculateEmployeeCost(CalculateEmployeeCostInput input, bool showAll = false)
         {
 			var employeeCostComponentDtos = await _dbContext.CostComponents.Where(d => d.IsActive)
                                                                            .OrderBy(d => d.CostComponentNo)
@@ -132,7 +132,15 @@ namespace Finance.Expensia.Core.Services.Employee
 
 							args.Result = effectiveTaxRate?.TaxRate ?? 0.0m;
 						}
-						else if (int.TryParse(name, out var costComponentId))
+						else if (name == "NonTaxableIncome")
+						{
+                            args.Result = (int)input.NonTaxableIncome;
+                        }
+                        else if (name == "LaptopOwnership")
+                        {
+                            args.Result = (int)input.LaptopOwnership;
+                        }
+                        else if (int.TryParse(name, out var costComponentId))
 						{
 							if (employeeCostComponentDtos.Any(d => d.CostComponentNo == costComponentId))
 							{
@@ -174,7 +182,7 @@ namespace Finance.Expensia.Core.Services.Employee
 
 			return new(responseCode: ResponseCode.Ok)
 			{
-				Obj = employeeCostComponentDtos
+				Obj = employeeCostComponentDtos.Where(d => d.IsVisible || showAll).ToList()
 			};
 		}
 
@@ -202,9 +210,10 @@ namespace Finance.Expensia.Core.Services.Employee
 			{
 				EmployeeStatus = input.EmployeeStatus,
 				NonTaxableIncome = input.NonTaxableIncome,
+				LaptopOwnership = input.LaptopOwnership,
 				WorkingDay = input.WorkingDay,
 				EmployeeCostComponents = input.EmployeeCostComponents
-			});
+			}, true);
 			if (!employeeCostComponentDto.Succeeded || employeeCostComponentDto.Obj == null)
 				return new("Terjadi kesalahan pada proses kalkulasi", ResponseCode.Error);
 
@@ -235,6 +244,7 @@ namespace Finance.Expensia.Core.Services.Employee
 			employeeCostData.JobPosition = input.JobPosition;
 			employeeCostData.NonTaxableIncome = input.NonTaxableIncome;
 			employeeCostData.WorkingDay = input.WorkingDay;
+			employeeCostData.LaptopOwnership = input.LaptopOwnership;
 			employeeCostData.Remark = input.Remark;
 			employeeCostData.EffectiveTaxCategory = dataEffectiveTaxCategoryAssignment.EffectiveTaxCategory;
 
@@ -249,9 +259,10 @@ namespace Finance.Expensia.Core.Services.Employee
 			{
 				EmployeeStatus = input.EmployeeStatus,
 				NonTaxableIncome = input.NonTaxableIncome,
-				WorkingDay = input.WorkingDay,
+                LaptopOwnership = input.LaptopOwnership,
+                WorkingDay = input.WorkingDay,
 				EmployeeCostComponents = input.EmployeeCostComponents
-			});
+			}, true);
 			if (!employeeCostComponentDto.Succeeded || employeeCostComponentDto.Obj == null)
 				return new("Terjadi kesalahan pada proses kalkulasi", ResponseCode.Error);
 

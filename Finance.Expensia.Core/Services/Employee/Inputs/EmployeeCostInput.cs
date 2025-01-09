@@ -17,6 +17,7 @@ namespace Finance.Expensia.Core.Services.Employee.Inputs
 		public DateTime EndDate { get; set; }
 		public NonTaxableIncome NonTaxableIncome { get; set; }
 		public int WorkingDay { get; set; }
+		public LaptopOwnership LaptopOwnership { get; set; }
 		public string Remark { get; set; } = string.Empty;
 
 		public List<EmployeeCostComponentInput> EmployeeCostComponents { get; set; } = [];

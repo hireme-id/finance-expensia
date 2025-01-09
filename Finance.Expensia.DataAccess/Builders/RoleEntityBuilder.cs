@@ -44,8 +44,10 @@ namespace Finance.Expensia.DataAccess.Builders
 					new Role { Id = new Guid("9624f22a-c9a7-4603-b8d6-97aa22d285c6"), RoleCode = "Finance", RoleDescription = "User yang dapat membuat pengajuan dan melihat semua pengajuan, dan bisa approve", Created = new DateTime(2024, 2, 25, 15, 15, 29, 22, DateTimeKind.Utc).AddTicks(7600) },
 					new Role { Id = new Guid("9844f544-63b9-402e-8916-40df21fefd7a"), RoleCode = "Approval", RoleDescription = "User yang dapat membuat pengajuan dan melihat semua pengajuan, dan bisa approve", Created = new DateTime(2024, 2, 25, 15, 15, 29, 22, DateTimeKind.Utc).AddTicks(7600) },
 					new Role { Id = new Guid("68d3a412-0b70-4144-ab7d-556bff726b83"), RoleCode = "Releaser", RoleDescription = "User yang dapat membuat pengajuan dan melihat semua pengajuan, dan bisa approve", Created = new DateTime(2024, 2, 25, 15, 15, 29, 22, DateTimeKind.Utc).AddTicks(7600) },
-					new Role { Id = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), RoleCode = "Administrator", RoleDescription = "User yang dapat melakukan konfigurasi modul-modul utama dari sistem", Created = new DateTime(2024, 2, 25, 15, 15, 29, 22, DateTimeKind.Utc).AddTicks(7600) }
-				);
+					new Role { Id = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), RoleCode = "Administrator", RoleDescription = "User yang dapat melakukan konfigurasi modul-modul utama dari sistem", Created = new DateTime(2024, 2, 25, 15, 15, 29, 22, DateTimeKind.Utc).AddTicks(7600) },
+                    new Role { Id = new Guid("e07eb061-6a5d-4360-b6d6-c5dbeb82f074"), RoleCode = "Recruitment", RoleDescription = "", Created = new DateTime(2025, 1, 9, 10, 38, 0, 0, DateTimeKind.Utc) },
+                    new Role { Id = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), RoleCode = "Sales", RoleDescription = "", Created = new DateTime(2025, 1, 9, 10, 38, 0, 0, DateTimeKind.Utc) }
+                );
 		}
 	}
 }

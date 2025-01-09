@@ -43,6 +43,11 @@ namespace Finance.Expensia.DataAccess.Builders
                 .HasMaxLength(5);
 
             builder
+                .Property(e => e.LaptopOwnership)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            builder
                 .Property(e => e.Remark)
                 .HasMaxLength(100);
 

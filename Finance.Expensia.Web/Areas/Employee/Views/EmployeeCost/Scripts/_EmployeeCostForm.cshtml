@@ -14,7 +14,7 @@
 <script type="text/javascript">
 	const ddlCompany = $('#ddlCompany'), ddlCostCenter = $("#ddlCostCenter");
 	const dtOfferingDate = $('#dtOfferingDate'), dtJoinDate = $('#dtJoinDate'), dtEndDate = $('#dtEndDate');
-	const ddlEmployeeNo = $('#ddlEmployeeNo'), ddlEmployeeStatus = $('#ddlEmployeeStatus'), ddlNonTaxableIncome = $('#ddlNonTaxableIncome');
+	const ddlEmployeeNo = $('#ddlEmployeeNo'), ddlEmployeeStatus = $('#ddlEmployeeStatus'), ddlNonTaxableIncome = $('#ddlNonTaxableIncome'), ddlLaptopOwnership = $('#ddlLaptopOwnership');
 	const txtEmployeeName = $('#txtEmployeeName'), txtWorkingDay = $('#txtWorkingDay'), txtJobPosition = $('#txtJobPosition'), txtRemark = $('#txtRemark');
 	const gridEmployeeCostComponent = $('#gridEmployeeCostComponent');
 	const btnCalculatedRowMode = $('#btnCalculatedRowMode'), btnCalculate = $('#btnCalculate'), btnSubmit = $('#btnSubmit');
@@ -231,7 +231,7 @@
                 });
 
 				btnCalculate.on('click', async function () {
-					if (ddlEmployeeStatus.val() == '' || ddlNonTaxableIncome.val() == '' || txtWorkingDay.val() == '') {
+					if (ddlEmployeeStatus.val() == '' || ddlNonTaxableIncome.val() == '' || txtWorkingDay.val() == '' || ddlLaptopOwnership.val() == '') {
 						Swal.fire({
                             title: "Info",
                             text: "Data employee status / ptkp / working day belum terisi",
@@ -253,6 +253,7 @@
                     let requestBody = {
                         employeeStatus: ddlEmployeeStatus.val(),
                         nonTaxableIncome: ddlNonTaxableIncome.val(),
+						laptopOwnership: ddlLaptopOwnership.val(),
 						workingDay: txtWorkingDay.val(),
                         employeeCostComponents: employeeCostComponents
                     }

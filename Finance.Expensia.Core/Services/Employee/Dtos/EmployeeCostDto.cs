@@ -21,6 +21,7 @@ namespace Finance.Expensia.Core.Services.Employee.Dtos
         public EffectiveTaxCategory EffectiveTaxCategory { get; set; }
         public string EffectiveTaxCategoryDescription => EffectiveTaxCategory.GetDescription();
         public int WorkingDay { get; set; }
+        public LaptopOwnership LaptopOwnership { get; set; }
         public string Remark { get; set; } = string.Empty;
 
         public CompanyDto Company { get; set; } = null!;
