@@ -6,6 +6,7 @@ namespace Finance.Expensia.Core.Services.Employee.Inputs
 	{
 		public EmployeeStatus EmployeeStatus { get; set; }
 		public NonTaxableIncome NonTaxableIncome { get; set; }
+		public LaptopOwnership LaptopOwnership { get; set; }
 		public int WorkingDay { get; set; }
 		public List<EmployeeCostComponentInput> EmployeeCostComponents { get; set; } = [];
 	}

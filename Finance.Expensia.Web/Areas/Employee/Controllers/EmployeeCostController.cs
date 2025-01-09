@@ -49,7 +49,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 
         [AppAuthorize([PermissionConstants.Employee.EmployeeCost.EmployeeCostCreate, PermissionConstants.Employee.EmployeeCost.EmployeeCostUpdate])]
         [HttpPost("employeecost/component/calculate")]
-		public async Task<ResponseObject<List<EmployeeCostComponentDto>>> CalculateEmployeeCost([FromBody] CalculateEmployeeCostInput input) => await _employeeService.CalculateEmployeeCost(input);
+		public async Task<ResponseObject<List<EmployeeCostComponentDto>>> CalculateEmployeeCost([FromBody] CalculateEmployeeCostInput input) => await _employeeService.CalculateEmployeeCost(input, false);
 
         [AppAuthorize(PermissionConstants.Employee.EmployeeCost.EmployeeCostView)]
         [HttpPost("employeecost/detail")]

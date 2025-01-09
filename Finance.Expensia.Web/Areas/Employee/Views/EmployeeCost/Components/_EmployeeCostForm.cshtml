@@ -128,6 +128,21 @@
             </div>
         </div>
         <div class="row mb-3">
+            <!-- Laptop Ownership -->
+            <div class="col-lg-6">
+                <label>Kepemilikin Laptop <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlLaptopOwnership" name="laptopOwnership" bind-name="laptopOwnership" bind-trigger="change">
+                    <option value="">&nbsp</option>
+                    @foreach (LaptopOwnership item in Enum.GetValues(typeof(LaptopOwnership)))
+                    {
+                        var memberInfo = typeof(LaptopOwnership).GetMember(item.ToString()).FirstOrDefault();
+                        var enumMemberAttribute = memberInfo?.GetCustomAttribute<EnumMemberAttribute>();
+
+                        @Html.Raw($"<option value=\"{(int)item}\">{enumMemberAttribute?.Value ?? item.GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
             <!-- Remark -->
             <div class="col-lg-6">
                 <label>Remark <span class="text-danger">*</span></label>
