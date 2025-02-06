@@ -440,6 +440,25 @@ Account No : ` + accountNo);
 				});
 
 				gridOutgoingPaymentDetail.on("click", "td .fas.fa-save", function (e) {
+					const isCostCenterMandatory = $('#ddlCoa option:selected').attr('isCostCenterMandatory') == "" ? false : true;
+					if (isCostCenterMandatory && $('#ddlCostCenter').val() == "") {
+						swal.fire({
+                            title: "Cost Center",
+                            text: "Cost Center harus diisi",
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonText: "OK",
+                            confirmButtonColor: "#D92D20",
+                            customClass: {
+                                actions: 'my-actions',
+                                cancelButton: 'order-1 right-gap',
+                                confirmButton: 'order-2',
+                            },
+                        });
+
+						return;
+					}
+
 					let indexRowSave = indexRowEdit;
 					let attachments = gridOutgoingPaymentDetail.api().row(indexRowSave).data().attachments;
 					let updateData = {
@@ -1098,7 +1117,8 @@ Account No : ` + accountNo);
 		for (let i = 0; i < ddlCoaDatas.length; i++) {
 			const data = ddlCoaDatas[i];
 			const isSelected = coaId.toLowerCase() == data.coaId.toLowerCase() ? ` selected` : ``;
-			ddlCoa.append(`<option value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + ` - ` + data.accountName + `</option>`);
+			const isCostCenterMandatory = data.isCostCenterMandatory == true ? `mandatory` : ``;
+			ddlCoa.append(`<option isCostCenterMandatory="` + isCostCenterMandatory + `" value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + ` - ` + data.accountName + `</option>`);
 		}
 	}
 

@@ -1,5 +1,5 @@
 ﻿<div class="modal fade" id="coaForm">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="max-width: 700px">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="title-modal"></h4>
@@ -36,6 +36,15 @@
                                     <option>D</option>
                                     <option>C</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Mandatory Customer</label>
+                            <div class="col-md-9">
+                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success pt-2">
+                                    <input type="checkbox" id="cbIsCostCenterMandatory" class="custom-control-input" bind-name="isCostCenterMandatory" name="isCostCenterMandatory" bind-type="checkbox">
+                                    <label class="custom-control-label" for="cbIsCostCenterMandatory"></label>
+                                </div>
                             </div>
                         </div>
                     </div>

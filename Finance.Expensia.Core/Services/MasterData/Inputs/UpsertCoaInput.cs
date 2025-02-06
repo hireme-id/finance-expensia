@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Finance.Expensia.Core.Services.MasterData.Inputs
+﻿namespace Finance.Expensia.Core.Services.MasterData.Inputs
 {
     public class UpsertCoaInput
     {
@@ -13,5 +7,6 @@ namespace Finance.Expensia.Core.Services.MasterData.Inputs
         public string AccountCode { get; set; } = string.Empty;
         public string AccountName { get; set; } = string.Empty;
         public string AccountType { get; set; } = string.Empty;
+        public bool IsCostCenterMandatory { get; set; }
     }
 }
