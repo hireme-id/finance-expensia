@@ -2,6 +2,7 @@
 using Finance.Expensia.Core.Services.MasterData.Dtos;
 using Finance.Expensia.Core.Services.MasterData.Inputs;
 using Finance.Expensia.DataAccess;
+using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
@@ -23,7 +24,7 @@ namespace Finance.Expensia.Core.Services.MasterData
                                            .Select(d => _mapper.Map<CoaDto>(d))
                                            .ToListAsync();
 
-            return new ResponseObject<List<CoaDto>>(responseCode: ResponseCode.Ok)
+            return new(responseCode: ResponseCode.Ok)
             {
                 Obj = dataCoas
             };
@@ -37,7 +38,7 @@ namespace Finance.Expensia.Core.Services.MasterData
                                            .Select(d => _mapper.Map<CoaDto>(d))
                                            .ToListAsync();
 
-            return new ResponseObject<List<CoaDto>>(responseCode: ResponseCode.Ok)
+            return new(responseCode: ResponseCode.Ok)
             {
                 Obj = dataCoas
             };
@@ -70,48 +71,48 @@ namespace Finance.Expensia.Core.Services.MasterData
                                           .FirstOrDefaultAsync(x => x.Id == coaId);
 
             if (dataCoa == null)
-                return await Task.FromResult(new ResponseObject<CoaDto>("Data chart of account tidak ditemukan", ResponseCode.NotFound));
+                return new("Data chart of account tidak ditemukan", ResponseCode.NotFound);
 
             var dataCoaDto = _mapper.Map<CoaDto>(dataCoa);
-            return await Task.FromResult(new ResponseObject<CoaDto>(responseCode: ResponseCode.Ok)
+            return new(responseCode: ResponseCode.Ok)
             {
                 Obj = dataCoaDto,
-            });
+            };
         }
 
         public async Task<ResponseBase> UpsertCoa(UpsertCoaInput input)
         {
             if (input.Id.Equals(null))
             {
-                var dataCoa = _mapper.Map<DataAccess.Models.ChartOfAccount>(input);
+                var dataCoa = _mapper.Map<ChartOfAccount>(input);
                 await _dbContext.ChartOfAccounts.AddAsync(dataCoa);
             }
             else
             {
                 var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(v => v.Id.Equals(input.Id));
                 if (dataCoa == null)
-                    return new ResponseBase("Data chart of account tidak ditemukan", ResponseCode.NotFound);
+                    return new("Data chart of account tidak ditemukan", ResponseCode.NotFound);
 
                 _mapper.Map(input, dataCoa);
                 _dbContext.Update(dataCoa);
             }
 
             await _dbContext.SaveChangesAsync();
-            return new ResponseBase($"Data chart of account berhasil {(input.Id.Equals(null) ? "dibuat" : "diedit")}", ResponseCode.Ok);
+            return new($"Data chart of account berhasil {(input.Id.Equals(null) ? "dibuat" : "diedit")}", ResponseCode.Ok);
         }
 
         public async Task<ResponseBase> DeleteCoa(Guid coaId)
         {
             var dataCoa = await _dbContext.ChartOfAccounts.FirstOrDefaultAsync(v => v.Id.Equals(coaId));
             if (dataCoa == null)
-                return new ResponseBase("Data chart of account tidak ditemukan", ResponseCode.NotFound);
+                return new("Data chart of account tidak ditemukan", ResponseCode.NotFound);
 
             dataCoa.RowStatus = 1;
 
             _dbContext.Update(dataCoa);
             await _dbContext.SaveChangesAsync();
 
-            return new ResponseBase("Data chart of account berasil dihapus", ResponseCode.Ok);
+            return new("Data chart of account berasil dihapus", ResponseCode.Ok);
         }
     }
 }

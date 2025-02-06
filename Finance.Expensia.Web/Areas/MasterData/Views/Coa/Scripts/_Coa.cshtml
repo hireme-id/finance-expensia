@@ -68,7 +68,17 @@
                         },
                         { title: "Account Code", data: "accountCode" },
                         { title: "Account Name", data: "accountName" },
-                        { title: "Account Type", data: "accountType" },
+                        { 
+                            title: "Mandatory Customer", 
+                            data: "isCostCenterMandatory",
+                            render: function (data, type, row) {
+                                let checked = row.isCostCenterMandatory ? 'checked' : '';
+                                return `<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                            <input id="${row.coaId}" type="checkbox" class="custom-control-input" ${checked} disabled>
+                                                <label class="custom-control-label" for="${row.coaId}"></label>
+                                        </div>`;
+                            }
+                        },
                         {
                             title: "", width: '6%', className: "py-1", render: function (data, type, row) {
                                 let id = row.coaId;
@@ -197,6 +207,11 @@
 
                     let formDataObject = {};
                     formDataArray.forEach(function (field) {
+                        if (field.name == 'isCostCenterMandatory') {
+                            formDataObject[field.name] = true;
+                            return;
+                        }
+
                         formDataObject[field.name] = field.value;
                     });
 
@@ -252,8 +267,14 @@
                         let input = $('[bind-name="' + key + '"]');
                         if (input.length > 0) {
                             let bindTrigger = input.attr('bind-trigger');
+                            let bindType = input.attr('bind-type');
 
-                            input.val(value);
+                            if (bindType == 'checkbox') {
+                                input.prop('checked', value);
+                            }
+                            else {
+                                input.val(value);
+                            }
 
                             if (bindTrigger != undefined) {
                                 input.trigger(bindTrigger);
