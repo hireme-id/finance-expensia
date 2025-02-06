@@ -51,7 +51,12 @@ namespace Finance.Expensia.DataAccess.Builders
                 .Property(e => e.Remark)
                 .HasMaxLength(100);
 
-            builder
+			builder
+				.Property(e => e.EmployeeCostStatus)
+				.HasConversion<string>()
+				.HasMaxLength(20);
+
+			builder
                 .HasOne(e => e.Company)
                 .WithMany(e => e.EmployeeCosts)
                 .HasForeignKey(e => e.CompanyId)

@@ -1,6 +1,7 @@
 ﻿@{
     @using Finance.Expensia.Shared.Enums
     @using Finance.Expensia.Shared.Helpers
+    @using Finance.Expensia.Shared.Constants;
 
     List<object> effectiveTaxCategories = [];
     foreach (var item in Enum.GetValues(typeof(EffectiveTaxCategory)))
@@ -22,6 +23,7 @@
     const mdlEffectiveTaxCategory = $("#mdlEffectiveTaxCategory");
     const dvModalEffectiveTaxCategory = $("#dvModalEffectiveTaxCategory");
     const btnSubmit = $("#btnSubmit");
+    const canEdit = localStorage.getItem("permissions").includes('@PermissionConstants.MasterData.Tax.EffectiveTaxView');
 
     $(function () {
         ManageEffectiveTaxCategory = new ManageEffectiveTaxCategory();
@@ -62,14 +64,18 @@
                         {
                             title: "", width: '6%', className: "py-1", render: function (data, type, row, meta) {
                                 let id = row.effectiveTaxCategory;
-                                let elem = `<div class="d-inline-flex justify-content-between">
-                                                <button class="btn btn-link text-secondary" data-row-id="${meta.row}" role="editEffectiveTaxCategory" data-mode="edit">
-                                                    <i class="fa fa-pencil-alt" style="font-size: 15px;"></i>
-                                                </button>
-                                                    <button class="btn btn-link text-secondary" data-row-id="${meta.row}" role="viewEffectiveTaxCategory" data-mode="view">
-                                                    <i class="fas fa-file-alt" style="font-size: 15px;"></i>
-                                                    </button>
-                                            </div>`;
+                                let elem = `<div class="d-inline-flex justify-content-between">`;
+
+                                if (canEdit) {
+                                    elem += `<button class="btn btn-link text-secondary" data-row-id="${meta.row}" role="editEffectiveTaxCategory" data-mode="edit">
+                                                <i class="fa fa-pencil-alt" style="font-size: 15px;"></i>
+                                            </button>`;
+                                }
+
+                                elem += `<button class="btn btn-link text-secondary" data-row-id="${meta.row}" role="viewEffectiveTaxCategory" data-mode="view">
+                                                <i class="fas fa-file-alt" style="font-size: 15px;"></i>
+                                            </button>
+                                        </div>`;
                                 return elem;
                             },
                         }

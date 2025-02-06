@@ -1,5 +1,5 @@
 ﻿@{
-	var homePageUrl = Url.Action("Index", "OutgoingPayment", new { area = "Core" });
+	var homePageUrl = Url.Action("Index", "LandingPage", new { area = "LandingPage" });
 	var getGoogleAuthUrl = Url.Action("GetGoogleAuthUrl", "Login");
 	var loginUrl = Url.Action("Login", "Login");
 	var refreshTokenUrl = Url.Action("RefreshToken", "Login");
@@ -30,6 +30,7 @@
 						url: '@getGoogleAuthUrl',
 						success: function (response) {
 							if (response.succeeded) {
+								debugger;
 								window.location.href = response.obj;
 							}
 							else {
@@ -64,6 +65,7 @@
 				const authCode = urlParams.get('code');
 
 				if (authCode) {
+					debugger;
 					$("#btnlogingoogle").prop('disabled', true);
 					$("#btnloader").removeClass("d-none");
 					$.ajax({
@@ -71,12 +73,14 @@
 						url: "@loginUrl?authCode=" + authCode,
 						success: function (response) {
 							if (response.succeeded) {
+								debugger;
 								localStorage.setItem("accessToken", response.obj.accessToken);
 								localStorage.setItem("expiredAt", response.obj.expiredAt);
 								localStorage.setItem("refreshToken", response.obj.refreshToken);
 								localStorage.setItem("sessionExpiredAt", response.obj.sessionExpiredAt);
 								localStorage.setItem("displayName", response.obj.displayName);
 								localStorage.setItem("photoUrl", response.obj.photoUrl);
+								localStorage.setItem("permissions", "temporary");
 
 								window.location.href = "@homePageUrl";
 							}

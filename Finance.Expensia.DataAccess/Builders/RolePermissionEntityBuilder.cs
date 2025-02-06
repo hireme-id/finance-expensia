@@ -478,7 +478,8 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("fffe808c-a842-4bee-b1d3-b4d8a0a7682d"), RoleId = new Guid("e07eb061-6a5d-4360-b6d6-c5dbeb82f074"), PermissionId = new Guid("a9901d48-f80f-492d-bd21-fd3414f855b1"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
 					new RolePermission { Id = new Guid("6a29a4bb-6c1a-4f5e-a9da-6b5483f52a87"), RoleId = new Guid("e07eb061-6a5d-4360-b6d6-c5dbeb82f074"), PermissionId = new Guid("6659f17a-c52e-4ec3-847b-46866a3b2abf"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
 					new RolePermission { Id = new Guid("12d8ea62-e936-42ae-81c1-fe33182f2175"), RoleId = new Guid("e07eb061-6a5d-4360-b6d6-c5dbeb82f074"), PermissionId = new Guid("aaad754e-00d1-4ffe-a530-bce354eba9ed"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
-					new RolePermission { Id = new Guid("d2e14bb7-9fa7-49d9-9aed-5c8c8f7aae3d"), RoleId = new Guid("e07eb061-6a5d-4360-b6d6-c5dbeb82f074"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) }
+					new RolePermission { Id = new Guid("d2e14bb7-9fa7-49d9-9aed-5c8c8f7aae3d"), RoleId = new Guid("e07eb061-6a5d-4360-b6d6-c5dbeb82f074"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
+					new RolePermission { Id = new Guid("26f9dfc3-6e9e-4730-aa64-c770a73df603"), RoleId = new Guid("e07eb061-6a5d-4360-b6d6-c5dbeb82f074"), PermissionId = new Guid("923d83d4-cd5d-4049-8371-a6313a101094"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) }
 				);
         }
 
@@ -493,7 +494,8 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("47f44eeb-d741-4a4f-b6cb-2421b8931fb0"), RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), PermissionId = new Guid("a9901d48-f80f-492d-bd21-fd3414f855b1"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
 					new RolePermission { Id = new Guid("b33ca67e-b746-400f-b096-990e824867b0"), RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), PermissionId = new Guid("6659f17a-c52e-4ec3-847b-46866a3b2abf"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
 					new RolePermission { Id = new Guid("012fcaa6-e54f-49ed-9bce-2a3ced131b31"), RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), PermissionId = new Guid("aaad754e-00d1-4ffe-a530-bce354eba9ed"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
-					new RolePermission { Id = new Guid("ae8812b7-6490-4a13-aa05-62a57af0dc16"), RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) }
+					new RolePermission { Id = new Guid("ae8812b7-6490-4a13-aa05-62a57af0dc16"), RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), PermissionId = new Guid("2705dd75-804e-4589-a895-7cabe2e3c6df"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) },
+					new RolePermission { Id = new Guid("a9280e1c-9f6a-4fd4-9849-eb2e2d3f19f5"), RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), PermissionId = new Guid("923d83d4-cd5d-4049-8371-a6313a101094"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) }
 				);
         }
     }

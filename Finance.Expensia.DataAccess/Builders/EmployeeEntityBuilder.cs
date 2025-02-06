@@ -12,7 +12,7 @@ namespace Finance.Expensia.DataAccess.Builders
 
             builder
                 .Property(e => e.EmployeeNo)
-                .HasMaxLength(15);
+                .HasMaxLength(150);
 
             builder
                 .Property(e => e.EmployeeName)

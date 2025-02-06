@@ -4,7 +4,8 @@
         localStorage.getItem("refreshToken") == null ||
         localStorage.getItem("sessionExpiredAt") == null ||
         localStorage.getItem("displayName") == null ||
-        localStorage.getItem("photoUrl") == null)
+        localStorage.getItem("photoUrl") == null ||
+        localStorage.getItem("permissions") == null)
         return true;
 
     return false;
