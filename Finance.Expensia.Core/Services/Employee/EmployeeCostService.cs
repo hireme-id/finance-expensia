@@ -19,6 +19,8 @@ namespace Finance.Expensia.Core.Services.Employee
         {
             var retVal = new ResponsePaging<EmployeeCostDto>();
 
+			var employeeCostStatuses = EnumHelper.FilterEnumList<EmployeeCostStatus>(input.SearchKey);
+
             var employeeCostDtos = _dbContext.EmployeeCosts.Include(d => d.Employee)
                                                            .Include(d => d.Company)
                                                            .Include(d => d.CostCenter)
@@ -26,6 +28,7 @@ namespace Finance.Expensia.Core.Services.Employee
                                                             EF.Functions.Like(d.Employee.EmployeeName, $"%{input.SearchKey}%")
                                                             || EF.Functions.Like(d.CostCenter.CostCenterName, $"%{input.SearchKey}%")
                                                             || EF.Functions.Like(d.Company.CompanyName, $"%{input.SearchKey}%")
+															|| (employeeCostStatuses.Count == 0 || employeeCostStatuses.Contains(d.EmployeeCostStatus))
                                                            )
                                                            .OrderByDescending(d => d.Modified ?? d.Created)
                                                            .Select(d => _mapper.Map<EmployeeCostDto>(d));
@@ -246,6 +249,7 @@ namespace Finance.Expensia.Core.Services.Employee
 			employeeCostData.WorkingDay = input.WorkingDay;
 			employeeCostData.LaptopOwnership = input.LaptopOwnership;
 			employeeCostData.Remark = input.Remark;
+			employeeCostData.EmployeeCostStatus = input.EmployeeCostStatus;
 			employeeCostData.EffectiveTaxCategory = dataEffectiveTaxCategoryAssignment.EffectiveTaxCategory;
 
 			foreach (var employeeCostComponent in employeeCostData.EmployeeCostComponents)

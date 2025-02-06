@@ -19,6 +19,7 @@ namespace Finance.Expensia.Core.Services.Employee.Inputs
 		public int WorkingDay { get; set; }
 		public LaptopOwnership LaptopOwnership { get; set; }
 		public string Remark { get; set; } = string.Empty;
+		public EmployeeCostStatus EmployeeCostStatus { get; set; }
 
 		public List<EmployeeCostComponentInput> EmployeeCostComponents { get; set; } = [];
 	}

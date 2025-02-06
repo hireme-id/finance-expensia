@@ -5,20 +5,35 @@
 
 <!-- Main Form -->
 <div class="card">
-    <div class="card-body">
-        <div class="row mb-3">
+    <div id="print-content" class="card-body">
+        <div class="row mb-3 d-print-flex-form">
             <!-- Company -->
             <div class="col-lg-6">
                 <label>Company <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
             </div>
             <!-- Cost Center -->
-            <div class="col-lg-6">
+            <div class="col-lg-6 d-print-none">
                 <label>Customer <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlCostCenter" name="costCenterId" bind-name="costCenterId" bind-trigger="change" disabled></select>
             </div>
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3 d-print-flex-form">
+            <!-- Employee Cost Status -->
+            <div class="col-lg-6">
+                <label>Status <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="ddlEmployeeCostStatus" name="employeeCostStatus" bind-name="employeeCostStatus" bind-trigger="change">
+                    <option value="">&nbsp</option>
+                    @foreach (EmployeeCostStatus item in Enum.GetValues(typeof(EmployeeCostStatus)))
+                    {
+                        var memberInfo = typeof(EmployeeCostStatus).GetMember(item.ToString()).FirstOrDefault();
+                        var enumMemberAttribute = memberInfo?.GetCustomAttribute<EnumMemberAttribute>();
+
+                        @Html.Raw($"<option value=\"{(int)item}\">{enumMemberAttribute?.Value ?? item.GetDescription()}</option>")
+                        ;
+                    }
+                </select>
+            </div>
             <!-- Offering Date -->
             <div class="col-lg-6">
                 <label>Offering Date <span class="text-danger">*</span></label>
@@ -34,7 +49,7 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3 d-print-flex-form">
             <!-- Join Date -->
             <div class="col-lg-6">
                 <label>JoinDate <span class="text-danger">*</span></label>
@@ -67,7 +82,7 @@
 
         <div class="mb-4 border-bottom border-dark"></div>
 
-        <div class="row mb-3">
+        <div class="row mb-3 d-print-flex-form">
             <!-- Employee No -->
             <div class="col-lg-6">
                 <label>NPK <span class="text-danger">*</span></label>
@@ -86,7 +101,7 @@
                 <input type="text" class="form-control" id="txtEmployeeName" name="employeeName" bind-name="employeeName" disabled />
             </div>
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3 d-print-flex-form">
             <!-- Employee Status -->
             <div class="col-lg-6">
                 <label>Employee Status <span class="text-danger">*</span></label>
@@ -105,7 +120,7 @@
                 <input type="text" class="form-control" id="txtJobPosition" name="jobPosition" bind-name="jobPosition" />
             </div>
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3 d-print-flex-form">
             <!-- PTKP -->
             <div class="col-lg-6">
                 <label>PTKP Type <span class="text-danger">*</span></label>
@@ -127,7 +142,7 @@
                 <input type="number" class="form-control" id="txtWorkingDay" name="workingDay" bind-name="workingDay" />
             </div>
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3 d-print-flex-form">
             <!-- Laptop Ownership -->
             <div class="col-lg-6">
                 <label>Kepemilikin Laptop <span class="text-danger">*</span></label>
@@ -144,7 +159,7 @@
                 </select>
             </div>
             <!-- Remark -->
-            <div class="col-lg-6">
+            <div class="col-lg-6 d-print-none">
                 <label>Remark <span class="text-danger">*</span></label>
                 <textarea id="txtRemark" rows="3" class="form-control form-control-area" name="remark" bind-name="remark"></textarea>
             </div>
@@ -153,7 +168,7 @@
         <div class="mb-4 border-bottom border-dark"></div>
 
         <div class="row mb-3">
-            <div class="col-lg-12">
+            <div id="divCalculate" class="col-lg-12 d-print-none">
                 <div class="row mb-3">
                     <button id="btnCalculatedRowMode" class="btn btn-sm btn-outline-secondary mr-2" style="width:200px">Tampilkan Baris Kalkulasi</button>
                     @if (Context.Request.Path != Url.Action("Detail", "EmployeeCost"))
@@ -163,14 +178,18 @@
                 </div>
             </div>
             <div class="col-lg-12">
-                <table class="table" id="gridEmployeeCostComponent" style="margin-top:0px!important;font-size:12px"></table>
+                <table class="table d-print-table" id="gridEmployeeCostComponent" style="margin-top:0px!important;"></table>
             </div>
         </div>
     </div>
-    <div class="card-footer">
+    <div class="card-footer d-print-none">
         @if (Context.Request.Path != Url.Action("Detail", "EmployeeCost"))
         {
             <button type="button" id="btnSubmit" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
+        }
+        else
+        {
+            <button type="button" id="btnPrint" class="btn btn-primary float-right ml-2" style="width:150px">Print</button>
         }
     </div>
 </div>

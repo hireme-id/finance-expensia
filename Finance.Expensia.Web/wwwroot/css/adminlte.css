@@ -7230,6 +7230,17 @@ button.bg-dark:focus {
     display: -ms-inline-flexbox !important;
     display: inline-flex !important;
   }
+
+  .d-print-flex-form {
+    display: flex !important;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .d-print-flex-form > .col-lg-6 {
+    flex: 1;
+    max-width: 50%;
+    padding: 0 10px;
+  }
 }
 
 .embed-responsive {

@@ -326,7 +326,7 @@
                             $('#menuCoa').show();
                         }
 
-                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.Tax.EffectiveTaxUpdate")) {
+                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.Tax.EffectiveTaxView")) {
                             $('#menuMaster').show();
                             $('#menuEffectiveTaxCategory').show();
                         }
@@ -363,6 +363,8 @@
                         if (response.obj.permissions.includes("@PermissionConstants.WorkflowHistory.WorkflowHistoryView")) {
                             $('#menuWorkflowHistory').show();
                         }
+
+                        localStorage.setItem("permissions", response.obj.permissions);
                     }
                 })
                 .fail(function (xhr, status, error) {
