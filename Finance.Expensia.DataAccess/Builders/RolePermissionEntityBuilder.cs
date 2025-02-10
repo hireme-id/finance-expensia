@@ -205,10 +205,11 @@ namespace Finance.Expensia.DataAccess.Builders
                     new RolePermission { Id = new Guid("c2b544db-ae0c-49bf-b7aa-683f606355a9"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("15987858-8d59-49bc-b7ad-dec1e9dd3c83"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("7afd64c0-9b7f-4b70-a693-ab961fd7baa2"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("106ebebf-7ed9-489c-ad28-eeeb49cf71a2"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("0671eba2-0fe3-4630-93ad-3fd9cdef88e7"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
-            #endregion
+					new RolePermission { Id = new Guid("bb588f4c-0862-4dcf-899a-ababc1c0010f"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("42cd2108-f0b2-46eb-8f0b-ff66948bc1e8"), Created = new DateTime(2024, 2, 10, 9, 39, 0, DateTimeKind.Utc) },
+			#endregion
 
-            #region Storage
-                    new RolePermission { Id = new Guid("e8645142-335a-49e3-a9c0-07df4bc6bf29"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
+			#region Storage
+					new RolePermission { Id = new Guid("e8645142-335a-49e3-a9c0-07df4bc6bf29"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("f601f0dc-ec56-4088-a637-95eea2372daa"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("fa007a00-75d1-4621-bbca-5429f169d1bd"), RoleId = new Guid("a0ae025a-9d3a-405a-beb2-8e643078d5db"), PermissionId = new Guid("f0300010-c0df-4366-a9c3-994f3a3ad47f"), Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(3910) },
             #endregion
 

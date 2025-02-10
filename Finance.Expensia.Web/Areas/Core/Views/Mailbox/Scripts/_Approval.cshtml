@@ -27,7 +27,7 @@
 	const btnApprove = $("#btnApprove"), btnReject = $("#btnReject");
 	const divHistory = $("#dvHistoryApproval");
 
-	let indexRowEdit = -1, isAllowEditApproval = false;
+	let indexRowEdit = -1, isAllowEditApproval = false, isAllowApprovalEditCoA = false;
 	let ddlPartnerDatas, ddlCoaDatas, ddlCostCenterDatas;
 	let totalAmount = 0;
 	let transactionNo;
@@ -65,18 +65,6 @@
 							type: "date",
 							width: "120px",
 							render: function (data, type, row, meta) {
-								if (meta.row == indexRowEdit) {
-									return (
-										`<div class="input-group">
-													<input type="text" class="form-control" id="dtInvoiceDate" autocomplete="off" value=` + data.toISOString().split('T')[0] + ` disabled>
-													<div class="input-group-append">
-														<span class="input-group-text">
-															<i class="fa fa-calendar"></i>
-														</span>
-													</div>
-												</div>`);
-								}
-
 								return fmtDate4(data);
 							}
 						},
@@ -85,13 +73,6 @@
 							title: "Tenant",
 							width: "200px",
 							render: function (data, type, row, meta) {
-								if (meta.row == indexRowEdit) {
-									return (
-										`<div>
-														<select class="form-control" id="ddlPartner" disabled></select>
-												</div>`);
-								}
-
 								return data.partnerName;
 							}
 						},
@@ -99,16 +80,6 @@
 							data: "description",
 							title: "Description",
 							width: "200px",
-							render: function (data, type, row, meta) {
-								if (meta.row == indexRowEdit) {
-									return (
-										`<div>
-														<input type="text" class="form-control" id="txtDescription" value="` + data + `" disabled/>
-												</div>`);
-								}
-
-								return data;
-							}
 						},
 						{
 							data: "coa",
@@ -118,8 +89,8 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-														<select class="form-control" id="ddlCoa" disabled></select>
-												</div>`);
+											<select class="form-control" id="ddlCoa"></select>
+										 </div>`);
 								}
 
 								return data.accountCode
@@ -133,8 +104,8 @@
 								if (meta.row == indexRowEdit) {
 									return (
 										`<div>
-														<select class="form-control" id="ddlCostCenter" disabled></select>
-												</div>`);
+											<select class="form-control" id="ddlCostCenter"></select>
+										 </div>`);
 								}
 
 								return data.costCenterCode
@@ -145,13 +116,6 @@
 							title: "Consumer Account",
 							width: "200px",
 							render: function (data, type, row, meta) {
-								if (meta.row == indexRowEdit) {
-									return (
-										`<div>
-											<select class="form-control select2" id="ddlPostingAccount"></select>
-										</div>`);
-								}
-
 								return data.postingAccountName;
 							}
 						},
@@ -160,15 +124,6 @@
 							title: "Amount",
 							width: "150px",
 							render: function (data, type, row, meta) {
-								//totalAmount = totalAmount + data;
-
-								if (meta.row == indexRowEdit) {
-									return (
-										`<div>
-												<input type="text" class="form-control" id="txtAmount" value="` + data + `" disabled/>
-											</div>`);
-								}
-
 								return fmtMoney(data);
 							}
 						},
@@ -211,7 +166,19 @@
 								return ``;
 							}
 						},
+						{
+							data: "id",
+							title: "Action",
+							width: "40px",
+							visible: false,
+							render: function (data, type, full, meta) {
+								if (meta.row == indexRowEdit) {
+									return (`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-save"></i></a>`);
+								}
 
+								return (`<a class="btn pr-0 pl-0 mr-2"><i data-row-index="` + meta.row + `" class="fas fa-edit"></i></a>`);
+							}
+						}
 					]
 				});
 
@@ -247,6 +214,61 @@
 						`Bank Name : ` + bankName + `
 Account Name : ` + accountName + `
 Account No : ` + accountNo);
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-edit", function (e) {
+					if (ValidateAllowModifyDetail()) {
+						indexRowEdit = parseInt($(this).attr('data-row-index'));
+						let data = gridOutgoingPaymentDetail.api().row(indexRowEdit).data();
+
+						gridOutgoingPaymentDetail.api().row(indexRowEdit).data(data);
+						gridOutgoingPaymentDetail.api().draw();
+						AfterEditDetail(data);
+					}
+				});
+
+				gridOutgoingPaymentDetail.on("click", "td .fas.fa-save", function (e) {
+					const isCostCenterMandatory = $('#ddlCoa option:selected').attr('isCostCenterMandatory') == "" ? false : true;
+					if (isCostCenterMandatory && $('#ddlCostCenter').val() == "") {
+						swal.fire({
+							title: "Cost Center",
+							text: "Cost Center harus diisi",
+							icon: "error",
+							showCancelButton: false,
+							confirmButtonText: "OK",
+							confirmButtonColor: "#D92D20",
+							customClass: {
+								actions: 'my-actions',
+								cancelButton: 'order-1 right-gap',
+								confirmButton: 'order-2',
+							},
+						});
+
+						return;
+					}
+
+					let indexRowSave = indexRowEdit;
+					const existingData = gridOutgoingPaymentDetail.api().row(indexRowSave).data();
+					let updateData = {
+						"id": existingData.id,
+						"invoiceDate": $('#dtInvoiceDate').val(),
+						"postingAccount": existingData.postingAccount,
+						"partner": existingData.partner,
+						"description": existingData.description,
+						"coa": {
+							"coaId": $('#ddlCoa').val(),
+							"accountCode": $('#ddlCoa option:selected').text()
+						},
+						"costCenter": {
+							"costCenterId": $('#ddlCostCenter').val(),
+							"costCenterCode": $('#ddlCostCenter option:selected').text()
+						},
+						"amount": existingData.amount,
+						"attachments": existingData.attachments
+					}
+
+					indexRowEdit = -1;
+					gridOutgoingPaymentDetail.api().row(indexRowSave).data(updateData);
 				});
 
 				gridOutgoingPaymentDetail.on("click", "td .download-file", function (e) {
@@ -367,6 +389,16 @@ Account No : ` + accountNo);
 					let confirmButtonText = $(this)[0].id == btnApprove[0].id ? "Approve" : "Reject";
 					let html = $(this)[0].id == btnApprove[0].id ? "Apakah anda yakin untuk menyetujui dokumen ini?" : "Apakah anda yakin untuk tidak menyetujui dokumen ini?<br>Jika iya harap isi keterangan di bawah ini";
 
+					if (indexRowEdit != -1) {
+						Swal.fire({
+                            title: "Error",
+                            text: "Harap menyelesaikan edit / buat detail yang belum selesai terlebih dahulu",
+                            icon: "error"
+                        });
+
+						return;
+					}
+
 					Swal.fire({
 						title: title,
 						html: html,
@@ -395,6 +427,19 @@ Account No : ` + accountNo);
 					}).then((result) => {
 						if (result.isConfirmed) {
 							document.body.classList.remove('loaded');
+
+							let outgoingPaymentDetails = [];
+							let dataOutgoingPaymentDetails = gridOutgoingPaymentDetail.api().data().toArray();
+							if (dataOutgoingPaymentDetails.length > 0) {
+								dataOutgoingPaymentDetails.forEach(function (v, i, a) {
+									outgoingPaymentDetails.push({
+										outgoingPaymentDetailId: v.id,
+										chartOfAccountId: v.coa.coaId,
+										costCenterId: v.costCenter.costCenterId == "" ? "00000000-0000-0000-0000-000000000000" : v.costCenter.costCenterId,
+									});
+								});
+							}
+
 							$.ajax(Object.assign({}, glbBaseRequest, {
 								method: "POST",
 								url: "@doActionWorkflowUrl",
@@ -405,7 +450,8 @@ Account No : ` + accountNo);
 									"expectedTransfer": ddlExpectedTransfer.val(),
 									"scheduledDate": dtScheduledDate.val() == "-" ? null : dtScheduledDate.val(),
 									"fromBankAliasId": ddlFromAliasBank.val(),
-									"bankPaymentType": ddlBankPaymentType.val()
+									"bankPaymentType": ddlBankPaymentType.val(),
+                                    "outgoingPaymentDetails": outgoingPaymentDetails
 								}),
 								contentType: "application/json"
 							})).done(function (response) {
@@ -604,6 +650,29 @@ Account No : ` + accountNo);
 		});
 	}
 
+	function RefreshDdlCoa(coaId) {
+		let ddlCoa = $("#ddlCoa");
+		ddlCoa.empty().append(`<option value="">&nbsp</option>`);
+
+		for (let i = 0; i < ddlCoaDatas.length; i++) {
+			const data = ddlCoaDatas[i];
+			const isSelected = coaId.toLowerCase() == data.coaId.toLowerCase() ? ` selected` : ``;
+			const isCostCenterMandatory = data.isCostCenterMandatory == true ? `mandatory` : ``;
+			ddlCoa.append(`<option isCostCenterMandatory="` + isCostCenterMandatory + `" value="` + data.coaId + `"` + isSelected + `>` + data.accountCode + ` - ` + data.accountName + `</option>`);
+		}
+	}
+
+	function RefreshDdlCostCenter(costCenterId) {
+		let ddlCostCenter = $("#ddlCostCenter");
+		ddlCostCenter.empty().append(`<option value="">&nbsp</option>`);
+
+		for (let i = 0; i < ddlCostCenterDatas.length; i++) {
+			const data = ddlCostCenterDatas[i];
+			const isSelected = costCenterId.toLowerCase() == data.costCenterId.toLowerCase() ? ` selected` : ``;
+			ddlCostCenter.append(`<option value="` + data.costCenterId + `"` + isSelected + `>` + data.costCenterCode + `</option>`);
+		}
+	}
+
 	async function LoadOutgoingPaymentDetailData() {
 		var pathArray = window.location.pathname.split('/');
 		const divTag = $('#dvListTag');
@@ -614,7 +683,6 @@ Account No : ` + accountNo);
 			$("#btnloader").addClass("d-none");
 			if (response.succeeded) {
 				if (response.obj.allowApprovalEdit) {
-					debugger;
 					isAllowEditApproval = true;
 					ddlExpectedTransfer.removeAttr('disabled');
 
@@ -625,6 +693,14 @@ Account No : ` + accountNo);
 					ddlFromAliasBank.removeAttr('disabled');
 					ddlBankPaymentType.removeAttr('disabled');
 				}
+
+				if (response.obj.allowApprovalEditCoA) {
+					isAllowApprovalEditCoA = true;
+                    gridOutgoingPaymentDetail.api().column(8).visible(true);
+
+					$("#ddlCoa").removeAttr('disabled');
+					$("#ddlCostCenter").removeAttr('disabled');
+                }
 
 				$.each(response.obj, function (key, value) {
 					if (key == 'transactionNo')
@@ -785,5 +861,29 @@ Account No : ` + accountNo);
 				});
 			}
 		});
+	}
+
+	function ValidateAllowModifyDetail() {
+		let message = '';
+
+		if (indexRowEdit != -1)
+			message = "Harap menyelesaikan edit yang belum selesai terlebih dahulu";
+
+		if (message != '') {
+			Swal.fire({
+				title: "Error",
+				text: message,
+				icon: "error"
+			});
+
+			return false;
+		}
+
+		return true;
+	}
+
+	function AfterEditDetail(data) {
+		RefreshDdlCoa(data.coa.coaId);
+		RefreshDdlCostCenter(data.costCenter.costCenterId);
 	}
 </script>

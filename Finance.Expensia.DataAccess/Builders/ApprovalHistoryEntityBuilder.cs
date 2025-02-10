@@ -34,7 +34,7 @@ namespace Finance.Expensia.DataAccess.Builders
 
 			builder
 				.Property(e => e.Remark)
-				.HasMaxLength(300);
+				.HasMaxLength(2000);
 
 			builder
 				.Property(e => e.MinAmount)

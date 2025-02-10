@@ -23,6 +23,7 @@
             public const string ApprovalInboxUpdate = "ApprovalInbox.Update";
             public const string ApprovalInboxDelete = "ApprovalInbox.Delete";
             public const string ApprovalEditInformation = "ApprovalInbox.EditInformation"; // Edit Expected Transfer, Scheduled Date, From Bank Alias, Bank Payment Type
+            public const string ApprovalEditCoA = "ApprovalInbox.EditCoA"; //Edit CoA & Cost Center
         }
 
         public static class MasterData
