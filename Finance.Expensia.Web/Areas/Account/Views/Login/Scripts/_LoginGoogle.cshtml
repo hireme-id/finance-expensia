@@ -30,7 +30,6 @@
 						url: '@getGoogleAuthUrl',
 						success: function (response) {
 							if (response.succeeded) {
-								debugger;
 								window.location.href = response.obj;
 							}
 							else {
@@ -65,7 +64,6 @@
 				const authCode = urlParams.get('code');
 
 				if (authCode) {
-					debugger;
 					$("#btnlogingoogle").prop('disabled', true);
 					$("#btnloader").removeClass("d-none");
 					$.ajax({
@@ -73,7 +71,6 @@
 						url: "@loginUrl?authCode=" + authCode,
 						success: function (response) {
 							if (response.succeeded) {
-								debugger;
 								localStorage.setItem("accessToken", response.obj.accessToken);
 								localStorage.setItem("expiredAt", response.obj.expiredAt);
 								localStorage.setItem("refreshToken", response.obj.refreshToken);

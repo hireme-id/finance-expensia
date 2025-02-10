@@ -31,6 +31,7 @@ namespace Finance.Expensia.DataAccess
         public virtual DbSet<EffectiveTaxRate> EffectiveTaxRates { get; set; }
         public virtual DbSet<CostComponent> CostComponents { get; set; }
 		public virtual DbSet<CostComponentCompany> CostComponentCompanies { get; set; }
+		public virtual DbSet<Recruiter> Recruiters { get; set; }
         #endregion
 
         #region Transaction
@@ -77,6 +78,7 @@ namespace Finance.Expensia.DataAccess
             new EffectiveTaxRateEntityBuilder().Configure(modelBuilder.Entity<EffectiveTaxRate>());
 			new CostComponentEntityBuilder().Configure(modelBuilder.Entity<CostComponent>());
             new CostComponentCompanyEntityBuilder().Configure(modelBuilder.Entity<CostComponentCompany>());
+			new RecruiterEntityBuilder().Configure(modelBuilder.Entity<Recruiter>());
             #endregion
 
             #region Transaction

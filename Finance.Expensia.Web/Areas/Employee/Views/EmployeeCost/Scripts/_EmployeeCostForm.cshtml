@@ -234,6 +234,7 @@
 				ddlEmployeeNo.on('select2:select', function (e) {
 					if (e.params.data.employeeName == undefined) {
 						txtEmployeeName.val('').prop('disabled', false);
+						ddlEmployeeNo.val(null).prop('disabled', true).trigger('change');
 					}
 					else {
 						txtEmployeeName.val(e.params.data.employeeName).prop('disabled', true);

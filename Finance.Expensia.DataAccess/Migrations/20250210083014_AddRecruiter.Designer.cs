@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250210083014_AddRecruiter")]
+    partial class AddRecruiter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3486,24 +3489,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("5df851bf-17a7-42b8-b0eb-6517ab3a74d7"),
-                            Created = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "MasterData.Recruiter.View",
-                            PermissionDescription = "Akses untuk view recruiter",
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("909948bc-8af6-4a01-a3ce-307fd8a68bca"),
-                            Created = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedBy = "",
-                            PermissionCode = "MasterData.Recruiter.Upsert",
-                            PermissionDescription = "Akses untuk update recruiter",
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("f5de4a8f-3b4d-4269-869e-65d72e52acec"),
                             Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372),
                             CreatedBy = "",
@@ -3732,8 +3717,7 @@ namespace Finance.Expensia.DataAccess.Migrations
 
                     b.Property<string>("RecruiterCode")
                         .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RowStatus")
                         .HasColumnType("int");
@@ -3746,7 +3730,7 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Recruiters");
+                    b.ToTable("Recruiter");
                 });
 
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.Role", b =>
@@ -3864,15 +3848,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             Created = new DateTime(2025, 1, 9, 10, 38, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "",
                             RoleCode = "Sales",
-                            RoleDescription = "",
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("319302b3-3935-4355-97b0-8c1cd2d7798d"),
-                            Created = new DateTime(2025, 2, 10, 15, 35, 0, 0, DateTimeKind.Utc),
-                            CreatedBy = "",
-                            RoleCode = "RecruitmentManager",
                             RoleDescription = "",
                             RowStatus = 0
                         });
@@ -5330,24 +5305,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fea959df-d33b-44c4-9bfd-2526c2221af2"),
-                            Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("5df851bf-17a7-42b8-b0eb-6517ab3a74d7"),
-                            RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("64249430-e111-4eef-aaf2-2d7bbb0835fe"),
-                            Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("909948bc-8af6-4a01-a3ce-307fd8a68bca"),
-                            RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
                             Id = new Guid("bc182dae-181d-4336-849e-7d616dedba40"),
                             Created = new DateTime(2025, 1, 9, 11, 2, 0, 0, DateTimeKind.Utc),
                             CreatedBy = "",
@@ -5506,24 +5463,6 @@ namespace Finance.Expensia.DataAccess.Migrations
                             CreatedBy = "",
                             PermissionId = new Guid("923d83d4-cd5d-4049-8371-a6313a101094"),
                             RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("c817996b-3756-4252-a18d-1e44375f06d9"),
-                            Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("5df851bf-17a7-42b8-b0eb-6517ab3a74d7"),
-                            RoleId = new Guid("319302b3-3935-4355-97b0-8c1cd2d7798d"),
-                            RowStatus = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1feb7-bf6b-4f08-ac01-d692ca2edfdc"),
-                            Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910),
-                            CreatedBy = "",
-                            PermissionId = new Guid("909948bc-8af6-4a01-a3ce-307fd8a68bca"),
-                            RoleId = new Guid("319302b3-3935-4355-97b0-8c1cd2d7798d"),
                             RowStatus = 0
                         });
                 });
@@ -5860,7 +5799,8 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.HasOne("Finance.Expensia.DataAccess.Models.User", "User")
                         .WithOne("Recruiter")
                         .HasForeignKey("Finance.Expensia.DataAccess.Models.Recruiter", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

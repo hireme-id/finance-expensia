@@ -4,6 +4,7 @@ using Finance.Expensia.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finance.Expensia.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250210083807_AddManageRecruiterPermission")]
+    partial class AddManageRecruiterPermission
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3732,8 +3735,7 @@ namespace Finance.Expensia.DataAccess.Migrations
 
                     b.Property<string>("RecruiterCode")
                         .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RowStatus")
                         .HasColumnType("int");
@@ -3746,7 +3748,7 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Recruiters");
+                    b.ToTable("Recruiter");
                 });
 
             modelBuilder.Entity("Finance.Expensia.DataAccess.Models.Role", b =>
@@ -5860,7 +5862,8 @@ namespace Finance.Expensia.DataAccess.Migrations
                     b.HasOne("Finance.Expensia.DataAccess.Models.User", "User")
                         .WithOne("Recruiter")
                         .HasForeignKey("Finance.Expensia.DataAccess.Models.Recruiter", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

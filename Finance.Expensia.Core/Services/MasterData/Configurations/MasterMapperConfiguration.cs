@@ -39,10 +39,14 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
             CreateMap<CostComponentCompany, CostComponentCompanyDto>()
                 .ForMember(dest => dest.CostComponentCompanyId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company == null ? string.Empty : src.Company.CompanyName));
-            #endregion
 
-            #region Transform Input into Entity
-            CreateMap<UpsertPartnerInput, Partner>()
+			CreateMap<Recruiter, RecruiterDto>()
+				.ForMember(dest => dest.RecruiterId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : string.Empty));
+			#endregion
+
+			#region Transform Input into Entity
+			CreateMap<UpsertPartnerInput, Partner>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<UpsertBankAliasInput, BankAlias>()
@@ -69,7 +73,10 @@ namespace Finance.Expensia.Core.Services.MasterData.Configurations
                     {
                         dest.CompanyId = src.CompanyId; // Saat create, tetap mapping CompanyId
                     }
-                }); ;
+                });
+
+            CreateMap<UpsertRecruiterInput, Recruiter>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
             #endregion
         }
     }

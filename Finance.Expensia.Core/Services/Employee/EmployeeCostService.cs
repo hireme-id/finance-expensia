@@ -3,40 +3,42 @@ using Finance.Expensia.Core.Services.Employee.Inputs;
 using Finance.Expensia.DataAccess.Models;
 using Finance.Expensia.Shared.Enums;
 using Finance.Expensia.Shared.Helpers;
+using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Exceptions;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Microsoft.EntityFrameworkCore;
 using NCalc;
+using System.Data;
 using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Finance.Expensia.Core.Services.Employee
 {
 	public partial class EmployeeService
-    {
-        public async Task<ResponsePaging<EmployeeCostDto>> RetrievePagingEmployeeCost(PagingSearchInputBase input)
-        {
-            var retVal = new ResponsePaging<EmployeeCostDto>();
+	{
+		public async Task<ResponsePaging<EmployeeCostDto>> RetrievePagingEmployeeCost(PagingSearchInputBase input)
+		{
+			var retVal = new ResponsePaging<EmployeeCostDto>();
 
 			var employeeCostStatuses = EnumHelper.FilterEnumList<EmployeeCostStatus>(input.SearchKey);
 
-            var employeeCostDtos = _dbContext.EmployeeCosts.Include(d => d.Employee)
-                                                           .Include(d => d.Company)
-                                                           .Include(d => d.CostCenter)
-                                                           .Where(d => 
-                                                            EF.Functions.Like(d.Employee.EmployeeName, $"%{input.SearchKey}%")
-                                                            || EF.Functions.Like(d.CostCenter.CostCenterName, $"%{input.SearchKey}%")
-                                                            || EF.Functions.Like(d.Company.CompanyName, $"%{input.SearchKey}%")
+			var employeeCostDtos = _dbContext.EmployeeCosts.Include(d => d.Employee)
+														   .Include(d => d.Company)
+														   .Include(d => d.CostCenter)
+														   .Where(d =>
+															EF.Functions.Like(d.Employee.EmployeeName, $"%{input.SearchKey}%")
+															|| EF.Functions.Like(d.CostCenter.CostCenterName, $"%{input.SearchKey}%")
+															|| EF.Functions.Like(d.Company.CompanyName, $"%{input.SearchKey}%")
 															|| (employeeCostStatuses.Count == 0 || employeeCostStatuses.Contains(d.EmployeeCostStatus))
-                                                           )
-                                                           .OrderByDescending(d => d.Modified ?? d.Created)
-                                                           .Select(d => _mapper.Map<EmployeeCostDto>(d));
+														   )
+														   .OrderByDescending(d => d.Modified ?? d.Created)
+														   .Select(d => _mapper.Map<EmployeeCostDto>(d));
 
-            retVal.ApplyPagination(input.Page, input.PageSize, employeeCostDtos);
+			retVal.ApplyPagination(input.Page, input.PageSize, employeeCostDtos);
 
-            return await Task.FromResult(retVal);
-        }
+			return await Task.FromResult(retVal);
+		}
 
 		public async Task<ResponseObject<EmployeeCostDto>> RetrieveEmployeeCost(Guid employeeCostId)
 		{
@@ -56,58 +58,58 @@ namespace Finance.Expensia.Core.Services.Employee
 			};
 		}
 
-        public async Task<ResponseObject<List<EmployeeCostComponentDto>>> RetrieveInitialEmployeeCostComponents()
-        {
-            var employeeCostComponentDtos = await _dbContext.CostComponents.Where(d => d.IsActive).OrderBy(d => d.CostComponentNo).Select(d => _mapper.Map<EmployeeCostComponentDto>(d)).ToListAsync();
+		public async Task<ResponseObject<List<EmployeeCostComponentDto>>> RetrieveInitialEmployeeCostComponents()
+		{
+			var employeeCostComponentDtos = await _dbContext.CostComponents.Where(d => d.IsActive).OrderBy(d => d.CostComponentNo).Select(d => _mapper.Map<EmployeeCostComponentDto>(d)).ToListAsync();
 
-            if (employeeCostComponentDtos == null)
-                return new ResponseObject<List<EmployeeCostComponentDto>>("Tidak ada data komponen ditemukan", responseCode: ResponseCode.NotFound);
+			if (employeeCostComponentDtos == null)
+				return new ResponseObject<List<EmployeeCostComponentDto>>("Tidak ada data komponen ditemukan", responseCode: ResponseCode.NotFound);
 
-            employeeCostComponentDtos
-                .FindAll(d => d.CostComponentName.Contains("[NonTaxableIncome]"))
-                .ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[NonTaxableIncome]", "..."));
 			employeeCostComponentDtos
-                .FindAll(d => d.CostComponentName.Contains("[EffectiveTaxCategory]"))
-                .ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[EffectiveTaxCategory]", "..."));
+				.FindAll(d => d.CostComponentName.Contains("[NonTaxableIncome]"))
+				.ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[NonTaxableIncome]", "..."));
+			employeeCostComponentDtos
+				.FindAll(d => d.CostComponentName.Contains("[EffectiveTaxCategory]"))
+				.ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[EffectiveTaxCategory]", "..."));
 
 			return new ResponseObject<List<EmployeeCostComponentDto>>(responseCode: ResponseCode.Ok)
 			{
 				Obj = employeeCostComponentDtos.Where(d => d.IsVisible).ToList()
 			};
-        }
+		}
 
-        public async Task<ResponseObject<List<EmployeeCostComponentDto>>> CalculateEmployeeCost(CalculateEmployeeCostInput input, bool showAll = false)
-        {
+		public async Task<ResponseObject<List<EmployeeCostComponentDto>>> CalculateEmployeeCost(CalculateEmployeeCostInput input, bool showAll = false)
+		{
 			var employeeCostComponentDtos = await _dbContext.CostComponents.Where(d => d.IsActive)
-                                                                           .OrderBy(d => d.CostComponentNo)
-                                                                           .Select(d => _mapper.Map<EmployeeCostComponentDto>(d))
-                                                                           .ToListAsync();
+																		   .OrderBy(d => d.CostComponentNo)
+																		   .Select(d => _mapper.Map<EmployeeCostComponentDto>(d))
+																		   .ToListAsync();
 
 			if (employeeCostComponentDtos == null)
 				return new ResponseObject<List<EmployeeCostComponentDto>>("Tidak ada data komponen ditemukan", responseCode: ResponseCode.NotFound);
 
-            var effectiveTaxCategoryAssignmentData = await _dbContext.EffectiveTaxCategoryAssignments.FirstOrDefaultAsync(d => d.NonTaxableIncome == input.NonTaxableIncome);
+			var effectiveTaxCategoryAssignmentData = await _dbContext.EffectiveTaxCategoryAssignments.FirstOrDefaultAsync(d => d.NonTaxableIncome == input.NonTaxableIncome);
 
-            if (effectiveTaxCategoryAssignmentData == null)
-                return new ResponseObject<List<EmployeeCostComponentDto>>("Tidak ada data ptkp ditemukan", responseCode: ResponseCode.NotFound);
+			if (effectiveTaxCategoryAssignmentData == null)
+				return new ResponseObject<List<EmployeeCostComponentDto>>("Tidak ada data ptkp ditemukan", responseCode: ResponseCode.NotFound);
 
 			var memberInfo = typeof(NonTaxableIncome).GetMember(input.NonTaxableIncome.ToString()).FirstOrDefault();
 			var enumMemberAttribute = memberInfo?.GetCustomAttribute<EnumMemberAttribute>();
 
 			employeeCostComponentDtos
-                .FindAll(d => d.CostComponentName.Contains("[NonTaxableIncome]"))
-                .ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[NonTaxableIncome]", enumMemberAttribute?.Value ?? input.NonTaxableIncome.GetDescription()));
+				.FindAll(d => d.CostComponentName.Contains("[NonTaxableIncome]"))
+				.ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[NonTaxableIncome]", enumMemberAttribute?.Value ?? input.NonTaxableIncome.GetDescription()));
 			employeeCostComponentDtos
-                .FindAll(d => d.CostComponentName.Contains("[EffectiveTaxCategory]"))
-                .ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[EffectiveTaxCategory]", effectiveTaxCategoryAssignmentData.EffectiveTaxCategory.GetDescription()));
+				.FindAll(d => d.CostComponentName.Contains("[EffectiveTaxCategory]"))
+				.ForEach(d => d.CostComponentName = d.CostComponentName.Replace("[EffectiveTaxCategory]", effectiveTaxCategoryAssignmentData.EffectiveTaxCategory.GetDescription()));
 
-            foreach (var employeeCostComponentInput in input.EmployeeCostComponents)
-            {
-                var employeeCostComponent = employeeCostComponentDtos.FirstOrDefault(d => d.CostComponentId == employeeCostComponentInput.CostComponentId);
+			foreach (var employeeCostComponentInput in input.EmployeeCostComponents)
+			{
+				var employeeCostComponent = employeeCostComponentDtos.FirstOrDefault(d => d.CostComponentId == employeeCostComponentInput.CostComponentId);
 
-                if (employeeCostComponent != null)
-				    employeeCostComponent.CostComponentAmount = employeeCostComponentInput.CostComponentAmount;
-            }
+				if (employeeCostComponent != null)
+					employeeCostComponent.CostComponentAmount = employeeCostComponentInput.CostComponentAmount;
+			}
 
 			foreach (var item in employeeCostComponentDtos)
 			{
@@ -137,13 +139,13 @@ namespace Finance.Expensia.Core.Services.Employee
 						}
 						else if (name == "NonTaxableIncome")
 						{
-                            args.Result = (int)input.NonTaxableIncome;
-                        }
-                        else if (name == "LaptopOwnership")
-                        {
-                            args.Result = (int)input.LaptopOwnership;
-                        }
-                        else if (int.TryParse(name, out var costComponentId))
+							args.Result = (int)input.NonTaxableIncome;
+						}
+						else if (name == "LaptopOwnership")
+						{
+							args.Result = (int)input.LaptopOwnership;
+						}
+						else if (int.TryParse(name, out var costComponentId))
 						{
 							if (employeeCostComponentDtos.Any(d => d.CostComponentNo == costComponentId))
 							{
@@ -176,7 +178,7 @@ namespace Finance.Expensia.Core.Services.Employee
 						else
 						{
 							item.CostComponentAmount = 0;
-						}						
+						}
 					}
 				}
 
@@ -189,23 +191,33 @@ namespace Finance.Expensia.Core.Services.Employee
 			};
 		}
 
-		public async Task<ResponseBase> CreateEmployeeCost(EmployeeCostInput input)
+		public async Task<ResponseBase> CreateEmployeeCost(EmployeeCostInput input, CurrentUserAccessor currentUserAccessor)
 		{
 			var (validateInputStatus, validateInputMessage) = ValidateEmployeeCostInput(input);
 			if (validateInputStatus != ResponseCode.Ok)
 				return new(validateInputMessage, validateInputStatus);
 
-			var (validateDataStatus, validateDataMessage, dataCompany, dataCostCenter, dataEffectiveTaxCategoryAssignment) = 
+			var (validateDataStatus, validateDataMessage, dataCompany, dataCostCenter, dataEffectiveTaxCategoryAssignment) =
 				await ValidateEmployeeCostReferenceData(input);
 			if (validateDataStatus != ResponseCode.Ok)
 				return new(validateDataMessage, validateDataStatus);
 
 			if (!input.EmployeeId.HasValue)
 			{
-				var employeeData = await CreateEmployee(new() { EmployeeNo = input.EmployeeNo, EmployeeName = input.EmployeeName });
+				var runningNumberConfig = await _documentNumberingService.GetRunningNumberDocument("OL", dataCompany.CompanyCode, DateTime.Now);
+				var recruiterData = await _dbContext.Recruiters.FirstOrDefaultAsync(d => d.UserId == currentUserAccessor.Id);
+				if (recruiterData == null)
+					return new("Kode rekruter tidak ditemukan", ResponseCode.BadRequest);
+
+				var employeeData = await CreateEmployee(new()
+				{
+					EmployeeNo = $"OL-{(runningNumberConfig.RunningNumber).ToString().PadLeft(2, '0')}-{dataCompany.CompanyCode}-{recruiterData.RecruiterCode}-{input.EmployeeName}",
+					EmployeeName = input.EmployeeName
+				});
+
 				input.EmployeeId = employeeData.Id;
 			}
-			
+
 			var employeeCostData = _mapper.Map<EmployeeCost>(input);
 			employeeCostData.EffectiveTaxCategory = dataEffectiveTaxCategoryAssignment.EffectiveTaxCategory;
 
@@ -263,8 +275,8 @@ namespace Finance.Expensia.Core.Services.Employee
 			{
 				EmployeeStatus = input.EmployeeStatus,
 				NonTaxableIncome = input.NonTaxableIncome,
-                LaptopOwnership = input.LaptopOwnership,
-                WorkingDay = input.WorkingDay,
+				LaptopOwnership = input.LaptopOwnership,
+				WorkingDay = input.WorkingDay,
 				EmployeeCostComponents = input.EmployeeCostComponents
 			}, true);
 			if (!employeeCostComponentDto.Succeeded || employeeCostComponentDto.Obj == null)
@@ -276,7 +288,7 @@ namespace Finance.Expensia.Core.Services.Employee
 				employeeCostComponentData.EmployeeCostId = employeeCostData.Id;
 			}
 			await _dbContext.AddRangeAsync(employeeCostComponentDatas);
-			
+
 			await _dbContext.SaveChangesAsync();
 
 			return new("Data employee cost berhasil disimpan", ResponseCode.Ok);
@@ -289,7 +301,7 @@ namespace Finance.Expensia.Core.Services.Employee
 				return new("Data employee cost tidak ditemukan", ResponseCode.NotFound);
 
 			dataEmployeeCost.RowStatus = 1;
-			
+
 			_dbContext.Update(dataEmployeeCost);
 			await _dbContext.SaveChangesAsync();
 

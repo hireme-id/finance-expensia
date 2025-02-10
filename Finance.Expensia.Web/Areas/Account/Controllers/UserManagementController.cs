@@ -2,6 +2,7 @@
 using Finance.Expensia.Core.Services.Account.Dtos;
 using Finance.Expensia.Core.Services.Account.Inputs;
 using Finance.Expensia.Shared.Attributes;
+using Finance.Expensia.Shared.Constants;
 using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
@@ -35,6 +36,13 @@ namespace Finance.Expensia.Web.Areas.Account.Controllers
         public async Task<ResponseObject<List<RoleDto>>> RetrieveRoleByUserId()
         {
             return await _userManagementService.RetrieveRoleByUserId(_currentUserAccessor);
+        }
+
+        [HttpPost("ddlusers")]
+        [AppAuthorize(PermissionConstants.MasterData.Recruiter.RecruiterUpsert)]
+        public async Task<ResponseObject<List<UserDto>>> RetrieveUsers()
+        {
+            return await _userManagementService.RetrieveUsers();
         }
 
         [HttpPost("user/list")]
