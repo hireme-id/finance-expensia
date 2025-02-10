@@ -13,5 +13,6 @@ namespace Finance.Expensia.DataAccess.Models
         public string PhotoProfileUrl { get; set; } = string.Empty;
 
         public virtual List<UserCompany> UserCompanies { get; set; } = [];
+        public virtual Recruiter? Recruiter { get; set; }
     }
 }

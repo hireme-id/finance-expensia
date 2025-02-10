@@ -1,0 +1,294 @@
+﻿@using Finance.Expensia.Shared.Enums
+@using Finance.Expensia.Shared.Helpers
+@{
+    var ddlUserUrl = Url.Action("RetrieveUsers", "UserManagement");
+    var gridRecruiter = Url.Action("GetListRecruiter", "Recruiter");
+    var getDetailRecruiter = Url.Action("GetDetailRecruiter", "Recruiter");
+    var upsertRecruiterUrl = Url.Action("UpsertRecruiter", "Recruiter");
+    var deleteRecruiterUrl = Url.Action("DeleteRecruiter", "Recruiter");
+    var recruiterHomeUrl = Url.Action("Index", "Recruiter", new { area = "MasterData" });
+}
+
+<script type="text/javascript">
+    //Variable for control
+    const ddlUserId = $("#ddlUserId");
+    const dmInput = $('#dvModalRecruiter input'), dmSelect = $('#dvModalRecruiter select'), dmButton = $('#dvModalRecruiter button');
+    const lblTitle = $("#title-modal");
+    const mdRecruiter = $('#recruiterForm');
+    const btnCreate = $("#btnCreate"), btnSubmit = $("#btnSubmit")
+
+    let gridRecruiter;
+    let isEdit = false;
+    let idRecruiter;
+    let currentDraw = 0;
+    $(function () {
+        RecruiterManager = new RecruiterManager();
+        RecruiterManager.InitManagement();
+    });
+
+    function RecruiterManager() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridRecruiter = $('#gridRecruiter').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@gridRecruiter",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { title: "Kode Rekruter", data: "recruiterCode" },
+                        { title: "Nama Rekruter", data: "fullName" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                let id = row.recruiterId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-danger" data-id="${id}" name="deletebutton"><i class="fa fa-trash" style="font-size: 15px;"></i></button>
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" name="detailbutton"><i class="fas fa-file-alt" style="font-size: 15px;"></i></button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+                $(document).on('click', '[name="editbutton"]', function () {
+                    idRecruiter = $(this).data('id');
+                    
+                    isEdit = true;
+                    lblTitle.text("Edit Recruiter");
+                    dmInput.add(dmSelect).prop('disabled', false);
+                    dmButton.show();
+                    loadDataRecruiter(idRecruiter);
+                });
+
+                $(document).on('click', '[name="deletebutton"]', function () {
+                    idRecruiter = $(this).data('id');
+                    
+                    Swal.fire({
+                        title: 'Delete',
+                        html: 'Apakah anda yakin untuk menghapus data ini?',
+                        width: '500px',
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        confirmButtonColor: "#D92D20",
+                        customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                        },
+                        icon: "warning",
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax(Object.assign({}, glbBaseRequest, {
+                                method: "POST",
+                                url: "@deleteRecruiterUrl?recruiterId=" + idRecruiter,
+                                contentType: "application/json"
+                            })).done(function (response) {
+                                if (response.succeeded) {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: response.message,
+                                        icon: "success"
+                                    }).then(() => {
+                                        window.location.href = "@recruiterHomeUrl";
+                                    });
+                                }
+                                else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: response.message,
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+
+                $(document).on('click', '[name="detailbutton"]', async function () {
+                    idRecruiter = $(this).data('id');
+                    
+                    lblTitle.text("Detail Recruiter");
+                    dmInput.add(dmSelect).attr('disabled', true);
+                    dmButton.hide();
+                    await loadDataRecruiter(idRecruiter);
+                    dmInput.add(dmSelect).each(function () {
+                        if ($(this).val() === '') {
+                            $(this).val('-');
+                        }
+                    });
+                });
+
+                $("#btnCreate").click(function () { 
+                    isEdit = false;
+                    lblTitle.text("Create Recruiter");
+                    dmInput.add(dmSelect).prop('disabled', false);
+                    dmInput.add(dmSelect).val('');
+                    ddlUserId.val(null).trigger('change');
+                    dmButton.show();
+                    mdRecruiter.modal('show');
+                })
+
+                btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let isSubmit = $el.attr('data-is-submit');
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('.card-body :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataArray.forEach(function (field) {
+                        formDataObject[field.name] = field.value;
+                    });
+                    
+                    if (isEdit) {
+                        formDataObject.Id = idRecruiter;
+                    }
+                    else {
+                        formDataObject.Id = null;
+                    }
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@upsertRecruiterUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "@recruiterHomeUrl";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: async function () {
+                await RefreshDdlUser();
+            }
+        }
+    };
+
+    function loadDataRecruiter(recruiterId) {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getDetailRecruiter" + "?recruiterId=" + recruiterId
+            })).done(function (response) {
+                if (response.succeeded) {
+                    $.each(response.obj, function (key, value) {
+                        let input = $('[bind-name="' + key + '"]');
+
+                        if (input.length > 0) {
+                            let bindTrigger = input.attr('bind-trigger');
+
+                            input.val(value);
+
+                            if (bindTrigger != undefined) {
+                                input.trigger(bindTrigger);
+                            }
+                        }
+                    });
+
+                    mdRecruiter.modal('show');
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+
+    async function RefreshDdlUser() {
+        await $.ajax(Object.assign({}, glbBaseRequest, {
+            method: "POST",
+            url: "@ddlUserUrl"
+        })).done(function (response) {
+            if (response.succeeded) {
+                ddlUserId.empty().append(`<option value="">&nbsp</option>`);
+
+                for (let i = 0; i < response.obj.length; i++) {
+                    const data = response.obj[i];
+                    ddlUserId.append(`<option value="` + data.userId + `">` + data.fullName + `</option>`);
+                }
+            }
+            else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+            }
+        });
+    }
+</script>

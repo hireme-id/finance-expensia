@@ -9,6 +9,7 @@
     var masterCoa = Url.Action("Index", "Coa", new { area = "MasterData" });
     var masterEffectiveTaxCategory = Url.Action("ManageEffectiveTaxCategory", "Tax", new { area = "MasterData" });
     var masterCostComponent = Url.Action("Index", "CostComponent", new { area = "MasterData" });
+    var masterRecruiter = Url.Action("Index", "Recruiter", new { area = "MasterData" });
     var menuApprovalRule = Url.Action("Index", "ApprovalRule", new { area = "Rule" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
     var manageUser = Url.Action("ManageUser", "UserManagement", new { area = "Account" });
@@ -138,6 +139,12 @@
                                     <a href="@masterCostComponent" class="nav-link">
                                         <i class="nav-icon fas fa-vial"></i>
                                         <p>Cost Component</p>
+                                    </a>
+                                </li>
+                                <li id="menuRecruiter" class="nav-item" style="display:none">
+                                    <a href="@masterRecruiter" class="nav-link">
+                                        <i class="nav-icon fas fa-user-tie"></i>
+                                        <p>Recruiter</p>
                                     </a>
                                 </li>
                             </ul>
@@ -334,6 +341,11 @@
                         if (response.obj.permissions.includes("@PermissionConstants.MasterData.CostComponent.CostComponentUpsert")) {
                             $('#menuMaster').show();
                             $('#menuCostComponent').show();
+                        }
+
+                        if (response.obj.permissions.includes("@PermissionConstants.MasterData.Recruiter.RecruiterUpsert")) {
+                            $('#menuMaster').show();
+                            $('#menuRecruiter').show();
                         }
 
                         // if (response.obj.permissions.includes("@PermissionConstants.Rule.ApprovalRuleUpsert")) {

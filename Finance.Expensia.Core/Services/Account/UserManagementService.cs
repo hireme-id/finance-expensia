@@ -44,6 +44,19 @@ namespace Finance.Expensia.Core.Services.Account
             };
         }
 
+        public async Task<ResponseObject<List<UserDto>>> RetrieveUsers()
+        {
+            var dataUsers = await _dbContext.Users
+                                            .OrderBy(d => d.FullName)
+                                            .Select(d => _mapper.Map<UserDto>(d))
+                                            .ToListAsync();
+
+            return new(responseCode: ResponseCode.Ok)
+            {
+                Obj = dataUsers
+            };
+        }
+
         public async Task<ResponsePaging<ListUserDto>> GetListUser(PagingSearchInputBase input)
         {
             var retVal = new ResponsePaging<ListUserDto>();

@@ -3,6 +3,7 @@ using Finance.Expensia.Core.Services.Employee.Dtos;
 using Finance.Expensia.Core.Services.Employee.Inputs;
 using Finance.Expensia.Shared.Attributes;
 using Finance.Expensia.Shared.Constants;
+using Finance.Expensia.Shared.Objects;
 using Finance.Expensia.Shared.Objects.Dtos;
 using Finance.Expensia.Shared.Objects.Inputs;
 using Finance.Expensia.Web.Controllers;
@@ -11,9 +12,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Finance.Expensia.Web.Areas.MasterData.Controllers
 {
-    public class EmployeeCostController(EmployeeService employeeService) : BaseController
+    public class EmployeeCostController(EmployeeService employeeService, CurrentUserAccessor currentUserAccessor) : BaseController
     {
         private readonly EmployeeService _employeeService = employeeService;
+        private readonly CurrentUserAccessor _currentUserAccessor = currentUserAccessor;
 
         [AllowAnonymous]
         public IActionResult Index()
@@ -58,7 +60,7 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         [AppAuthorize(PermissionConstants.Employee.EmployeeCost.EmployeeCostCreate)]
         [Mutation]
         [HttpPost("employeecost/create")]
-        public async Task<ResponseBase> CreateEmployeeCost([FromBody] EmployeeCostInput input) => await _employeeService.CreateEmployeeCost(input);
+        public async Task<ResponseBase> CreateEmployeeCost([FromBody] EmployeeCostInput input) => await _employeeService.CreateEmployeeCost(input, _currentUserAccessor);
 
         [AppAuthorize(PermissionConstants.Employee.EmployeeCost.EmployeeCostUpdate)]
         [Mutation]

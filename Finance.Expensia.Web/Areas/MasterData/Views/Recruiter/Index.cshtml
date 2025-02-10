@@ -1,0 +1,22 @@
+﻿@{
+	ViewData["Title"] = "Master Recruiter";
+	ViewData["Subtitle"] = "Master Recruiter";
+}
+<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-lg-12 text-right">
+				<button id="btnCreate" class="btn btn-primary" data-toggle="modal" data-target="#recruiterForm">
+					Create
+				</button>
+			</div>
+		</div>
+		<div class="resposivetable" style="margin-top:10px">
+			<table id="gridRecruiter" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+		</div>
+	</div>
+</div>
+@await Html.PartialAsync("~/Areas/MasterData/Views/Recruiter/Components/_RecruiterForm.cshtml")
+@section scripts {
+	@await Html.PartialAsync("~/Areas/MasterData/Views/Recruiter/Scripts/_Recruiter.cshtml")
+}

@@ -19,6 +19,7 @@ namespace Finance.Expensia.DataAccess.Builders
             SeedingDataAdministrator(builder);
             SeedingDataRecruitment(builder);
             SeedingDataSales(builder);
+            SeedingDataRecruitmentManager(builder);
         }
 
         private static void SeedingDataUser(EntityTypeBuilder<RolePermission> builder)
@@ -466,6 +467,12 @@ namespace Finance.Expensia.DataAccess.Builders
 					new RolePermission { Id = new Guid("031f512a-4e23-4cad-968d-5a541aab2f2d"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("4bea6378-af27-43a8-bf6d-1881b25c71c1"), Created = new DateTime(2024, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
 					new RolePermission { Id = new Guid("8574ce80-16e8-4658-b3a1-3f2c34fe76a6"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("a9901d48-f80f-492d-bd21-fd3414f855b1"), Created = new DateTime(2025, 1, 3, 15, 54, 0, 0, DateTimeKind.Utc).AddTicks(3910) }
 				);
+
+			builder
+				.HasData(
+					new RolePermission { Id = new Guid("fea959df-d33b-44c4-9bfd-2526c2221af2"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("5df851bf-17a7-42b8-b0eb-6517ab3a74d7"), Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("64249430-e111-4eef-aaf2-2d7bbb0835fe"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("909948bc-8af6-4a01-a3ce-307fd8a68bca"), Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910) }
+				);
 		}
 
         private static void SeedingDataRecruitment(EntityTypeBuilder<RolePermission> builder)
@@ -499,5 +506,15 @@ namespace Finance.Expensia.DataAccess.Builders
 					new RolePermission { Id = new Guid("a9280e1c-9f6a-4fd4-9849-eb2e2d3f19f5"), RoleId = new Guid("2a0b91c6-7242-4fbb-a7a4-60e5bc9bd9cf"), PermissionId = new Guid("923d83d4-cd5d-4049-8371-a6313a101094"), Created = new DateTime(2025, 1, 9, 11, 02, 0, 0, DateTimeKind.Utc) }
 				);
         }
-    }
+
+        private static void SeedingDataRecruitmentManager(EntityTypeBuilder<RolePermission> builder)
+        {
+			builder
+				.HasData(
+					new RolePermission { Id = new Guid("c817996b-3756-4252-a18d-1e44375f06d9"), RoleId = new Guid("319302b3-3935-4355-97b0-8c1cd2d7798d"), PermissionId = new Guid("5df851bf-17a7-42b8-b0eb-6517ab3a74d7"), Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
+					new RolePermission { Id = new Guid("f0b1feb7-bf6b-4f08-ac01-d692ca2edfdc"), RoleId = new Guid("319302b3-3935-4355-97b0-8c1cd2d7798d"), PermissionId = new Guid("909948bc-8af6-4a01-a3ce-307fd8a68bca"), Created = new DateTime(2025, 2, 10, 15, 37, 0, 0, DateTimeKind.Utc).AddTicks(3910) }
+				);
+		}
+
+	}
 }

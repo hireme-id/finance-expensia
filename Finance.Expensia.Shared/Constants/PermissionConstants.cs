@@ -70,6 +70,12 @@
                 public const string CostComponentView = "MasterData.CostComponent.View";
                 public const string CostComponentUpsert = "MasterData.CostComponent.Upsert";
             }
+
+            public static class Recruiter
+            {
+                public const string RecruiterView = "MasterData.Recruiter.View";
+                public const string RecruiterUpsert = "MasterData.Recruiter.Upsert";
+            }
         }
 
         public static class Rule

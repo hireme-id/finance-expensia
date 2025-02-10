@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Finance.Expensia.Core.Services.DocumentNumbering;
 using Finance.Expensia.Core.Services.Employee.Dtos;
 using Finance.Expensia.Core.Services.Employee.Inputs;
 using Finance.Expensia.DataAccess;
@@ -10,9 +11,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Finance.Expensia.Core.Services.Employee
 {
-    public partial class EmployeeService(ApplicationDbContext dbContext, IMapper mapper, ILogger<EmployeeService> logger)
-        : BaseService<EmployeeService>(dbContext, mapper, logger)
+    public partial class EmployeeService(
+        ApplicationDbContext dbContext, 
+        IMapper mapper, 
+        ILogger<EmployeeService> logger, 
+        DocumentNumberingService documentNumberingService
+    ) : BaseService<EmployeeService>(dbContext, mapper, logger)
     {
+        private DocumentNumberingService _documentNumberingService = documentNumberingService;
+
         public async Task<ResponsePaging<EmployeeDto>> RetrievePagingEmployee(PagingSearchInputBase input)
         {
             var retVal = new ResponsePaging<EmployeeDto>();

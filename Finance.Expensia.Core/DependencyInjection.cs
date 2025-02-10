@@ -44,6 +44,7 @@ namespace Finance.Expensia.Core
             services.AddScoped<TaxService>();
             services.AddScoped<CostComponentService>();
             services.AddScoped<EmployeeService>();
+            services.AddScoped<RecruiterService>();
 
             services.AddHttpClient();
 
