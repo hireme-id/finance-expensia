@@ -126,8 +126,8 @@ namespace Finance.Expensia.DataAccess.Builders
 					new Permission { Id = new Guid("15987858-8d59-49bc-b7ad-dec1e9dd3c83"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalInboxView, PermissionDescription = "Akses untuk view data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
 					new Permission { Id = new Guid("106ebebf-7ed9-489c-ad28-eeeb49cf71a2"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalInboxUpdate, PermissionDescription = "Akses untuk melakukan update data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
 					new Permission { Id = new Guid("feceb717-e88d-41bf-86e9-4f3a3cad5cc8"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalInboxDelete, PermissionDescription = "Akses untuk melakukan delete data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
-					// Data permission untuk code ApprovalEditInformation dengan deskripsi Akses untuk melakukan update sebagian informasi pada data approval inbox
-					new Permission { Id = new Guid("b7eafb34-d9e7-4cba-9378-8c54c0786dbf"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalEditInformation, PermissionDescription = "Akses untuk melakukan update sebagian informasi pada data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) }
+					new Permission { Id = new Guid("b7eafb34-d9e7-4cba-9378-8c54c0786dbf"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalEditInformation, PermissionDescription = "Akses untuk melakukan update sebagian informasi pada data approval inbox", Created = new DateTime(2024, 2, 25, 15, 15, 29, 23, DateTimeKind.Utc).AddTicks(2372) },
+					new Permission { Id = new Guid("42cd2108-f0b2-46eb-8f0b-ff66948bc1e8"), PermissionCode = PermissionConstants.ApprovalInbox.ApprovalEditCoA, PermissionDescription = "Akses untuk melakukan update informasi CoA pada data approval inbox", Created = new DateTime(2025, 2, 10, 9, 38, 0, DateTimeKind.Utc) }
 				);
             #endregion
 

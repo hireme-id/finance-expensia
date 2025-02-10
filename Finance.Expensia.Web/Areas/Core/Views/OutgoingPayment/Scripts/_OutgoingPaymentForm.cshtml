@@ -654,6 +654,16 @@ Account No : ` + accountNo);
 				});
 
 				btnSubmit.add(btnDraft).on("click", function (e) {
+					if (indexRowEdit != -1) {
+						Swal.fire({
+							title: "Error",
+							text: "Harap menyelesaikan edit / buat detail yang belum selesai terlebih dahulu",
+							icon: "error"
+						});
+
+						return;
+					}
+
 					let $el = $(this);
 					let isSubmit = $el.attr('data-is-submit');
 					let disabledElement = $('input:disabled').add('select:disabled');

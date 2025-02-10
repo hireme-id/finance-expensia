@@ -14,5 +14,13 @@ namespace Finance.Expensia.Core.Services.Inbox.Inputs
 		public DateTime? ScheduledDate { get; set; }
 		public Guid? FromBankAliasId { get; set; }
 		public BankPaymentType? BankPaymentType { get; set; }
+		public List<OutgoingPaymentDetailApprovalInput> OutgoingPaymentDetails { get; set; } = [];
+	}
+
+	public class OutgoingPaymentDetailApprovalInput
+	{
+		public Guid OutgoingPaymentDetailId { get; set; }
+		public Guid ChartOfAccountId { get; set; }
+		public Guid CostCenterId { get; set; }
 	}
 }

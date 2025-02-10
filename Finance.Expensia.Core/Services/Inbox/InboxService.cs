@@ -99,9 +99,10 @@ namespace Finance.Expensia.Core.Services.Inbox
         {
 			#region Cek apakah transaksi ada di inbox dan outgoing payment
 			var approvalDocument = await _dbContext.ApprovalInboxes.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
-			var outgoingPayment = await _dbContext.OutgoingPayments.FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
+			var outgoingPayment = await _dbContext.OutgoingPayments.Include(op => op.OutgoingPaymentDetails)
+																   .FirstOrDefaultAsync(d => d.TransactionNo.Equals(input.TransactionNo));
 			if (approvalDocument == null || outgoingPayment == null)
-				return new ResponseBase("Gagal melanjutkan proses, karena data tidak ditemukan", ResponseCode.NotFound);
+				return new("Gagal melanjutkan proses, karena data tidak ditemukan", ResponseCode.NotFound);
 			#endregion
 
 			var currentRoleApproval = approvalDocument.ApprovalRoleCode;
@@ -113,7 +114,7 @@ namespace Finance.Expensia.Core.Services.Inbox
                                             .Where(d => d.UserCompany.UserId.Equals(currentUserAccessor.Id))
 											.ToListAsync();
 			if (!dataRoles.Any(d => d.Role.RoleCode.Equals(approvalDocument.ApprovalRoleCode, StringComparison.OrdinalIgnoreCase)))
-				return new ResponseBase("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
+				return new("Gagal melanjutkan proses, karena anda tida memiliki akses", ResponseCode.Forbidden);
 			#endregion
 
 			#region Proses approval document
@@ -135,7 +136,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 			if (input.WorkflowAction == WorkflowAction.Approve)
 			{
 				if (input.ExpectedTransfer == ExpectedTransfer.Scheduled && !input.ScheduledDate.HasValue)
-					return new ResponseBase("Schedule date harus diisi");
+					return new("Schedule date harus diisi");
 
 				string breakLine = "<br/><br/>";
 
@@ -152,7 +153,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 							outgoingPayment.ScheduledDate = null;
 
 						breakLine = "<br/>";
-                    }	
+					}
 				}
 
 				if (input.ScheduledDate != null)
@@ -205,6 +206,58 @@ namespace Finance.Expensia.Core.Services.Inbox
 
                         breakLine = "<br/>";
                     }
+				}
+
+				if (input.OutgoingPaymentDetails.Count > 0)
+				{
+					if (input.OutgoingPaymentDetails.Count != outgoingPayment.OutgoingPaymentDetails.Count)
+						return new("Gagal melakukan approval karena data detail tidak valid");
+
+					foreach (var outgoingPaymentDetail in outgoingPayment.OutgoingPaymentDetails)
+					{
+						var outgoingPaymentDetailId = outgoingPaymentDetail.Id;
+						var iOutgoingPaymentDetailData = input.OutgoingPaymentDetails.First(d => d.OutgoingPaymentDetailId.Equals(outgoingPaymentDetailId));
+						
+						var diffChartOfAccount = 
+							CheckDifferentData(
+								outgoingPaymentDetail.ChartOfAccountId, 
+								iOutgoingPaymentDetailData.ChartOfAccountId, 
+								"Chart of Account"
+							);
+
+						if (!string.IsNullOrEmpty(diffChartOfAccount))
+						{
+							var coaData = await _dbContext.ChartOfAccounts.FirstAsync(d => d.Id.Equals(iOutgoingPaymentDetailData.ChartOfAccountId));
+
+							input.Remark = $"{input.Remark}{breakLine}{diffChartOfAccount} ({outgoingPaymentDetail.Description})";
+							
+							outgoingPaymentDetail.ChartOfAccountId = iOutgoingPaymentDetailData.ChartOfAccountId;
+							outgoingPaymentDetail.ChartOfAccountNo = coaData.AccountCode;
+							outgoingPaymentDetail.ChartOfAccountName = coaData.AccountName;
+
+							breakLine = "<br/>";
+						}
+
+						var diffCostCenter =
+							CheckDifferentData(
+								outgoingPaymentDetail.CostCenterId,
+								iOutgoingPaymentDetailData.CostCenterId,
+								"Cost Center"
+							);
+
+						if (!string.IsNullOrEmpty(diffCostCenter))
+						{
+							var costCenterData = await _dbContext.CostCenters.FirstOrDefaultAsync(d => d.Id.Equals(iOutgoingPaymentDetailData.CostCenterId));
+
+							input.Remark = $"{input.Remark}{breakLine}{diffCostCenter} ({outgoingPaymentDetail.Description})";
+
+							outgoingPaymentDetail.CostCenterId = iOutgoingPaymentDetailData.CostCenterId;
+							outgoingPaymentDetail.CostCenterCode = costCenterData?.CostCenterCode ?? string.Empty;
+							outgoingPaymentDetail.CostCenterName = costCenterData?.CostCenterName ?? string.Empty;
+
+							breakLine = "<br/>";
+						}
+					}
 				}
 			}
 
@@ -266,7 +319,7 @@ namespace Finance.Expensia.Core.Services.Inbox
 				await _workflowService.SendEmailToApprover(dataSendEmail, ApprovalStatus.Approved);
 			}
 
-			return new ResponseBase("Proses approval berhasil dilakukan", ResponseCode.Ok);
+			return new("Proses approval berhasil dilakukan", ResponseCode.Ok);
 		}
 
         public async Task<ResponseBase> DoActionWorkflows(List<DoActionWorkflowInput> inputs, CurrentUserAccessor currentUserAccessor)
@@ -295,6 +348,18 @@ namespace Finance.Expensia.Core.Services.Inbox
 				{
 					oldValueString = _dbContext.BankAliases.FirstOrDefault(d => d.Id.Equals(oldValueId))?.AliasName ?? oldValueString;
 					newValueString = _dbContext.BankAliases.FirstOrDefault(d => d.Id.Equals(newValueId))?.AliasName ?? newValueString;
+				}
+
+				if (fieldName == "Chart of Account")
+				{
+					oldValueString = _dbContext.ChartOfAccounts.FirstOrDefault(d => d.Id.Equals(oldValueId))?.AccountName ?? oldValueString;
+					newValueString = _dbContext.ChartOfAccounts.FirstOrDefault(d => d.Id.Equals(newValueId))?.AccountName ?? newValueString;
+				}
+
+				if (fieldName == "Cost Center")
+				{
+					oldValueString = _dbContext.CostCenters.FirstOrDefault(d => d.Id.Equals(oldValueId))?.CostCenterName ?? oldValueString;
+					newValueString = _dbContext.CostCenters.FirstOrDefault(d => d.Id.Equals(newValueId))?.CostCenterName ?? newValueString;
 				}
 			}
 
