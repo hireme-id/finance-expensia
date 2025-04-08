@@ -449,6 +449,12 @@ namespace Finance.Expensia.DataAccess.Builders
 
             builder
                 .HasData(
+                    new RolePermission { Id = new Guid("42b37a63-a7d4-4c00-bfde-39c3ca942b1f"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("31410ff2-6c2a-457d-bb50-a926d5f90396"), Created = new DateTime(2025, 4, 8, 0, 0, 0) },
+                    new RolePermission { Id = new Guid("e423ca87-6b95-4edd-a351-f5c37e4a0455"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("f75e356d-1b25-4b7f-bafb-24efc202c8cd"), Created = new DateTime(2025, 4, 8, 0, 0, 0) }
+                );
+
+            builder
+                .HasData(
                     new RolePermission { Id = new Guid("20c92fe2-9927-4e30-a73a-fce6953bbf8b"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("923d83d4-cd5d-4049-8371-a6313a101094"), Created = new DateTime(2024, 11, 6, 13, 58, 0, 0, DateTimeKind.Utc).AddTicks(3910) },
                     new RolePermission { Id = new Guid("47cdff05-a686-4af6-be30-7159a2a01c1c"), RoleId = new Guid("9ffa21e8-f911-48ce-9c68-0ec6ba882302"), PermissionId = new Guid("f2c5ead1-3ea7-4206-b2dc-7790af360d75"), Created = new DateTime(2024, 11, 6, 13, 58, 0, 0, DateTimeKind.Utc).AddTicks(3910) }
                 );

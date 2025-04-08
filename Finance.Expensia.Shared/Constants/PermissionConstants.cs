@@ -98,7 +98,11 @@
 
         public static class UserManagement
         {
-            public const string RoleView = "UserManagement.Role.View";
+            public static class ManageRole
+            {
+                public const string RoleView = "UserManagement.Role.View";
+                public const string RoleUpdate = "UserManagement.Role.Update";
+            }
 
             public static class ManageUser
             {

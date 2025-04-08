@@ -12,6 +12,7 @@
     var masterRecruiter = Url.Action("Index", "Recruiter", new { area = "MasterData" });
     var menuApprovalRule = Url.Action("Index", "ApprovalRule", new { area = "Rule" });
     var workflowHistory = Url.Action("Index", "WorkflowHistory", new { area = "Core" });
+    var manageRole = Url.Action("ManageRole", "UserManagement", new { area = "Account" });
     var manageUser = Url.Action("ManageUser", "UserManagement", new { area = "Account" });
     var employee = Url.Action("Index", "Employee", new { area = "Employee" });
     var employeeCost = Url.Action("Index", "EmployeeCost", new { area = "Employee" });
@@ -82,6 +83,12 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview pl-2">
+                                <li id="menuManageRole" class="nav-item" style="display:none">
+                                    <a href="@manageRole" class="nav-link">
+                                        <i class="fas fa-users-cog nav-icon"></i>
+                                        <p>Manage Role</p>
+                                    </a>
+                                </li>
                                 <li id="menuManageUser" class="nav-item" style="display:none">
                                     <a href="@manageUser" class="nav-link">
                                         <i class="fas fa-id-card nav-icon"></i>
@@ -311,6 +318,11 @@
                         if (response.obj.permissions.includes("@PermissionConstants.UserManagement.ManageUser.ManageUserView")) {
                             $('#menuUserManagement').show();
                             $('#menuManageUser').show();
+                        }
+
+                        if (response.obj.permissions.includes("@PermissionConstants.UserManagement.ManageRole.RoleUpdate")) {
+                            $('#menuUserManagement').show();
+                            $('#menuManageRole').show();
                         }
 
                         if (response.obj.permissions.includes("@PermissionConstants.MasterData.Partner.PartnerUpsert")) {

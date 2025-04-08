@@ -166,8 +166,9 @@ namespace Finance.Expensia.DataAccess.Builders
             #region User Management
             builder
                 .HasData(
-                    new Permission { Id = new Guid("31410ff2-6c2a-457d-bb50-a926d5f90396"), PermissionCode = PermissionConstants.UserManagement.RoleView, PermissionDescription = "Akses untuk view data role", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
-					new Permission { Id = new Guid("a830d1d8-07af-46a7-bb51-ea157fe4f421"), PermissionCode = PermissionConstants.UserManagement.ManageUser.ManageUserView, PermissionDescription = "Akses untuk view manage user", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+                    new Permission { Id = new Guid("31410ff2-6c2a-457d-bb50-a926d5f90396"), PermissionCode = PermissionConstants.UserManagement.ManageRole.RoleView, PermissionDescription = "Akses untuk view data role", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
+                    new Permission { Id = new Guid("f75e356d-1b25-4b7f-bafb-24efc202c8cd"), PermissionCode = PermissionConstants.UserManagement.ManageRole.RoleUpdate, PermissionDescription = "Akses untuk update data role", Created = new DateTime(2025, 4, 8, 0, 0, 0) },
+                    new Permission { Id = new Guid("a830d1d8-07af-46a7-bb51-ea157fe4f421"), PermissionCode = PermissionConstants.UserManagement.ManageUser.ManageUserView, PermissionDescription = "Akses untuk view manage user", Created = new DateTime(2024, 4, 12, 0, 0, 0) },
 					new Permission { Id = new Guid("ed9a3de5-d557-46b1-9509-78fced8ad5c0"), PermissionCode = PermissionConstants.UserManagement.ManageUser.ManageUserUpdate, PermissionDescription = "Akses untuk update manage user", Created = new DateTime(2024, 4, 12, 0, 0, 0) }
 				);
 			#endregion

@@ -1,0 +1,70 @@
+﻿@{
+	ViewData["Title"] = "Manage Role";
+	ViewData["Subtitle"] = "Manage Role";
+}
+<div class="card">
+	<div class="card-body">
+        <div class="row">
+            <div class="col-lg-12 text-right">
+                <button id="btnCreate" class="btn btn-primary" data-toggle="modal" data-target="#manageRoleForm">
+                    Create
+                </button>
+            </div>
+        </div>
+		<div class="resposivetable" style="margin-top:10px">
+			<table id="gridRole" class="table table-bordered table-hover" style="font-size: 13px;"></table>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="manageRoleForm">
+    <div class="modal-xl modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Manage Role</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mb-2" id="dvModalManageRole">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Role Code</label>
+                            <div class="col-md-9">
+                                <input type="text" id="roleCode" class="form-control" bind-name="roleCode" name="roleCode">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Description</label>
+                            <div class="col-md-9">
+                                <input type="text" id="roleDescription" class="form-control" bind-name="roleDescription" name="roleDescription">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">Permissions</label>
+                            <div class="col-md-9">
+                                <select 
+                                    id="ddlPermissions" class="form-control" multiple 
+                                    bind-name="permissionIds" name="permissionIds" bind-trigger="change"
+                                    style="min-height: 300px;">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group justify-content-between" style="margin-bottom: 0px !important">
+                    <button type="button" class="btn btn-primary float-right ml-2" id="btnSubmit">Submit</button>
+                    <button type="submit" class="btn btn-default close-button float-right" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+	@await Html.PartialAsync("~/Areas/Account/Views/UserManagement/Scripts/_ManageRole.cshtml")
+}

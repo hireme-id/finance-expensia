@@ -1,0 +1,242 @@
+﻿@{
+    var getListPermissionUrl = Url.Action("GetListPermission", "UserManagement");
+    var getPagingRoleUrl = Url.Action("RetrievePagingRole", "UserManagement");
+    var getDetailRoleUrl = Url.Action("RetrieveRoleById", "UserManagement");
+    var upsertRoleUrl = Url.Action("UpsertRole", "UserManagement");
+}
+
+<script type="text/javascript">
+    const mdRole = $('#manageRoleForm'), dmInput = $('#dvModalManageRole input'), dmSelect = $('#dvModalManageRole select'), dmButton = $('#dvModalManageRole button');
+    const ddlPermissions = $('#ddlPermissions');
+    const btnCreate = $("#btnCreate"), btnSubmit = $('#btnSubmit');
+
+    let currentDraw = 0;
+    let glbRoleId = null, permissions = [];
+
+    $(function () {
+        ManageRole = new ManageRole();
+        ManageRole.InitManagement();
+    });
+
+    function ManageRole() {
+        return {
+            InitManagement: function () {
+                this.InitControls();
+                this.InitHandlers();
+                this.InitValidation();
+                this.InitLoad();
+            },
+            InitControls: function () {
+                gridRole = $('#gridRole').DataTable({
+                    paging: true,
+                    pagingType: "first_last_numbers",
+                    ordering: false,
+                    autoWidth: false,
+                    serverSide: true,
+                    ajax: (Object.assign({}, glbBaseRequest, {
+                        type: "POST",
+                        url: "@getPagingRoleUrl",
+                        data: function (d) {
+                            return JSON.stringify({
+                                "page": d.start / d.length + 1,
+                                "pageSize": d.length,
+                                "searchKey": d.search.value
+                            });
+                        },
+                        dataSrc: function (json) {
+                            currentDraw = currentDraw + 1;
+                            json.draw = currentDraw;
+                            json.recordsTotal = json.recordsTotal;
+                            json.recordsFiltered = json.recordsTotal;
+                            return json.data;
+                        },
+                    })),
+                    columns: [
+                        { title: "Role Code", data: "roleCode" },
+                        { title: "Description", data: "roleDescription" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                let id = row.roleId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="edit-button btn btn-link text-secondary" data-id="${id}" role="editbutton"><i class="fa fa-pencil-alt" style="font-size: 15px;"></i></button>
+                                            </div>`;
+                                return elem;
+                            },
+                        }
+                    ],
+                    layout: {
+                        topStart: {
+                            pageLength: {
+                                menu: [10, 25, 50, 100]
+                            }
+                        },
+                        topEnd: {
+                            search: {
+                                boundary: true
+                            }
+                        },
+                        bottomStart: 'info',
+                        bottom2Start: null,
+                        bottomEnd: 'paging',
+                        bottom2End: function () {
+                            let toolbar = document.createElement('div');
+                            toolbar.classList.add("row");
+                            let elem = '<label>Jump to page:</label>' +
+                                '<input type="text" id="txtJump" class="form-control form-control-sm pull-right mr-2 ml-2" style="width: 120px;">';
+                            toolbar.innerHTML = elem;
+
+                            return toolbar;
+                        }
+                    }
+                });
+            },
+            InitHandlers: function () {
+                $('#txtJump').on('keyup change', function () {
+                    let debouncedAjaxRequest;
+                    if (debouncedAjaxRequest) {
+                        clearTimeout(debouncedAjaxRequest);
+                    }
+
+                    debouncedAjaxRequest = setTimeout(function () {
+                        if ($('#txtJump').val() != '') {
+                            var pageNumber = parseInt($('#txtJump').val());
+                            if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= gridRole.page.info().pages) {
+                                gridRole.page(pageNumber - 1).draw('page');
+                            } else {
+                                alert('Invalid page number');
+                            }
+                        }
+                    }, 1000);
+                });
+
+                $("#btnCreate").click(function () {
+                    glbRoleId = null;
+
+                    dmInput.add(dmSelect).val('');
+
+                    mdRole.modal('show');
+                })
+
+                $(document).on('click', '[role="editbutton"]', async function () {
+                    glbRoleId = $(this).data('id');
+                    await LoadRoleData(glbRoleId);
+
+                    dmButton.show();
+                });
+
+                btnSubmit.on("click", function (e) {
+                    let $el = $(this);
+                    let disabledElement = $('input:disabled').add('select:disabled');
+
+                    disabledElement.removeAttr('disabled');
+                    let formDataArray = $('#dvModalManageRole :input').serializeArray();
+                    disabledElement.attr('disabled', true);
+
+                    let formDataObject = {};
+                    formDataObject.roleId = glbRoleId;
+                    formDataArray.forEach(function (field) {
+                        if (field.name == "permissionIds")
+                            formDataObject[field.name] = ddlPermissions.val();
+                        else
+                            formDataObject[field.name] = field.value;
+                    });
+
+                    document.body.classList.remove('loaded');
+
+                    $.ajax(Object.assign({}, glbBaseRequest, {
+                        method: "POST",
+                        url: "@upsertRoleUrl",
+                        data: JSON.stringify(formDataObject),
+                        contentType: "application/json"
+                    })).done(function (response) {
+                        document.body.classList.add('loaded');
+                        if (response.succeeded) {
+                            Swal.fire({
+                                title: "Success",
+                                text: response.message,
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = "";
+                            });
+                        }
+                        else {
+                            Swal.fire({
+                                title: "Error",
+                                text: response.message,
+                                icon: "error"
+                            });
+                        }
+                    }).fail(function () {
+                        document.body.classList.add('loaded');
+                    });
+                });
+            },
+            InitValidation: function () {
+            },
+            InitLoad: function () {
+                LoadListPermission();
+            }
+        }
+    };
+
+    function LoadRoleData(roleId) {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getDetailRoleUrl" + "?roleId=" + roleId
+            })).done(function (response) {
+                if (response.succeeded) {
+                    $.each(response.obj, function (key, value) {
+                        let input = $('[bind-name="' + key + '"]');
+
+                        if (input.length > 0) {
+                            let bindTrigger = input.attr('bind-trigger');
+
+                            input.val(value);
+
+                            if (bindTrigger != undefined) {
+                                input.trigger(bindTrigger);
+                            }
+                        }
+                    });
+
+                    mdRole.modal('show');
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+
+    function LoadListPermission() {
+        return new Promise((resolve, reject) => {
+            $.ajax(Object.assign({}, glbBaseRequest, {
+                method: "POST",
+                url: "@getListPermissionUrl"
+            })).done(function (response) {
+                if (response.succeeded) {
+                    ddlPermissions.empty();
+
+                    for (let i = 0; i < response.obj.length; i++) {
+                        const data = response.obj[i];
+                        ddlPermissions.append(`<option value="` + data.permissionId + `" style="padding:10px">` + data.permissionCode + `</option>`);
+                    }
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.message,
+                        icon: "error"
+                    });
+                }
+                resolve();
+            });
+        });
+    }
+</script>
