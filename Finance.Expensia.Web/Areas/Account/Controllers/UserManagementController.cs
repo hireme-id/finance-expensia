@@ -24,15 +24,29 @@ namespace Finance.Expensia.Web.Areas.Account.Controllers
             return View("ManageUser");
         }
 
+        [AllowAnonymous]
+        public IActionResult ManageRole()
+        {
+            return View("ManageRole");
+        }
+
+        #region Dropdown Options
         [HttpPost("ddlrole")]
-        [AppAuthorize(UserManagement.RoleView)]
+        [AppAuthorize(UserManagement.ManageRole.RoleView)]
         public async Task<ResponseObject<List<RoleDto>>> GetListRole()
         {
             return await _userManagementService.GetListRole();
         }
 
+        [HttpPost("ddlpermission")]
+        [AppAuthorize(UserManagement.ManageRole.RoleUpdate)]
+        public async Task<ResponseObject<List<PermissionDto>>> GetListPermission()
+        {
+            return await _userManagementService.GetListPermission();
+        }
+
         [HttpPost("ddlrolebyuserid")]
-        [AppAuthorize(UserManagement.RoleView)]
+        [AppAuthorize(UserManagement.ManageRole.RoleView)]
         public async Task<ResponseObject<List<RoleDto>>> RetrieveRoleByUserId()
         {
             return await _userManagementService.RetrieveRoleByUserId(_currentUserAccessor);
@@ -44,12 +58,14 @@ namespace Finance.Expensia.Web.Areas.Account.Controllers
         {
             return await _userManagementService.RetrieveUsers();
         }
+        #endregion
 
+        #region Manage User
         [HttpPost("user/list")]
         [AppAuthorize(UserManagement.ManageUser.ManageUserView)]
         public async Task<ResponsePaging<ListUserDto>> GetListUser([FromBody] PagingSearchInputBase input)
         {
-            return await _userManagementService.GetListUser(input);
+            return await _userManagementService.GetPagingUser(input);
         }
 
         [HttpPost("user/detail")]
@@ -66,5 +82,33 @@ namespace Finance.Expensia.Web.Areas.Account.Controllers
         {
             return await _userManagementService.UpdateUser(input);
         }
+        #endregion
+
+        #region Manage Role
+        [HttpPost("role/paging")]
+        [AppAuthorize(UserManagement.ManageRole.RoleView)]
+        public async Task<ResponsePaging<RoleDto>> RetrievePagingRole([FromBody] PagingSearchInputBase input)
+        {
+            return await _userManagementService.RetrievePagingRole(input);
+        }
+
+        [HttpPost("role/detail")]
+        [AppAuthorize(UserManagement.ManageRole.RoleView)]
+        public async Task<ResponseObject<RoleDto>> RetrieveRoleById([FromQuery] Guid roleId)
+        {
+            return await _userManagementService.RetrieveRoleById(roleId);
+        }
+
+        [HttpPost("role/upsert")]
+        [Mutation]
+        [AppAuthorize(UserManagement.ManageRole.RoleUpdate)]
+        public async Task<ResponseBase> UpsertRole([FromBody] RoleInput input)
+        {
+            if (input.RoleId == null)
+                return await _userManagementService.CreateRole(input);
+            else
+                return await _userManagementService.UpdateRole(input);
+        }
+        #endregion
     }
 }

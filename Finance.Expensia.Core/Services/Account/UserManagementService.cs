@@ -28,6 +28,19 @@ namespace Finance.Expensia.Core.Services.Account
             };
         }
 
+        public async Task<ResponseObject<List<PermissionDto>>> GetListPermission()
+        {
+            var permissions = await _dbContext.Permissions
+                                              .OrderBy(d => d.PermissionCode)
+                                              .Select(d => _mapper.Map<PermissionDto>(d))
+                                              .ToListAsync();
+
+            return new (responseCode: ResponseCode.Ok)
+            {
+                Obj = permissions
+            };
+        }
+
         public async Task<ResponseObject<List<RoleDto>>> RetrieveRoleByUserId(CurrentUserAccessor currentUserAccessor)
         {
             var dataRoles = await _dbContext.UserCompanyRoles
@@ -57,7 +70,7 @@ namespace Finance.Expensia.Core.Services.Account
             };
         }
 
-        public async Task<ResponsePaging<ListUserDto>> GetListUser(PagingSearchInputBase input)
+        public async Task<ResponsePaging<ListUserDto>> GetPagingUser(PagingSearchInputBase input)
         {
             var retVal = new ResponsePaging<ListUserDto>();
             var dataUsers = _dbContext.Users
@@ -206,6 +219,81 @@ namespace Finance.Expensia.Core.Services.Account
             await _dbContext.SaveChangesAsync();
 
             return new ResponseBase("Perubahan user berhasil dilakukan", ResponseCode.Ok);
+        }
+
+        public async Task<ResponsePaging<RoleDto>> RetrievePagingRole(PagingSearchInputBase input)
+        {
+            var retVal = new ResponsePaging<RoleDto>();
+            var roles = _dbContext.Roles
+                                  .OrderBy(d => d.RoleCode)
+                                  .Where(d => 
+                                    EF.Functions.Like(d.RoleCode, $"%{input.SearchKey}%")
+                                    || EF.Functions.Like(d.RoleDescription, $"%{input.SearchKey}%")
+                                  )
+                                  .Select(d => _mapper.Map<RoleDto>(d));
+
+            retVal.ApplyPagination(input.Page, input.PageSize, roles);
+
+            return await Task.FromResult(retVal);
+        }
+
+        public async Task<ResponseObject<RoleDto>> RetrieveRoleById(Guid roleId)
+        {
+            var data = await _dbContext.Roles.Include(r => r.RolePermissions).FirstOrDefaultAsync(d => d.Id.Equals(roleId));
+            if (data == null)
+                return new("Data role tidak ditemukan", ResponseCode.NotFound);
+
+            return new(responseCode: ResponseCode.Ok)
+            {
+                Obj = _mapper.Map<RoleDto>(data)
+            };
+        }
+
+        public async Task<ResponseBase> CreateRole(RoleInput input)
+        {
+            var role = _mapper.Map<Role>(input, opts => opts.Items["IsCreate"] = true);
+
+            await _dbContext.Roles.AddAsync(role);
+            await _dbContext.SaveChangesAsync();
+
+            return new("Pembuatan role berhasil dilakukan", ResponseCode.Ok);
+        }
+
+        public async Task<ResponseBase> UpdateRole(RoleInput input)
+        {
+            var role = await _dbContext.Roles.Include(r => r.RolePermissions).FirstOrDefaultAsync(d => d.Id.Equals(input.RoleId));
+            if (role == null)
+                return new("Data role tidak ditemukan", ResponseCode.NotFound);
+
+            _mapper.Map(input, role);
+
+            #region Delete permission does not exists on input
+
+            var deleteRolePermissions = from d in role.RolePermissions
+                                        where !input.PermissionIds.Contains(d.PermissionId)
+                                        select d;
+
+            foreach (var rolePermission in deleteRolePermissions)
+            {
+                rolePermission.RowStatus = 1;
+            }
+
+            #endregion
+
+            #region Add permission does new on input
+
+            var addRolePermissions = from i in input.PermissionIds
+                                     where !role.RolePermissions.Any(d => d.PermissionId == i)
+                                     select i;
+
+            if (addRolePermissions.Any())
+                await _dbContext.RolePermissions.AddRangeAsync(addRolePermissions.Select(permissionId => new RolePermission { RoleId = role.Id, PermissionId = permissionId }));
+
+            #endregion
+
+            await _dbContext.SaveChangesAsync();
+
+            return new("Perubahan role berhasil dilakukan", ResponseCode.Ok);
         }
     }
 }
