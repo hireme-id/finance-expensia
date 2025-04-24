@@ -3,25 +3,48 @@
 @using System.Runtime.Serialization
 @using System.Reflection
 
+<style>
+    .select2-selection__rendered {
+        font-size: 1rem !important;
+    }
+</style>
+
 <!-- Main Form -->
 <div class="card">
     <div id="print-content" class="card-body">
+        <div id="divHeader" class="row mb-5">
+            <div class="col-2"></div>
+            <div class="col-8">
+                <div class="text-center">
+                    <h1 class="mb-0">Employee Compensation</h1>
+                    <h3>by Expensia</h3>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="text-right ms-3 float-right">
+                    <small class="d-block">Tanggal: <span id="current-date"></span></small>
+                    <small class="d-block">Login: <strong id="current-user"></strong></small>
+                </div>
+            </div>
+        </div>
+
+
         <div class="row mb-3 d-print-flex-form">
             <!-- Company -->
             <div class="col-lg-6">
-                <label>Company <span class="text-danger">*</span></label>
+                <label class="text-md">Company <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlCompany" name="companyId" bind-name="companyId" bind-trigger="change"></select>
             </div>
             <!-- Cost Center -->
             <div class="col-lg-6 d-print-none">
-                <label>Customer <span class="text-danger">*</span></label>
+                <label class="text-md">Customer <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlCostCenter" name="costCenterId" bind-name="costCenterId" bind-trigger="change" disabled></select>
             </div>
         </div>
         <div class="row mb-3 d-print-flex-form">
             <!-- Employee Cost Status -->
             <div class="col-lg-6">
-                <label>Status <span class="text-danger">*</span></label>
+                <label class="text-md">Status <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlEmployeeCostStatus" name="employeeCostStatus" bind-name="employeeCostStatus" bind-trigger="change">
                     <option value="">&nbsp</option>
                     @foreach (EmployeeCostStatus item in Enum.GetValues(typeof(EmployeeCostStatus)))
@@ -36,7 +59,7 @@
             </div>
             <!-- Offering Date -->
             <div class="col-lg-6">
-                <label>Offering Date <span class="text-danger">*</span></label>
+                <label class="text-md">Offering Date <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
                     <input type="text" class="form-control datepicker"
                            id="dtOfferingDate" name="offeringDate" bind-name="offeringDate" bind-type="datetime"
@@ -52,7 +75,7 @@
         <div class="row mb-3 d-print-flex-form">
             <!-- Join Date -->
             <div class="col-lg-6">
-                <label>JoinDate <span class="text-danger">*</span></label>
+                <label class="text-md">JoinDate <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
                     <input type="text" class="form-control datepicker"
                            id="dtJoinDate" name="joinDate" bind-name="joinDate" bind-type="datetime"
@@ -66,7 +89,7 @@
             </div>
             <!-- End Date -->
             <div class="col-lg-6">
-                <label>End Date <span class="text-danger">*</span></label>
+                <label class="text-md">End Date <span class="text-danger">*</span></label>
                 <div class="input-group date mb-2">
                     <input type="text" class="form-control datepicker"
                            id="dtEndDate" name="endDate" bind-name="endDate" bind-type="datetime"
@@ -85,7 +108,7 @@
         <div class="row mb-3 d-print-flex-form">
             <!-- Employee No -->
             <div class="col-lg-6">
-                <label>NPK <span class="text-danger">*</span></label>
+                <label class="text-md">NPK <span class="text-danger">*</span></label>
                 @if (Context.Request.Path == Url.Action("Create", "EmployeeCost"))
                 {
                     <select class="form-control" id="ddlEmployeeNo" name="employeeNo" bind-name="employeeNo" data-tags="true" bind-trigger="change"></select>
@@ -97,14 +120,14 @@
             </div>
             <!-- Employee Name -->
             <div class="col-lg-6">
-                <label>Nama Pekerja <span class="text-danger">*</span></label>
+                <label class="text-md">Nama Pekerja <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="txtEmployeeName" name="employeeName" bind-name="employeeName" disabled />
             </div>
         </div>
         <div class="row mb-3 d-print-flex-form">
             <!-- Employee Status -->
             <div class="col-lg-6">
-                <label>Employee Status <span class="text-danger">*</span></label>
+                <label class="text-md">Employee Status <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlEmployeeStatus" name="employeeStatus" bind-name="employeeStatus" bind-trigger="change">
                     <option value="">&nbsp</option>
                     @foreach (EmployeeStatus item in Enum.GetValues(typeof(EmployeeStatus)))
@@ -116,14 +139,14 @@
             </div>
             <!-- Job Position -->
             <div class="col-lg-6">
-                <label>Jabatan <span class="text-danger">*</span></label>
+                <label class="text-md">Jabatan <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="txtJobPosition" name="jobPosition" bind-name="jobPosition" />
             </div>
         </div>
         <div class="row mb-3 d-print-flex-form">
             <!-- PTKP -->
             <div class="col-lg-6">
-                <label>PTKP Type <span class="text-danger">*</span></label>
+                <label class="text-md">PTKP Type <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlNonTaxableIncome" name="nonTaxableIncome" bind-name="nonTaxableIncome" bind-trigger="change">
                     <option value="">&nbsp</option>
                     @foreach (NonTaxableIncome item in Enum.GetValues(typeof(NonTaxableIncome)))
@@ -138,14 +161,14 @@
             </div>
             <!-- Working Day -->
             <div class="col-lg-6">
-                <label>Hari Kerja <span class="text-danger">*</span></label>
+                <label class="text-md">Hari Kerja <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" id="txtWorkingDay" name="workingDay" bind-name="workingDay" />
             </div>
         </div>
         <div class="row mb-3 d-print-flex-form">
             <!-- Laptop Ownership -->
             <div class="col-lg-6">
-                <label>Kepemilikin Laptop <span class="text-danger">*</span></label>
+                <label class="text-md">Kepemilikin Laptop <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="ddlLaptopOwnership" name="laptopOwnership" bind-name="laptopOwnership" bind-trigger="change">
                     <option value="">&nbsp</option>
                     @foreach (LaptopOwnership item in Enum.GetValues(typeof(LaptopOwnership)))
@@ -160,7 +183,7 @@
             </div>
             <!-- Remark -->
             <div class="col-lg-6 d-print-none">
-                <label>Remark <span class="text-danger">*</span></label>
+                <label class="text-md">Remark <span class="text-danger">*</span></label>
                 <textarea id="txtRemark" rows="3" class="form-control form-control-area" name="remark" bind-name="remark"></textarea>
             </div>
         </div>
@@ -184,13 +207,11 @@
         </div>
     </div>
     <div class="card-footer d-print-none">
+        <button type="button" id="btnPrint" class="btn btn-info float-right ml-2" style="width:150px">Print</button>
+        
         @if (Context.Request.Path != Url.Action("Detail", "EmployeeCost"))
         {
             <button type="button" id="btnSubmit" class="btn btn-primary float-right ml-2" style="width:150px">Submit</button>
-        }
-        else
-        {
-            <button type="button" id="btnPrint" class="btn btn-primary float-right ml-2" style="width:150px">Print</button>
         }
     </div>
 </div>

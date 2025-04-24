@@ -161,7 +161,7 @@
                             let toolbar = document.createElement('div');
                             toolbar.className = "d-flex justify-content-start";
                             toolbar.style = "width:350px";
-                            let dropdown = `<select id="ddlCompany" class="select2"></select>`
+                            let dropdown = `<select id="ddlCompany" class="ddl-select2"></select>`
 							let buttons = `<button id="btnAddMapping" class="btn btn-sm btn-outline-primary mr-2 ml-2" style="width:150px">Add Mapping</button>`
 							toolbar.innerHTML = dropdown + buttons;
 
@@ -170,6 +170,7 @@
 					},
 					"fnDrawCallback": function () {
                         gridUserCompany.find(".select2").select2();
+                        $('.ddl-select2').select2();;
 					},
 				});
             },

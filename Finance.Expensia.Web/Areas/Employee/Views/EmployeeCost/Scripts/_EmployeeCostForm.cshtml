@@ -20,7 +20,7 @@
 	const gridEmployeeCostComponent = $('#gridEmployeeCostComponent');
 	const btnCalculatedRowMode = $('#btnCalculatedRowMode'), btnZeroRowMode = $('#btnZeroRowMode'), btnCalculate = $('#btnCalculate'), btnSubmit = $('#btnSubmit')
 	const btnPrint = $("#btnPrint");
-	const divCalculate = $('#divCalculate');
+	const divCalculate = $('#divCalculate'), divHeader = $("#divHeader");
 
 	const gridEmployeeCostComponentRowEnableColor = {
 		@((int)CostComponentType.Daily): false, @((int)CostComponentType.Monthly): false, @((int)CostComponentType.Yearly): false,
@@ -39,8 +39,8 @@
 	}
 
 	const gridEmployeeCostComponentRowFontSize = {
-		@((int)CostComponentType.Daily): "12", @((int)CostComponentType.Monthly): "12", @((int)CostComponentType.Yearly): "12",
-		@((int)CostComponentType.SubTotal): "14", @((int)CostComponentType.Total): "18"
+		@((int)CostComponentType.Daily): "22", @((int)CostComponentType.Monthly): "22", @((int)CostComponentType.Yearly): "22",
+		@((int)CostComponentType.SubTotal): "22", @((int)CostComponentType.Total): "24"
 	}
 
 	const gridEmployeeCostComponentUnitAmountVisible = {
@@ -122,6 +122,7 @@
 					</text>
 				}
 
+
 				gridEmployeeCostComponent.dataTable({
 					ordering: false,
 					paging: false,
@@ -135,8 +136,8 @@
 						emptyTable: 'Belum ada data'
 					},
 					columnDefs: [
-						{ className: "dt-head-center bg-a7c7e7 text-nowrap", targets: [ 7 ] },
-						{ className: "dt-head-center bg-a7c7e7", targets: [ 3, 4, 5, 6 ] },
+						{ className: "dt-head-center bg-a7c7e7 text-lg", targets: [ 7 ] },
+						{ className: "dt-head-center bg-a7c7e7 text-lg", targets: [ 3, 4, 5, 6 ] },
 					],
 					columns: [
 						{
@@ -154,12 +155,12 @@
 						{
 							data: "costComponentName",
 							title: "Component",
-							class: "pt-16-px"
+							class: "pt-16-px",
 						},
 						{
 							data: "costComponentAmount",
 							title: "Unit Amount",
-							width: "20%",
+							width: "15%",
 							render: function (data, type, row, meta) {
 								let disabled = row.isCalculated ? "disabled" : "";
 								let dataCalculateParam = row.isCalculated ? "" : `data-calculate-param="true"`;
@@ -182,7 +183,7 @@
 						{
 							data: "costComponentTotalAmount",
 							title: "Amount",
-							width: "20%",
+							width: "15%",
 							render: function (data, type, row, meta) {
 								let fontWeight = gridEmployeeCostComponentRowBold[row.costComponentType];
 								let fontSize = gridEmployeeCostComponentRowFontSize[row.costComponentType];
@@ -193,7 +194,7 @@
 						{
 							data: "remark",
 							title: "Remark",
-							width: "20%",
+							width: "30%",
 							class: "pt-16-px",
 						}
 					],
@@ -204,7 +205,7 @@
 						let fontSize = gridEmployeeCostComponentRowFontSize[data.costComponentType];
 
 						$(row).prop("style",
-							`background-color: ${backgroundColor};font-weight: ${fontWeight};font-size: ${fontSize}px;`);
+							`background-color: ${backgroundColor};font-weight: ${fontWeight};font-size: ${fontSize}px;line-height:1;`);
 					},
 					rowCallback: function (row, data) {
 						if (data.isCalculated) {
@@ -375,20 +376,26 @@
 
 				btnPrint.on("click", function (e) {
 					divCalculate.hide();
+					divHeader.show();
 					document.body.classList.remove('loaded');
+
+					const now = new Date();
+					const currentDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+					$('#current-date').text(currentDate);
 
 					// Tangkap elemen dengan id "content"
 					html2canvas(document.getElementById("print-content"), { 
 						scale: 2 // Meningkatkan kualitas gambar (zoom 2x)
 					}).then(function(canvas) {
 						// Mengonversi canvas ke gambar dalam format base64
-						var imgData = canvas.toDataURL("image/png");
+						var imgData = canvas.toDataURL("image/png", 0.6);
 
 						// Membuat instance jsPDF
 						const { jsPDF } = window.jspdf;
 						const doc = new jsPDF({
 						  unit: "mm",  // Menggunakan mm sebagai satuan untuk ukuran A4
-						  format: "a4" // Mengatur format kertas menjadi A4
+						  format: "a4", // Mengatur format kertas menjadi A4
+						  compress: true
 						});
 
 						// Menghitung skala gambar agar pas di ukuran A4
@@ -397,7 +404,7 @@
 
 						// Agar gambar terlihat lebih besar tapi tetap pas di A4, kita zoom 2x
 						// Membuat gambar lebih besar dengan mengubah ukuran width dan height, namun tetap menjaga agar pas di A4
-						var zoomFactor = 1; // Faktor zoom 2x
+						var zoomFactor = 1.005; // Faktor zoom 2x
 						var zoomedImgWidth = imgWidth * zoomFactor; // Lebar gambar yang diperbesar
 						var zoomedImgHeight = imgHeight * zoomFactor; // Tinggi gambar yang diperbesar
 
@@ -409,12 +416,13 @@
 						}
 
 						// Menambahkan gambar ke PDF dengan posisi dan ukuran yang sesuai
-						doc.addImage(imgData, "PNG", 0, 0, zoomedImgWidth, zoomedImgHeight);
+						doc.addImage(imgData, "PNG", 12, 0, zoomedImgWidth, zoomedImgHeight);
 
 						// Menyimpan PDF dengan nama file
 						doc.save("captured-page.pdf");
 
 						divCalculate.show();
+						divHeader.hide();
 						document.body.classList.add('loaded');
 					}).catch(function(error) {
 						divCalculate.show();
@@ -427,6 +435,8 @@
 			},
 			InitLoad: async function () {
 				await RefreshDdlCompany();
+
+				$('#current-user').text(localStorage.getItem("displayName"));
 
 				@if (Context.Request.Path == Url.Action("Create", "EmployeeCost"))
 				{
