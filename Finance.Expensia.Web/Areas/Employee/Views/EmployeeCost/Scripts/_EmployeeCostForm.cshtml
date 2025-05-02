@@ -416,7 +416,7 @@
 						}
 
 						// Menambahkan gambar ke PDF dengan posisi dan ukuran yang sesuai
-						doc.addImage(imgData, "PNG", 12, 0, zoomedImgWidth, zoomedImgHeight);
+						doc.addImage(imgData, "PNG", 0, 0, zoomedImgWidth, zoomedImgHeight);
 
 						// Menyimpan PDF dengan nama file
 						doc.save("captured-page.pdf");
