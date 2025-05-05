@@ -1,0 +1,253 @@
+﻿@using Finance.Expensia.Shared.Enums
+@{
+	var retrieveEmployeeDetailUrl = Url.Action("RetrieveEmployee", "Employee");
+	var detailEmployeeCostUrl = Url.Action("RetrieveEmployeeCost", "EmployeeCost");
+}
+
+<script type="text/javascript">
+	const historyddlOfferingDate = $('#history-ddlOfferingDate');
+	const historybtnCalculatedRowMode = $('#history-btnCalculatedRowMode'), historybtnZeroRowMode = $('#history-btnZeroRowMode');
+	const historygridEmployeeCostComponent = $('#history-gridEmployeeCostComponent');
+	const employeeCostHistoryForm = $('#employeeCostHistoryForm'), dvModalEmployeeCostHistory = $('#dvModalEmployeeCostHistory');
+
+	const historygridEmployeeCostComponentRowEnableColor = {
+		@((int)CostComponentType.Daily): false, @((int)CostComponentType.Monthly): false, @((int)CostComponentType.Yearly): false,
+		@((int)CostComponentType.SubTotal): true, @((int)CostComponentType.Total): true
+	}
+
+	const historygridEmployeeCostComponentRowColor = {
+		@((int)CostComponentCategory.MonthlyEarningBenefit): "#F6E9B2", @((int)CostComponentCategory.MonthlyDeductionBenefit): "#E6CBA8",
+		@((int)CostComponentCategory.YearlyBenefit): "#D7D3BF", @((int)CostComponentCategory.OtherBenefit): "#FFBE98",
+        @((int)CostComponentCategory.GovernmentDeduction): "#77CDFF", @((int)CostComponentCategory.Total): "#BDE8CA"
+	};
+
+	const historygridEmployeeCostComponentRowBold = {
+		@((int)CostComponentType.Daily): "400", @((int)CostComponentType.Monthly): "400", @((int)CostComponentType.Yearly): "400",
+		@((int)CostComponentType.SubTotal): "900", @((int)CostComponentType.Total): "900"
+	}
+
+	const historygridEmployeeCostComponentRowFontSize = {
+		@((int)CostComponentType.Daily): "22", @((int)CostComponentType.Monthly): "22", @((int)CostComponentType.Yearly): "22",
+		@((int)CostComponentType.SubTotal): "22", @((int)CostComponentType.Total): "24"
+	}
+
+	const historygridEmployeeCostComponentUnitAmountVisible = {
+		@((int)CostComponentType.Daily): true, @((int)CostComponentType.Monthly): true, @((int)CostComponentType.Yearly): true,
+		@((int)CostComponentType.SubTotal): false, @((int)CostComponentType.Total): false
+	}
+
+	let historyisShowCalculatedRow = true, historyisShowZeroValueRow = false;
+
+	$(function () {
+		EmployeeCostHistoryFormManager = new EmployeeCostHistoryFormManager();
+		EmployeeCostHistoryFormManager.InitManagement();
+	});
+
+	function EmployeeCostHistoryFormManager() {
+		return {
+			InitManagement: function () {
+				this.InitControls();
+				this.InitHandlers();
+				this.InitValidation();
+				this.InitLoad();
+			},
+			InitControls: function () {
+				historygridEmployeeCostComponent.dataTable({
+					ordering: false,
+					paging: false,
+					searching: false,
+					info: false,
+					autoWidth: false,
+					initComplete: function (settings, json) {
+						$('.dt-scroll-head').css({ visibility: 'collapse' });
+					},
+					language: {
+						emptyTable: 'Belum ada data'
+					},
+					columnDefs: [
+						{ className: "dt-head-center bg-a7c7e7 text-lg", targets: [ 7 ] },
+						{ className: "dt-head-center bg-a7c7e7 text-lg", targets: [ 3, 4, 5, 6 ] },
+					],
+					columns: [
+						{
+							data: "employeeCostComponentId",
+							visible: false
+						},
+						{
+							data: "costComponentId",
+							visible: false
+						},
+						{
+							data: "costComponentNo",
+							visible: false
+						},
+						{
+							data: "costComponentName",
+							title: "Component",
+							class: "pt-16-px",
+						},
+						{
+							data: "costComponentAmount",
+							title: "Unit Amount",
+							width: "15%",
+							render: function (data, type, row, meta) {
+								let disabled = row.isCalculated ? "disabled" : "";
+								let dataCalculateParam = row.isCalculated ? "" : `data-calculate-param="true"`;
+								let dataComponentId = row.isCalculated ? "" : `data-component-id=${row.costComponentId}`;
+								let fontWeight = historygridEmployeeCostComponentRowBold[row.costComponentType];
+								let fontSize = historygridEmployeeCostComponentRowFontSize[row.costComponentType];
+
+								return historygridEmployeeCostComponentUnitAmountVisible[row.costComponentType] ? `<input type='text' class='form-control text-right' onkeydown="return numbersonly(this, event);" value='` + fmtMoney(data) + `' ${disabled} ${dataComponentId} style="font-weight: ${fontWeight};font-size: ${fontSize}px;">` : ``;
+							}
+						},
+						{
+							data: "costComponentTypeDescription",
+							title: "",
+							width: "5%",
+							class: "pt-16-px text-center",
+							render: function (data, type, row, meta) {
+								return historygridEmployeeCostComponentUnitAmountVisible[row.costComponentType] ? data : ``;
+							}
+						},
+						{
+							data: "costComponentTotalAmount",
+							title: "Amount",
+							width: "15%",
+							render: function (data, type, row, meta) {
+								let fontWeight = historygridEmployeeCostComponentRowBold[row.costComponentType];
+								let fontSize = historygridEmployeeCostComponentRowFontSize[row.costComponentType];
+
+								return `<input type='text' class='form-control text-right' value='` + fmtMoney(data ?? 0) + `' disabled style="font-weight: ${fontWeight};font-size: ${fontSize}px;">`;
+							}
+						},
+						{
+							data: "remark",
+							title: "Remark",
+							width: "30%",
+							class: "pt-16-px",
+						}
+					],
+					createdRow: function (row, data, index) {
+						let enableBgColor = historygridEmployeeCostComponentRowEnableColor[data.costComponentType];
+						let backgroundColor = enableBgColor ? historygridEmployeeCostComponentRowColor[data.costComponentCategory] : "#f0f0f0";
+						let fontWeight = historygridEmployeeCostComponentRowBold[data.costComponentType];
+						let fontSize = historygridEmployeeCostComponentRowFontSize[data.costComponentType];
+
+						$(row).prop("style",
+							`background-color: ${backgroundColor};font-weight: ${fontWeight};font-size: ${fontSize}px;line-height:1;`);
+					},
+					rowCallback: function (row, data) {
+						if (data.isCalculated) {
+							$(row).attr("calculated-row", "");
+						}
+
+						if (data.costComponentTotalAmount == 0) {
+							$(row).attr("zero-value-row", "");
+						}
+
+						if ((data.isCalculated && !historyisShowCalculatedRow) || (data.costComponentTotalAmount == 0 && !historyisShowZeroValueRow)) {
+							$(row).hide();
+						}
+					}
+				});
+			},
+			InitHandlers: function () {
+				historybtnCalculatedRowMode.on('click', function () {
+					historyisShowCalculatedRow = !historyisShowCalculatedRow;
+					historybtnCalculatedRowMode.text(historyisShowCalculatedRow ? "Sembunyikan Baris Kalkulasi" : "Tampilkan Baris Kalkulasi");
+
+					if (historyisShowCalculatedRow) {
+						$('[calculated-row]:not([zero-value-row])').show();
+						historyisShowZeroValueRow ? $('[calculated-row][zero-value-row]').show() : $('[calculated-row][zero-value-row]').hide();
+					}
+					else {
+						$('[calculated-row]:not([zero-value-row])').hide();
+						historyisShowZeroValueRow ? $('[calculated-row][zero-value-row]').show() : $('[calculated-row][zero-value-row]').hide();
+					}
+				});
+
+				historybtnZeroRowMode.on('click', function () {
+					historyisShowZeroValueRow = !historyisShowZeroValueRow;
+					historybtnZeroRowMode.text(historyisShowZeroValueRow ? "Sembunyikan Baris Nol" : "Tampilkan Baris Nol");
+					historyisShowZeroValueRow ? $('[zero-value-row]').show() : $('[zero-value-row]').hide();
+				});
+
+				historyddlOfferingDate.on('change', async function () {
+					let employeeCostId = historyddlOfferingDate.val();
+					if (employeeCostId != '') {
+						await historyLoadEmployeeCostData(employeeCostId);
+					}
+				});
+			},
+			InitValidation: function () {
+			
+			},
+			InitLoad: async function () {
+				
+			}
+		}
+	}
+
+	function OpenEmployeeCostHistoryForm(employeeId) {
+		return new Promise((resolve, reject) => {
+			$.ajax(Object.assign({}, glbBaseRequest, {
+				method: "POST",
+				url: "@retrieveEmployeeDetailUrl" + "?employeeId=" + employeeId
+			})).done(function (response) {
+				if (response.succeeded) {
+					$.each(response.obj, function (key, value) {
+						let input = $('#dvModalEmployeeCostHistory [bind-name="history-' + key + '"]');
+
+						if (input.length > 0) {
+							if (key == "employeeCosts") {
+								historyddlOfferingDate.empty().append(`<option value="">&nbsp</option>`);
+
+								for (let i = 0; i < value.length; i++) {
+									const data = value[i];
+									historyddlOfferingDate.append(`<option value="` + data.employeeCostId + `">` + fmtDate4(data.offeringDate) + `</option>`);
+								}
+							}
+							else {
+								input.val(value);
+							}
+						}
+					});
+
+					historygridEmployeeCostComponent.api().rows().remove();
+					historygridEmployeeCostComponent.api().draw();
+
+					employeeCostHistoryForm.modal('show');
+				}
+				else {
+					Swal.fire({
+						title: "Error",
+						text: response.message,
+						icon: "error"
+					});
+				}
+
+				resolve();
+			});
+		});
+	}
+
+	async function historyLoadEmployeeCostData(employeeCostId) {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@detailEmployeeCostUrl?employeeCostId=" + employeeCostId
+		})).done(function (response) {
+			if (response.succeeded) {
+				historygridEmployeeCostComponent.api().rows().remove();
+				historygridEmployeeCostComponent.api().rows.add(response.obj.employeeCostComponents);
+				historygridEmployeeCostComponent.api().draw();
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+</script>

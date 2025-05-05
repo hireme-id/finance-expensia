@@ -28,7 +28,6 @@
             </div>
         </div>
 
-
         <div class="row mb-3 d-print-flex-form">
             <!-- Company -->
             <div class="col-lg-6">
@@ -197,8 +196,9 @@
                     <button id="btnZeroRowMode" class="btn btn-sm btn-outline-secondary mr-2" style="width:200px">Sembunyikan Nilai 0</button>
                     @if (Context.Request.Path != Url.Action("Detail", "EmployeeCost"))
                     {
-                        <button id="btnCalculate" class="btn btn-sm btn-outline-primary" style="width:100px">Calculate</button>
+                        <button id="btnCalculate" class="btn btn-sm btn-outline-primary mr-2" style="width:100px">Calculate</button>
                     }
+                    <button id="btnShowHistory" class="btn btn-sm btn-outline-info" style="width:100px;display:none">History</button>
                 </div>
             </div>
             <div class="col-lg-12">
