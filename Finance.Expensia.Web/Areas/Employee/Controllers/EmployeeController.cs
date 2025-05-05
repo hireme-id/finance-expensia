@@ -27,5 +27,9 @@ namespace Finance.Expensia.Web.Areas.MasterData.Controllers
         [AppAuthorize(PermissionConstants.Employee.EmployeeView)]
         [HttpPost("employee/list")]
         public async Task<ResponseObject<List<EmployeeDto>>> RetrieveListEmployee([FromBody] SearchInputBase input) => await _employeeService.RetrieveListEmployee(input);
+
+        [AppAuthorize(PermissionConstants.Employee.EmployeeView)]
+        [HttpPost("employee/detail")]
+        public async Task<ResponseObject<EmployeeDto>> RetrieveEmployee([FromQuery] Guid employeeId) => await _employeeService.RetrieveEmployee(employeeId);
 	}
 }

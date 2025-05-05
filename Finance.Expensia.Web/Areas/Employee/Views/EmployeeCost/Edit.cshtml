@@ -14,6 +14,10 @@
 
 @await Html.PartialAsync("~/Areas/Employee/Views/EmployeeCost/Components/_EmployeeCostForm.cshtml")
 
+@await Html.PartialAsync("~/Areas/Employee/Views/EmployeeCost/Components/_EmployeeCostHistoryForm.cshtml")
+
 @section scripts {
     @await Html.PartialAsync("~/Areas/Employee/Views/EmployeeCost/Scripts/_EmployeeCostForm.cshtml")
+
+    @await Html.PartialAsync("~/Areas/Employee/Views/EmployeeCost/Scripts/_EmployeeCostHistoryForm.cshtml")
 }

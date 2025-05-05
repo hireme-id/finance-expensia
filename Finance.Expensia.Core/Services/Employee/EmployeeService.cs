@@ -63,5 +63,17 @@ namespace Finance.Expensia.Core.Services.Employee
 
             return employeeData;
         }
+
+        public async Task<ResponseObject<EmployeeDto>> RetrieveEmployee(Guid employeeId)
+        {
+            var employeeData = await _dbContext.Employees.Include(e => e.EmployeeCosts).FirstOrDefaultAsync(d => d.Id == employeeId);
+            if (employeeData == null)
+                return new("Data employee tidak ditemukan", ResponseCode.NotFound);
+
+            return new(responseCode: ResponseCode.Ok)
+            {
+                Obj = _mapper.Map<EmployeeDto>(employeeData)
+            };
+        }
     }
 }

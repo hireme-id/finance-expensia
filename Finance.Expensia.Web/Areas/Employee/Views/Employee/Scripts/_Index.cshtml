@@ -48,7 +48,18 @@
                     columns: [
                         { data: "employeeId", visible: false },
                         { title: "Nomor Pegawai", data: "employeeNo" },
-                        { title: "Nama Pegawai", data: "employeeName" }
+                        { title: "Nama Pegawai", data: "employeeName" },
+                        {
+                            title: "", width: '6%', className: "py-1", render: function (data, type, row) {
+                                let id = row.employeeId;
+                                let elem = `<div class="d-inline-flex justify-content-between">
+                                                <button class="btn btn-link text-secondary" data-id="${id}" action="detailbutton" onclick="await OpenEmployeeCostHistoryForm('${id}')">
+                                                    <i class="fas fa-file-alt" style="font-size: 15px;"></i>
+                                                </button>
+                                            </div>`;
+                                return elem;
+                            }
+                        }
                     ],
                     layout: {
                         topStart: {
