@@ -1,11 +1,12 @@
 ﻿@using Finance.Expensia.Shared.Enums
 @{
+	var ddlCostCenterUrl = Url.Action("RetrieveCostCenter", "CostCenter");
 	var retrieveEmployeeDetailUrl = Url.Action("RetrieveEmployee", "Employee");
 	var detailEmployeeCostUrl = Url.Action("RetrieveEmployeeCost", "EmployeeCost");
 }
 
 <script type="text/javascript">
-	const historyddlOfferingDate = $('#history-ddlOfferingDate');
+	const historyddlLaptopOwnership = $('#history-ddlLaptopOwnership'), historyddlCostCenter = $('#history-ddlCostCenter'), historyddlOfferingDate = $('#history-ddlOfferingDate');
 	const historybtnCalculatedRowMode = $('#history-btnCalculatedRowMode'), historybtnZeroRowMode = $('#history-btnZeroRowMode');
 	const historygridEmployeeCostComponent = $('#history-gridEmployeeCostComponent');
 	const employeeCostHistoryForm = $('#employeeCostHistoryForm'), dvModalEmployeeCostHistory = $('#dvModalEmployeeCostHistory');
@@ -235,11 +236,42 @@
 		await $.ajax(Object.assign({}, glbBaseRequest, {
 			method: "POST",
 			url: "@detailEmployeeCostUrl?employeeCostId=" + employeeCostId
-		})).done(function (response) {
+		})).done(async function (response) {
 			if (response.succeeded) {
+				await historyRefreshDdlCostCenter(response.obj.company.companyId);
+
+				historyddlCostCenter.val(response.obj.costCenter.costCenterId);
+				historyddlCostCenter.trigger("change");
+
+				historyddlLaptopOwnership.val(response.obj.laptopOwnership);
+                historyddlLaptopOwnership.trigger("change");
+
 				historygridEmployeeCostComponent.api().rows().remove();
 				historygridEmployeeCostComponent.api().rows.add(response.obj.employeeCostComponents);
 				historygridEmployeeCostComponent.api().draw();
+			}
+			else {
+				Swal.fire({
+					title: "Error",
+					text: response.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	async function historyRefreshDdlCostCenter(companyId) {
+		await $.ajax(Object.assign({}, glbBaseRequest, {
+			method: "POST",
+			url: "@ddlCostCenterUrl" + "?companyId=" + companyId
+		})).done(function (response) {
+			if (response.succeeded) {
+				historyddlCostCenter.empty().append(`<option value="">&nbsp</option>`);
+
+				for (let i = 0; i < response.obj.length; i++) {
+					const data = response.obj[i];
+					historyddlCostCenter.append(`<option value="` + data.costCenterId + `">` + data.costCenterName + `</option>`);
+				}
 			}
 			else {
 				Swal.fire({

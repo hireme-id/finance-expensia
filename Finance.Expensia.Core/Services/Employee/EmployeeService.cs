@@ -66,7 +66,7 @@ namespace Finance.Expensia.Core.Services.Employee
 
         public async Task<ResponseObject<EmployeeDto>> RetrieveEmployee(Guid employeeId)
         {
-            var employeeData = await _dbContext.Employees.Include(e => e.EmployeeCosts).FirstOrDefaultAsync(d => d.Id == employeeId);
+            var employeeData = await _dbContext.Employees.Include(e => e.EmployeeCosts.OrderByDescending(d => d.OfferingDate)).FirstOrDefaultAsync(d => d.Id == employeeId);
             if (employeeData == null)
                 return new("Data employee tidak ditemukan", ResponseCode.NotFound);
 

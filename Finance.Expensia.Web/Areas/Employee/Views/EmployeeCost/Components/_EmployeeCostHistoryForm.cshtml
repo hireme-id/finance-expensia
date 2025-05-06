@@ -1,4 +1,9 @@
-﻿<div class="modal fade" id="employeeCostHistoryForm">
+﻿@using Finance.Expensia.Shared.Enums
+@using System.Runtime.Serialization
+@using System.Reflection
+@using Finance.Expensia.Shared.Helpers
+
+<div class="modal fade" id="employeeCostHistoryForm">
     <div class="modal-xl modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -32,6 +37,29 @@
                                 <select class="form-control select2" id="history-ddlOfferingDate" bind-name="history-employeeCosts"></select>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div class="row mb-3">
+                    <div class="col-lg-6 d-print-none">
+                        <label class="text-md">Customer</label>
+                        <select class="form-control select2" id="history-ddlCostCenter" disabled></select>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="text-md">Kepemilikin Laptop</label>
+                        <select class="form-control select2" id="history-ddlLaptopOwnership" disabled>
+                            <option value="">&nbsp</option>
+                            @foreach (LaptopOwnership item in Enum.GetValues(typeof(LaptopOwnership)))
+                            {
+                                var memberInfo = typeof(LaptopOwnership).GetMember(item.ToString()).FirstOrDefault();
+                                var enumMemberAttribute = memberInfo?.GetCustomAttribute<EnumMemberAttribute>();
+
+                                @Html.Raw($"<option value=\"{(int)item}\">{enumMemberAttribute?.Value ?? item.GetDescription()}</option>")
+                                ;
+                            }
+                        </select>
                     </div>
                 </div>
 
